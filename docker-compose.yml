@@ -1,0 +1,111 @@
+networks:
+  smart-forecast-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  minio_data:
+
+services:
+  # ===== CORE FIWARE =====
+
+  orion:
+    image: fiware/orion-ld:latest
+    hostname: orion
+    container_name: orion
+    ports:
+      - "1026:1026"
+    command: -dbhost mongodb -logLevel DEBUG
+    depends_on:
+      - mongodb
+    networks:
+      - smart-forecast-net
+
+  mongodb:
+    image: mongo:4.4
+    hostname: mongodb
+    container_name: mongodb
+    expose:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - smart-forecast-net
+
+  # ===== STORAGE & HISTORY =====
+
+  postgres:
+    image: postgres:14-alpine
+    hostname: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - smart-forecast-net
+
+  minio:
+    image: minio/minio:latest
+    hostname: minio
+    container_name: minio
+    ports:
+      # API port
+      - "9000:9000"
+      # Console (web UI)
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    networks:
+      - smart-forecast-net
+
+  # # ===== DATA SINK =====
+
+  # cygnus:
+  #   image: fiware/cygnus-ngsi-ld:latest
+  #   hostname: cygnus
+  #   container_name: cygnus
+  #   depends_on:
+  #     - postgres
+  #     - orion
+  #   environment:
+  #     - CYGNUS_ORION_LD_HOST=orion
+  #     - CYGNUS_ORION_LD_PORT=1026
+  #     - CYGNUS_SINK_POSTGRES_HOST=postgres
+  #     - CYGNUS_SINK_POSTGRES_PORT=5432
+  #     - CYGNUS_SINK_POSTGRES_USER=${POSTGRES_USER}
+  #     - CYGNUS_SINK_POSTGRES_PASS=${POSTGRES_PASSWORD}
+  #     - CYGNUS_SINK_POSTGRES_DB=${POSTGRES_DB}
+  #     - CYGNUS_LOG_LEVEL=DEBUG
+  #   networks:
+  #     - smart-forecast-net
+
+  # # ===== BACKEND API =====
+
+  # backend:
+  #   container_name: backend
+  #   build:
+  #     context: .
+  #     dockerfile: ./backend/Dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./backend:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - orion
+  #     - postgres
+  #     - minio
+  #   networks:
+  #     - smart-forecast-net
