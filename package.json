@@ -12,6 +12,14 @@
         "dev:backend": "npm --workspace backend run start:dev",
         "dev:web": "npm --workspace web run dev",
         "dev:mobile": "npm --workspace mobile run start",
+        "lint": "npm run lint:backend && npm run lint:web && npm run lint:mobile",
+        "lint:backend": "npm --workspace backend run lint",
+        "lint:web": "npm --workspace web run lint",
+        "lint:mobile": "npm --workspace mobile run lint",
+        "build": "npm run build:backend && npm run build:web",
+        "build:backend": "npm --workspace backend run build",
+        "build:web": "npm --workspace web run build",
+        "test": "npm --workspace backend run test",
         "format": "prettier --write ."
     }
 }

@@ -1,0 +1,61 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint-and-build:
+    name: Lint and Build
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      # Backend
+      - name: Lint Backend
+        run: npm run lint --workspace backend
+        continue-on-error: false
+      
+      - name: Build Backend
+        run: npm run build --workspace backend
+      
+      - name: Test Backend
+        run: npm run test --workspace backend
+      
+      # Web
+      - name: Lint Web
+        run: npm run lint --workspace web
+        continue-on-error: false
+      
+      - name: Build Web
+        run: npm run build --workspace web
+      
+      # Mobile
+      - name: Lint Mobile
+        run: npm run lint --workspace mobile
+        continue-on-error: false
+      
+      - name: Check Build Success
+        run: echo "✅ All linting and build checks passed successfully!"

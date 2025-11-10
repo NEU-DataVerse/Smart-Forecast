@@ -1,0 +1,47 @@
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+    paths:
+      - 'backend/**'
+      - 'docker-compose.yml'
+      - 'backend/Dockerfile'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/**'
+      - 'docker-compose.yml'
+      - 'backend/Dockerfile'
+
+jobs:
+  docker-build:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Backend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          tags: smart-forecast-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Test Docker Compose Configuration
+        run: |
+          docker-compose config
+          echo "✅ Docker Compose configuration is valid!"
