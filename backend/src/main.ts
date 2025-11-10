@@ -5,4 +5,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  // Log the error and exit with non-zero status to indicate failure
+  console.error(err);
+  process.exit(1);
+});
