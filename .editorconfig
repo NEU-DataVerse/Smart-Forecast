@@ -1,0 +1,82 @@
+# ============================================
+# EditorConfig for Smart Forecast
+# https://editorconfig.org
+# ============================================
+
+# Top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# JavaScript, TypeScript, JSX, TSX
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+quote_type = single
+
+# JSON
+[*.json]
+indent_size = 2
+
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Shell scripts
+[*.sh]
+end_of_line = lf
+
+# Batch scripts
+[*.{bat,cmd}]
+end_of_line = crlf
+
+# Makefiles
+[Makefile]
+indent_style = tab
+
+# Docker
+[Dockerfile]
+indent_size = 2
+
+# Python (if used for scripts)
+[*.py]
+indent_size = 4
+
+# SQL
+[*.sql]
+indent_size = 2
+
+# CSS, SCSS, LESS
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+# HTML
+[*.html]
+indent_size = 2
+
+# XML
+[*.{xml,svg}]
+indent_size = 2
+
+# Configuration files
+[*.config]
+indent_size = 2
+
+# Package files
+[package.json]
+indent_size = 2
+
+[package-lock.json]
+indent_size = 2
+insert_final_newline = false
