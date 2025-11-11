@@ -4,8 +4,8 @@
 
 ### Epic 1: [P1] Thiết lập Môi trường & Hạ tầng DevOps
 
--   **Người phụ trách:** Khải (DevOps)
--   **Mô tả:** Chuẩn bị toàn bộ repository và các dịch vụ hạ tầng để các thành viên khác có thể bắt đầu phát triển.
+- **Người phụ trách:** Khải (DevOps)
+- **Mô tả:** Chuẩn bị toàn bộ repository và các dịch vụ hạ tầng để các thành viên khác có thể bắt đầu phát triển.
 
 | ID            | Issue (Công việc)                 | Mô tả chi tiết                                                                                         |
 | :------------ | :-------------------------------- | :----------------------------------------------------------------------------------------------------- |
@@ -17,8 +17,8 @@
 
 ### Epic 2: [P1] Xây dựng Module Xác thực (Auth)
 
--   **Người phụ trách:** Khải (Backend), Đạt & Bích (Frontend)
--   **Mô tả:** Hoàn thiện luồng đăng ký, đăng nhập JWT cho cả Admin và Citizen.
+- **Người phụ trách:** Khải (Backend), Đạt & Bích (Frontend)
+- **Mô tả:** Hoàn thiện luồng đăng ký, đăng nhập JWT cho cả Admin và Citizen.
 
 | ID             | Issue (Công việc)                             | Mô tả chi tiết                                                                                           | Người thực hiện |
 | :------------- | :-------------------------------------------- | :------------------------------------------------------------------------------------------------------- | :-------------- |
@@ -31,20 +31,20 @@
 
 ### Epic 3: [P1] Khởi tạo "Bộ khung" Backend (Node.js)
 
--   **Người phụ trách:** Khải (Backend)
--   **Mô tả:** Thiết lập một server Node.js (NestJS/Fastify) sẵn sàng để phát triển các module nghiệp vụ.
+- **Người phụ trách:** Khải (Backend)
+- **Mô tả:** Thiết lập một server Node.js (NestJS/Fastify) sẵn sàng để phát triển các module nghiệp vụ.
 
 | ID           | Issue (Công việc)      | Mô tả chi tiết                                                                                  |
 | :----------- | :--------------------- | :---------------------------------------------------------------------------------------------- |
-| **P1-BE-01** | Khởi tạo dự án Node.js | Cài đặt NestJS (hoặc Fastify) trong package `backend/`.                                         |
+| **P1-BE-01** | Khởi tạo dự án Node.js | Cài đặt NestJS trong package `backend/`.                                                        |
 | **P1-BE-02** | Cấu hình cơ sở dữ liệu | Thiết lập kết nối đến PostgreSQL (cho user) và chuẩn bị kết nối đến Orion-LD.                   |
 | **P1-BE-03** | Cấu trúc Module        | Tạo cấu trúc thư mục cho các module chính (ví dụ: `auth`, `user`, `airquality`, `incident`...). |
 | **P1-BE-04** | Cấu hình Environment   | Thiết lập file `.env` và config service để quản lý biến môi trường.                             |
 
 ### Epic 4: [P1] Khởi tạo "Bộ khung" Web Dashboard (Next.js)
 
--   **Người phụ trách:** Đạt (Frontend Web)
--   **Mô tả:** Xây dựng giao diện cơ bản cho trang quản trị, tập trung vào layout và trang đăng nhập.
+- **Người phụ trách:** Đạt (Frontend Web)
+- **Mô tả:** Xây dựng giao diện cơ bản cho trang quản trị, tập trung vào layout và trang đăng nhập.
 
 | ID            | Issue (Công việc)      | Mô tả chi tiết                                                                          |
 | :------------ | :--------------------- | :-------------------------------------------------------------------------------------- |
@@ -55,8 +55,8 @@
 
 ### Epic 5: [P1] Khởi tạo "Bộ khung" Mobile App (Expo)
 
--   **Người phụ trách:** Bích (Frontend Mobile)
--   **Mô tả:** Xây dựng giao diện (UI) và luồng điều hướng (navigation) cơ bản cho ứng dụng di động.
+- **Người phụ trách:** Bích (Frontend Mobile)
+- **Mô tả:** Xây dựng giao diện (UI) và luồng điều hướng (navigation) cơ bản cho ứng dụng di động.
 
 | ID            | Issue (Công việc)               | Mô tả chi tiết                                                                                                 |
 | :------------ | :------------------------------ | :------------------------------------------------------------------------------------------------------------- |
@@ -66,8 +66,8 @@
 
 ### Epic 6: [P1] Khởi tạo Tài liệu Dự án
 
--   **Người phụ trách:** Bích (Docs)
--   **Mô tả:** Soạn thảo các tài liệu nền tảng của dự án.
+- **Người phụ trách:** Bích (Docs)
+- **Mô tả:** Soạn thảo các tài liệu nền tảng của dự án.
 
 | ID            | Issue (Công việc)               | Mô tả chi tiết                                                                                                  |
 | :------------ | :------------------------------ | :-------------------------------------------------------------------------------------------------------------- |
