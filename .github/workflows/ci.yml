@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build Shared Package
+        run: npm run build --workspace shared
+
       # Backend
       - name: Lint Backend
         run: npm run lint --workspace backend
