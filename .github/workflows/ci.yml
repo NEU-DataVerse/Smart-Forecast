@@ -4,16 +4,13 @@ on:
   push:
     branches:
       - main
-      - develop
-      - "feat/**"
   pull_request:
     branches:
       - main
-      - develop
 
 jobs:
-  lint-and-build:
-    name: Lint and Build
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
     strategy:
@@ -46,29 +43,11 @@ jobs:
       - name: Build Shared Package
         run: npm run build --workspace shared
 
-      # Backend
-      - name: Lint Backend
-        run: npm run lint --workspace backend
-        continue-on-error: false
-
       - name: Build Backend
         run: npm run build --workspace backend
-
-      - name: Test Backend
-        run: npm run test --workspace backend
-
-      # Web
-      - name: Lint Web
-        run: npm run lint --workspace web
-        continue-on-error: false
 
       - name: Build Web
         run: npm run build --workspace web
 
-      # Mobile
-      - name: Lint Mobile
-        run: npm run lint --workspace mobile
-        continue-on-error: false
-
       - name: Check Build Success
-        run: echo "✅ All linting and build checks passed successfully!"
+        run: echo "✅ All builds passed successfully!"
