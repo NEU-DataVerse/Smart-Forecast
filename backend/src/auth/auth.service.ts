@@ -25,7 +25,7 @@ export class AuthService {
 
     const user = await this.userService.create({
       ...registerDto,
-      role: UserRole.CITIZEN,
+      role: UserRole.CITIZEN as UserRole,
     });
 
     const payload: JwtPayload = {

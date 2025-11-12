@@ -26,7 +26,9 @@ export class CreateUserDto implements ICreateUser {
   @IsOptional()
   phoneNumber?: string;
 
-  @IsEnum(UserRole)
+  @IsEnum(UserRole, {
+    message: 'Role must be a valid UserRole',
+  })
   @IsOptional()
   role?: UserRole;
 }
