@@ -1,6 +1,186 @@
-# vscode
-/.vscode/
+# ============================================
+# Smart Forecast - Monorepo .gitignore
+# ============================================
 
-/node_modules/
+# ====== Dependencies ======
+node_modules/
+.pnp
+.pnp.js
 
+# ====== Build Outputs ======
+dist/
+build/
+out/
+.next/
+.expo/
+.expo-shared/
+
+# Backend (NestJS)
+backend/dist/
+backend/build/
+
+# Web (Next.js)
+web/.next/
+web/out/
+
+# Mobile (Expo)
+mobile/.expo/
+mobile/.expo-shared/
+mobile/dist/
+
+# Shared
+shared/dist/
+
+# ====== Environment Variables ======
 .env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# ====== IDE / Editors ======
+# VSCode
+.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# IntelliJ IDEA / WebStorm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+
+# ====== Operating System ======
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ====== Logs ======
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ====== Testing ======
+coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+
+# ====== Cache & Temporary Files ======
+.cache/
+.tmp/
+.temp/
+*.pid
+*.seed
+*.pid.lock
+
+# ====== Next.js Specific ======
+.next/
+out/
+.vercel
+
+# ====== Expo / React Native Specific ======
+.expo/
+.expo-shared/
+web-build/
+
+# Expo local builds
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Metro bundler
+.metro-health-check*
+
+# ====== TypeScript ======
+*.tsbuildinfo
+next-env.d.ts
+
+# ====== Database ======
+*.sqlite
+*.sqlite3
+*.db
+
+# ====== Docker ======
+docker-compose.override.yml
+
+# ====== MinIO / Storage ======
+minio-data/
+storage/
+
+# ====== Documentation ======
+# Keep documentation but ignore auto-generated docs
+# docs/api/generated/
+
+# ====== Misc ======
+*.bak
+*.backup
+*.orig
+*.rej
+*.swp
+.eslintcache
+
+# ====== Package Manager ======
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# pnpm
+.pnpm-debug.log
+
+# ====== macOS Finder ======
+.Spotlight-V100
+.Trashes
+
+# ====== Firebase ======
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# ====== Sentry ======
+.sentryclirc
+
+# ====== Test files (optional - uncomment if needed) ======
+# test.ts
+# *.test.js
+# *.spec.js

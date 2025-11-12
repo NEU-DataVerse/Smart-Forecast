@@ -9,6 +9,8 @@
         "shared"
     ],
     "scripts": {
+        "build:shared": "npm --workspace shared run build",
+        "dev:shared": "npm --workspace shared run watch",
         "dev:backend": "npm --workspace backend run start:dev",
         "dev:web": "npm --workspace web run dev",
         "dev:mobile": "npm --workspace mobile run start",

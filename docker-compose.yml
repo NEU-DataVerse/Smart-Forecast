@@ -21,6 +21,12 @@ services:
       - mongodb
     networks:
       - smart-forecast-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1026/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   mongodb:
     image: mongo:4.4
@@ -32,6 +38,12 @@ services:
       - mongo_data:/data/db
     networks:
       - smart-forecast-net
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # ===== STORAGE & HISTORY =====
 
@@ -49,6 +61,12 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     networks:
       - smart-forecast-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   minio:
     image: minio/minio:latest
@@ -67,29 +85,45 @@ services:
       - minio_data:/data
     networks:
       - smart-forecast-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # # ===== DATA SINK =====
+  # ===== DATA SINK =====
 
-  # cygnus:
-  #   image: fiware/cygnus-ngsi-ld:latest
-  #   hostname: cygnus
-  #   container_name: cygnus
-  #   depends_on:
-  #     - postgres
-  #     - orion
-  #   environment:
-  #     - CYGNUS_ORION_LD_HOST=orion
-  #     - CYGNUS_ORION_LD_PORT=1026
-  #     - CYGNUS_SINK_POSTGRES_HOST=postgres
-  #     - CYGNUS_SINK_POSTGRES_PORT=5432
-  #     - CYGNUS_SINK_POSTGRES_USER=${POSTGRES_USER}
-  #     - CYGNUS_SINK_POSTGRES_PASS=${POSTGRES_PASSWORD}
-  #     - CYGNUS_SINK_POSTGRES_DB=${POSTGRES_DB}
-  #     - CYGNUS_LOG_LEVEL=DEBUG
-  #   networks:
-  #     - smart-forecast-net
+  cygnus:
+    image: fiware/cygnus-ngsi:latest
+    hostname: cygnus
+    container_name: cygnus
+    depends_on:
+      - postgres
+      - orion
+    ports:
+      - "5080:5080"
+      - "5050:5050"
+    environment:
+      - CYGNUS_POSTGRESQL_HOST=postgres
+      - CYGNUS_POSTGRESQL_PORT=5432
+      - CYGNUS_POSTGRESQL_USER=${POSTGRES_USER}
+      - CYGNUS_POSTGRESQL_PASS=${POSTGRES_PASSWORD}
+      - CYGNUS_POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - CYGNUS_POSTGRESQL_ENABLE_CACHE=true
+      - CYGNUS_SERVICE_PORT=5050
+      - CYGNUS_API_PORT=5080
+      - CYGNUS_LOG_LEVEL=DEBUG
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5080/v1/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
-  # # ===== BACKEND API =====
+  # ===== BACKEND API =====
 
   # backend:
   #   container_name: backend
