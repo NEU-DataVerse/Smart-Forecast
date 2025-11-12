@@ -37,21 +37,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install platform-specific lightningcss binary
+      - name: Install platform-specific native binaries
         run: |
-          npm install --no-save lightningcss-linux-x64-gnu@1.30.2
-          npm rebuild lightningcss
+          echo "Installing Tailwind CSS Oxide binary..."
+          npm install --no-save @tailwindcss/oxide-linux-x64-gnu || true
+          npm rebuild @tailwindcss/oxide || true
+          echo ""
+          echo "Installing LightningCSS binary..."
+          npm install --no-save lightningcss-linux-x64-gnu@1.30.2 || true
+          npm rebuild lightningcss || true
 
-      - name: Verify lightningcss installation
+      - name: Verify native binaries installation
         run: |
+          echo "=== Checking @tailwindcss/oxide packages ==="
+          ls -la node_modules/@tailwindcss/ 2>/dev/null | grep oxide || echo "No oxide packages found"
+          echo ""
+          echo "=== Checking @tailwindcss/oxide-linux-x64-gnu ==="
+          ls -la node_modules/@tailwindcss/oxide-linux-x64-gnu/ 2>/dev/null || echo "NOT FOUND"
+          echo ""
+          echo "=== Checking tailwindcss-oxide .node files ==="
+          find node_modules -name "tailwindcss-oxide*.node" 2>/dev/null || echo "No tailwindcss-oxide .node files found"
+          echo ""
           echo "=== Checking lightningcss packages ==="
           ls -la node_modules/ | grep lightningcss || echo "No lightningcss packages found"
           echo ""
           echo "=== Checking lightningcss-linux-x64-gnu ==="
           ls -la node_modules/lightningcss-linux-x64-gnu/ 2>/dev/null || echo "NOT FOUND"
           echo ""
-          echo "=== Checking for .node file ==="
-          find node_modules -name "lightningcss*.node" || echo "No .node files found"
+          echo "=== Checking lightningcss .node files ==="
+          find node_modules -name "lightningcss*.node" 2>/dev/null || echo "No lightningcss .node files found"
 
       - name: Build Shared Package
         run: npm run build --workspace shared
