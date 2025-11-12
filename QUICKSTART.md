@@ -1,6 +1,6 @@
 # 🚀 Quick Start Guide
 
-Hướng dẫn nhanh để chạy Smart-Forecast trong 5 phút!
+Hướng dẫn nhanh để chạy Smart-Forecast trong 3 phút!
 
 ## ✅ Prerequisites
 
