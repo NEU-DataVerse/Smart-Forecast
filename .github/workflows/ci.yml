@@ -35,16 +35,14 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Install lightningcss separately
-        run: npm install --no-save lightningcss@1.30.2
+        run: npm ci --include=optional
 
       - name: Verify lightningcss installation
         run: |
-          echo "Checking lightningcss installation..."
-          find node_modules/lightningcss -name "*.node" || echo "No .node files found"
-          ls -la node_modules/lightningcss/ || echo "lightningcss directory not found"
+          echo "Checking lightningcss platform packages..."
+          ls -la node_modules/ | grep lightningcss || echo "No lightningcss packages found"
+          echo "Checking for linux-x64-gnu binary..."
+          ls -la node_modules/lightningcss-linux-x64-gnu/ 2>/dev/null || echo "lightningcss-linux-x64-gnu not found"
 
       - name: Build Shared Package
         run: npm run build --workspace shared
