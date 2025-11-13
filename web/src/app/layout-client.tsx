@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 
@@ -10,8 +11,15 @@ export default function LayoutClient({
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
     const [currentPage, setCurrentPage] = useState("dashboard");
     const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    const isLoginPage = pathname?.startsWith("/login");
+
+    if (isLoginPage) {
+        return <>{children}</>;
+    }
 
     return (
         <div className="min-h-screen bg-slate-50">

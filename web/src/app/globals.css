@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -195,21 +196,21 @@ html {
     size: A4;
     margin: 1cm;
   }
-  
+
   body {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-  
+
   .print\:hidden {
     display: none !important;
   }
-  
+
   .print\:break-inside-avoid {
     break-inside: avoid;
     page-break-inside: avoid;
   }
-  
+
   .print\:p-4 {
     padding: 1rem !important;
   }
