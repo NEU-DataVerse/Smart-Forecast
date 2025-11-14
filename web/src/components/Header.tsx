@@ -1,5 +1,5 @@
-import { Menu, Bell, User, LogOut, Settings } from 'lucide-react';
-import { Button } from './ui/button';
+import { Menu, User, LogOut, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,10 +7,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Avatar, AvatarFallback } from './ui/avatar';
-import { Badge } from './ui/badge';
-import { NotificationDropdown } from './ui/notification-dropdown';
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -36,8 +35,8 @@ export function Header({
             <Menu className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-sm">
-              <span className="text-white">⛈️</span>
+            <div className="w-7 h-7 bg-linear-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-sm">
+              <span className="text-white">Logo</span>
             </div>
             <h1 className="text-slate-900 text-sm md:text-base">
               Smart Forecast

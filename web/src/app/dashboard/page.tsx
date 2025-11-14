@@ -1,27 +1,20 @@
 'use client';
-import {
-  Cloud,
-  Wind,
-  Droplets,
-  AlertTriangle,
-  FileText,
-  Users,
-} from 'lucide-react';
+import { AlertTriangle, FileText } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../../components/ui/dialog';
+} from '@/components/ui/dialog';
 import { useState } from 'react';
 
 const summaryCards = [
@@ -182,7 +175,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-slate-500 text-xs">{report.type}</div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Badge
                       variant={
                         report.status === 'Approved' ? 'default' : 'secondary'

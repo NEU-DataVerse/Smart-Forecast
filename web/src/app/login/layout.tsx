@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { Cloud, CloudRain, Sun, Wind } from 'lucide-react';
-import './login.css';
 interface AuthLayoutProps {
   children: ReactNode;
 }

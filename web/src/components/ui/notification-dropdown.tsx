@@ -8,14 +8,14 @@ import {
   Database,
   Zap,
 } from 'lucide-react';
-import { Button } from './button';
-import { Badge } from './badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from './dropdown-menu';
-import { ScrollArea } from './scroll-area';
+} from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Notification {
   id: number;

@@ -8,7 +8,7 @@ import {
   Settings,
   Bell,
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 interface SidebarProps {
   currentPage: string;
