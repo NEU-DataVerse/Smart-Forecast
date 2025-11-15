@@ -5,12 +5,20 @@ import { IUser } from '@/../../shared/src/types/user.types';
 import React from 'react';
 import { toast } from 'sonner';
 
+interface LoginCredentials {
+  access_token: string;
+  user: {
+    role: string;
+  };
+}
+
 interface IUserContext {
   user: IUser | null;
   loading: boolean;
   isAuthenticated: boolean;
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  login: (credentials: LoginCredentials) => void;
   logout: () => Promise<void>;
 }
 
@@ -40,6 +48,27 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
     }
   }
 
+  function login(credentials: LoginCredentials) {
+    try {
+      const { access_token, user } = credentials;
+
+      // Store token
+      localStorage.setItem('access_token', access_token);
+
+      // Update axios header
+      userAxios.defaults.headers.common[
+        'Authorization'
+      ] = `Bearer ${access_token}`;
+
+      // Update user context
+      setUser(user as IUser);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Failed to update user context');
+    }
+  }
+
   async function logout() {
     try {
       setLoading(true);
@@ -50,6 +79,8 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       setLoading(false);
+      localStorage.removeItem('access_token');
+      delete userAxios.defaults.headers.common['Authorization'];
       toast.success('Logged out successfully');
     }
   }
@@ -66,6 +97,7 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
         isAuthenticated,
         setUser,
         setIsAuthenticated,
+        login,
         logout,
       }}
     >
