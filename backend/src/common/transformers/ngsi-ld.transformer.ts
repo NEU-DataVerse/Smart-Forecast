@@ -118,17 +118,31 @@ export function getCurrentTimestamp(): string {
 }
 
 /**
- * Transform OpenAQ data to NGSI-LD AirQualityObserved entity
- * @param openAQData Raw data from OpenAQ API
+ * Transform OpenWeather Air Pollution data to NGSI-LD AirQualityObserved entity
+ * @param owmAirData Raw data from OpenWeather Air Pollution API
+ * @param cityName City name for entity identification
  * @returns NGSI-LD AirQualityObserved entity
  */
-export function transformOpenAQToNGSILD(openAQData: any): any {
+export function transformOWMAirPollutionToNGSILD(
+  owmAirData: any,
+  cityName: string,
+): any {
+  if (!owmAirData.list || owmAirData.list.length === 0) {
+    throw new Error('No air pollution data available');
+  }
+
+  // Get the first measurement (current data)
+  const measurement = owmAirData.list[0];
+  const components = measurement.components;
+
   const entityId = generateEntityId(
     'AirQualityObserved',
-    `${openAQData.city || 'unknown'}-${openAQData.location || 'station'}`,
+    `${cityName}-${owmAirData.coord.lat}-${owmAirData.coord.lon}`,
   );
 
-  const observedAt = openAQData.date?.utc || getCurrentTimestamp();
+  const observedAt = measurement.dt
+    ? new Date(measurement.dt * 1000).toISOString()
+    : getCurrentTimestamp();
 
   const entity: any = {
     id: entityId,
@@ -138,65 +152,67 @@ export function transformOpenAQToNGSILD(openAQData: any): any {
       'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
     ],
     dateObserved: createProperty(observedAt, observedAt),
-    source: createProperty('OpenAQ'),
+    source: createProperty('OpenWeatherMap'),
   };
 
-  // Add location if available
+  // Add location
   if (
-    openAQData.coordinates?.latitude !== undefined &&
-    openAQData.coordinates?.longitude !== undefined
+    owmAirData.coord?.lat !== undefined &&
+    owmAirData.coord?.lon !== undefined
   ) {
     entity.location = createGeoProperty(
-      openAQData.coordinates.longitude,
-      openAQData.coordinates.latitude,
+      owmAirData.coord.lon,
+      owmAirData.coord.lat,
     );
   }
 
   // Add address information
-  if (openAQData.city || openAQData.country) {
-    entity.address = createAddressProperty(
-      openAQData.city,
-      openAQData.country,
-      openAQData.location,
+  if (cityName) {
+    entity.address = createAddressProperty(cityName);
+  }
+
+  // Add pollutant measurements (all in μg/m³)
+  if (components) {
+    if (components.co !== undefined) {
+      entity.co = createProperty(components.co, observedAt);
+    }
+    if (components.no !== undefined) {
+      entity.no = createProperty(components.no, observedAt);
+    }
+    if (components.no2 !== undefined) {
+      entity.no2 = createProperty(components.no2, observedAt);
+    }
+    if (components.o3 !== undefined) {
+      entity.o3 = createProperty(components.o3, observedAt);
+    }
+    if (components.so2 !== undefined) {
+      entity.so2 = createProperty(components.so2, observedAt);
+    }
+    if (components.pm2_5 !== undefined) {
+      entity.pm25 = createProperty(components.pm2_5, observedAt);
+    }
+    if (components.pm10 !== undefined) {
+      entity.pm10 = createProperty(components.pm10, observedAt);
+    }
+    if (components.nh3 !== undefined) {
+      entity.nh3 = createProperty(components.nh3, observedAt);
+    }
+  }
+
+  // Add OpenWeather AQI (1-5 scale)
+  if (measurement.main?.aqi !== undefined) {
+    entity.airQualityIndex = createProperty(measurement.main.aqi, observedAt);
+    entity.airQualityLevel = createProperty(
+      getOpenWeatherAQICategory(measurement.main.aqi),
+      observedAt,
     );
   }
 
-  // Add measurements based on available parameters
-  if (openAQData.measurements) {
-    openAQData.measurements.forEach((measurement: any) => {
-      const param = measurement.parameter?.toLowerCase();
-      const value = measurement.value;
-
-      if (value !== null && value !== undefined) {
-        switch (param) {
-          case 'pm25':
-            entity.pm25 = createProperty(value, observedAt);
-            break;
-          case 'pm10':
-            entity.pm10 = createProperty(value, observedAt);
-            break;
-          case 'no2':
-            entity.no2 = createProperty(value, observedAt);
-            break;
-          case 'so2':
-            entity.so2 = createProperty(value, observedAt);
-            break;
-          case 'co':
-            entity.co = createProperty(value, observedAt);
-            break;
-          case 'o3':
-            entity.o3 = createProperty(value, observedAt);
-            break;
-        }
-      }
-    });
-  }
-
-  // Calculate AQI if PM2.5 is available
+  // Calculate US EPA AQI if PM2.5 is available
   if (entity.pm25) {
-    const aqi = calculateAQI(entity.pm25.value);
-    entity.aqi = createProperty(aqi, observedAt);
-    entity.aqiCategory = createProperty(getAQICategory(aqi), observedAt);
+    const usAqi = calculateAQI(entity.pm25.value);
+    entity.aqi = createProperty(usAqi, observedAt);
+    entity.aqiCategory = createProperty(getAQICategory(usAqi), observedAt);
   }
 
   return entity;
@@ -342,4 +358,26 @@ function getAQICategory(aqi: number): string {
   if (aqi <= 200) return 'Unhealthy';
   if (aqi <= 300) return 'Very Unhealthy';
   return 'Hazardous';
+}
+
+/**
+ * Get OpenWeather AQI category (1-5 scale)
+ * @param aqi OpenWeather AQI value (1-5)
+ * @returns AQI category string
+ */
+function getOpenWeatherAQICategory(aqi: number): string {
+  switch (aqi) {
+    case 1:
+      return 'Good';
+    case 2:
+      return 'Fair';
+    case 3:
+      return 'Moderate';
+    case 4:
+      return 'Poor';
+    case 5:
+      return 'Very Poor';
+    default:
+      return 'Unknown';
+  }
 }
