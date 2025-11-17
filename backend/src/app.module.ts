@@ -4,10 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { AirQualityModule } from './airquality/airquality.module';
-import { WeatherModule } from './weather/weather.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { AirQualityModule } from './modules/airquality/airquality.module';
+import { WeatherModule } from './modules/weather/weather.module';
 import { appConfig, databaseConfig, jwtConfig } from './config';
 
 @Module({
