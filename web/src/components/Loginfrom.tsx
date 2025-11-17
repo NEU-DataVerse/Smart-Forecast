@@ -15,15 +15,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { userAxios } from '@/lib/axios';
 import { useUserContext } from '@/context/userContext';
-
-interface LoginResponse {
-  access_token: string;
-  user: {
-    role: string;
-  };
-}
+import {
+  authenticateUser,
+  storeAuthData,
+  handleRememberMe,
+  loadRememberedCredentials,
+  validateEmail,
+} from '@/services/auth';
 
 export function LoginForm({}: React.ComponentProps<'form'>) {
   const { isAuthenticated, login } = useUserContext();
@@ -36,8 +35,8 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
 
   useEffect(() => {
     // Load remember me data on mount
-    const storedRemember = localStorage.getItem('rememberMe') === 'true';
-    const storedEmail = localStorage.getItem('userEmail') || '';
+    const { rememberMe: storedRemember, email: storedEmail } =
+      loadRememberedCredentials();
     setRememberMe(storedRemember);
     if (storedRemember) setEmail(storedEmail);
   }, []);
@@ -53,7 +52,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!validateEmail(email)) {
       toast.error('Please enter a valid email address');
       return;
     }
@@ -61,50 +60,33 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
     setLoading(true);
 
     try {
-      const response = await userAxios.post<LoginResponse>('/auth/login', {
-        email,
-        password,
-      });
+      // Authenticate user
+      const result = await authenticateUser({ email, password });
 
-      const { access_token, user } = response.data;
-
-      if (!access_token || !user) {
-        throw new Error('Invalid response from server');
+      if (!result.success || !result.data) {
+        toast.error(result.error || 'Failed to login');
+        return;
       }
 
-      // Store token in localStorage
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user_role', user.role);
+      const { access_token, user } = result.data;
+
+      // Store authentication data
+      storeAuthData(access_token, user.role);
 
       // Handle remember me
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-        localStorage.setItem('userEmail', email);
-      } else {
-        localStorage.removeItem('rememberMe');
-        localStorage.removeItem('userEmail');
-      }
+      handleRememberMe(rememberMe, email);
 
       // Update user context with login info
       if (login) {
         login({ access_token, user });
       }
 
-      // Update axios default header
-      userAxios.defaults.headers.common[
-        'Authorization'
-      ] = `Bearer ${access_token}`;
-
       toast.success('Login successful');
 
-      // Redirect to dashboard or verify page based on requirements
+      // Redirect to dashboard
       router.push('/dashboard');
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to login. Please try again.';
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error('An unexpected error occurred');
       console.error('LoginForm error:', error);
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { userAxios } from '@/lib/axios';
+import { userAxios } from '@/services/axios';
 import { IUser } from '@/../../shared/src/types/user.types';
 import React from 'react';
 import { toast } from 'sonner';
