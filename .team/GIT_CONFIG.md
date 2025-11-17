@@ -79,7 +79,7 @@ Complete environment variables template with:
 
 #### External APIs
 
-- OpenAQ API (air quality data)
+- OpenWeatherMap API (air quality data)
 - OpenWeatherMap API (weather data)
 
 #### Authentication
@@ -228,7 +228,6 @@ docker-compose up -d
 
 - ✅ `JWT_SECRET` - For authentication
 - ✅ `POSTGRES_PASSWORD` - Database security
-- ✅ `OPENAQ_API_KEY` - Air quality data
 - ✅ `OWM_API_KEY` - Weather data
 - ✅ `FIREBASE_*` - Push notifications
 

@@ -104,7 +104,6 @@ MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin
 
 # Cấu hình API keys (cần đăng ký tài khoản)
-OPENAQ_API_KEY=your_openaq_api_key_here
 OWM_API_KEY=your_openweathermap_api_key_here
 
 # JWT Secret (nên thay đổi trong production)
@@ -171,13 +170,11 @@ docker-compose down --rmi all
 | `POSTGRES_DB`         | Tên database           | smart_forecast_db |
 | `MINIO_ROOT_USER`     | MinIO admin user       | minioadmin        |
 | `MINIO_ROOT_PASSWORD` | MinIO admin password   | minioadmin        |
-| `OPENAQ_API_KEY`      | API key OpenAQ         | -                 |
 | `OWM_API_KEY`         | API key OpenWeatherMap | -                 |
 | `JWT_SECRET`          | Secret key cho JWT     | -                 |
 
 ### Lấy API Keys:
 
-1. **OpenAQ API**: Đăng ký tại https://openaq.org/
 2. **OpenWeatherMap**: Đăng ký tại https://openweathermap.org/api
 3. **Mapbox** (cho frontend): https://www.mapbox.com/
 

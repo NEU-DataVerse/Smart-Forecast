@@ -21,30 +21,30 @@ Module này chịu trách nhiệm cho các endpoint _công khai_ (public) mà ng
     ```
 3.  **Middleware/Guard chặn lại:** Trước khi request này đến được module `incident`, "Middleware Xác thực" sẽ chạy trước tiên.
 4.  **Middleware xử lý:**
-    -   Nó kiểm tra xem `Authorization Header` có tồn tại và hợp lệ không.
-    -   Nó giải mã (verify) cái `access_token` (JWT) để đảm bảo token này là do chính server của bạn cấp phát và còn hạn sử dụng.
-    -   Nếu token hợp lệ, nó lấy thông tin người dùng (ví dụ: `userId` và `role`) từ trong token.
-    -   Nó kiểm tra xem `role` của người dùng (ví dụ: "Citizen") có được phép truy cập API này không (ví dụ: API `POST /api/v1/alert` chỉ cho phép "Admin").
+    - Nó kiểm tra xem `Authorization Header` có tồn tại và hợp lệ không.
+    - Nó giải mã (verify) cái `access_token` (JWT) để đảm bảo token này là do chính server của bạn cấp phát và còn hạn sử dụng.
+    - Nếu token hợp lệ, nó lấy thông tin người dùng (ví dụ: `userId` và `role`) từ trong token.
+    - Nó kiểm tra xem `role` của người dùng (ví dụ: "Citizen") có được phép truy cập API này không (ví dụ: API `POST /api/v1/alert` chỉ cho phép "Admin").
 5.  **Kết quả:**
-    -   **Nếu hợp lệ:** Request được "cho qua", đi tiếp vào xử lý logic ở module `incident`.
-    -   **Nếu không hợp lệ:** (Không có token, token hết hạn, sai role) Middleware sẽ chặn request và trả về lỗi `401 Unauthorized` (Chưa xác thực) hoặc `403 Forbidden` (Không có quyền).
+    - **Nếu hợp lệ:** Request được "cho qua", đi tiếp vào xử lý logic ở module `incident`.
+    - **Nếu không hợp lệ:** (Không có token, token hết hạn, sai role) Middleware sẽ chặn request và trả về lỗi `401 Unauthorized` (Chưa xác thực) hoặc `403 Forbidden` (Không có quyền).
 
 ---
 
 ## Module 2: `ingestion` (Thu thập Dữ liệu)
 
-**Mục tiêu:** Các endpoint này không phải để Frontend gọi, mà để hệ thống tự động gọi (ví dụ: Cron Job) hoặc để kích hoạt thủ công nhằm lấy dữ liệu từ OpenAQ/OWM và đẩy vào Orion-LD.
+**Mục tiêu:** Các endpoint này không phải để Frontend gọi, mà để hệ thống tự động gọi (ví dụ: Cron Job) hoặc để kích hoạt thủ công nhằm lấy dữ liệu từ OWM và đẩy vào Orion-LD.
 
 | Method   | Route                           | Vai trò      | Mô tả                                                     | Request Body (Payload)                          | Success Response (20x)                                                    |
 | :------- | :------------------------------ | :----------- | :-------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------------------------------------ |
-| **POST** | `/api/v1/ingestion/air-quality` | System/Admin | Kích hoạt thu thập dữ liệu **Air Quality** từ OpenAQ.     | `{ "city": "Hanoi" }` (hoặc rỗng để lấy tất cả) | `{ "status": "SUCCESS", "message": "Ingested 50 entities to Orion-LD." }` |
+| **POST** | `/api/v1/ingestion/air-quality` | System/Admin | Kích hoạt thu thập dữ liệu **Air Quality** từ OWM.        | `{ "city": "Hanoi" }` (hoặc rỗng để lấy tất cả) | `{ "status": "SUCCESS", "message": "Ingested 50 entities to Orion-LD." }` |
 | **POST** | `/api/v1/ingestion/weather`     | System/Admin | Kích hoạt thu thập dữ liệu **Weather** từ OpenWeatherMap. | `{ "city": "Hanoi" }`                           | `{ "status": "SUCCESS", "message": "Ingested 1 entity to Orion-LD." }`    |
 
 **Luồng hoạt động của `ingestion` (ví dụ `air-quality`):**
 
 1.  Một Cron Job (hoặc Admin) gọi `POST /api/v1/ingestion/air-quality`.
-2.  Backend `ingestion` service gọi API của OpenAQ.
-3.  Nhận JSON từ OpenAQ.
+2.  Backend `ingestion` service gọi API của OWM.
+3.  Nhận JSON từ OWM.
 4.  Chuyển đổi (transform) JSON đó thành định dạng **NGSI-LD Entity** (ví dụ: `AirQualityObserved`) theo chuẩn Smart Data Models.
 5.  Gửi (POST/PATCH) Entity này đến **Orion-LD Context Broker** (`http://orion-ld:1026/ngsi-ld/v1/entities`).
 6.  Orion-LD lưu vào MongoDB và thông báo cho Cygnus.
@@ -78,7 +78,7 @@ Module này chịu trách nhiệm cho các endpoint _công khai_ (public) mà ng
 
 **Lưu ý cho module `alert`:**
 
--   **Đăng ký Token FCM:** Sẽ cần một endpoint (ví dụ: `POST /api/v1/user/fcm-token`) để Mobile App (Citizen) gửi FcmToken của thiết bị lên server khi người dùng đăng nhập. Module `alert` sẽ lấy danh sách token này từ DB để gửi thông báo.
+- **Đăng ký Token FCM:** Sẽ cần một endpoint (ví dụ: `POST /api/v1/user/fcm-token`) để Mobile App (Citizen) gửi FcmToken của thiết bị lên server khi người dùng đăng nhập. Module `alert` sẽ lấy danh sách token này từ DB để gửi thông báo.
 
 ---
 
@@ -97,4 +97,4 @@ Module này chịu trách nhiệm cho các endpoint _công khai_ (public) mà ng
 
 **Lưu ý cho module `file/` (liên quan):**
 
--   **POST** `/api/v1/file/upload` (Role: Citizen): Nhận file ảnh (FormData), tải lên MinIO, và trả về URL của ảnh. Mobile sẽ gọi API này _trước khi_ gọi `POST /api/v1/incident`.
+- **POST** `/api/v1/file/upload` (Role: Citizen): Nhận file ảnh (FormData), tải lên MinIO, và trả về URL của ảnh. Mobile sẽ gọi API này _trước khi_ gọi `POST /api/v1/incident`.

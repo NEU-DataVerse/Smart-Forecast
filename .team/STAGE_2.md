@@ -4,22 +4,22 @@
 
 ### Epic 1: [P2] Phát triển Module Thu thập Dữ liệu (Ingestion)
 
--   **Người phụ trách:** Khải (Backend)
--   **Mô tả:** Xây dựng logic để lấy dữ liệu từ các nguồn bên ngoài, chuẩn hóa NGSI-LD và đẩy vào Context Broker.
+- **Người phụ trách:** Khải (Backend)
+- **Mô tả:** Xây dựng logic để lấy dữ liệu từ các nguồn bên ngoài, chuẩn hóa NGSI-LD và đẩy vào Context Broker.
 
-| ID            | Issue (Công việc)                               | Mô tả chi tiết                                                                                               |
-| :------------ | :---------------------------------------------- | :----------------------------------------------------------------------------------------------------------- |
-| **P2-ING-01** | [Backend] Phát triển service gọi OpenAQ         | Tạo logic gọi API OpenAQ để lấy dữ liệu chất lượng không khí (AQI) cho các vị trí đã định.                   |
-| **P2-ING-02** | [Backend] Phát triển service gọi OpenWeatherMap | Tạo logic gọi API OWM để lấy dữ liệu thời tiết (Nhiệt độ, độ ẩm...)                                          |
-| **P2-ING-03** | [Backend] Chuẩn hóa NGSI-LD (AirQuality)        | Viết hàm chuyển đổi (transformer) dữ liệu JSON từ OpenAQ sang `AirQualityObserved` (theo Smart Data Models). |
-| **P2-ING-04** | [Backend] Chuẩn hóa NGSI-LD (Weather)           | Viết hàm chuyển đổi dữ liệu JSON từ OWM sang `WeatherObserved` (theo Smart Data Models).                     |
-| **P2-ING-05** | [Backend] Đẩy dữ liệu vào Orion-LD              | Tạo service tương tác với Orion-LD (gọi `POST /ngsi-ld/v1/entities` hoặc `.../upsert`) để cập nhật dữ liệu.  |
-| **P2-ING-06** | [Backend] Cấu hình Cron Job                     | Thiết lập một tác vụ lặp lại (ví dụ: mỗi 30 phút) để tự động chạy luồng ingestion (P2-ING-01 đến 05).        |
+| ID            | Issue (Công việc)                               | Mô tả chi tiết                                                                                              |
+| :------------ | :---------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| **P2-ING-01** | [Backend] Phát triển service gọi OWM            | Tạo logic gọi API OWM để lấy dữ liệu chất lượng không khí (AQI) cho các vị trí đã định.                     |
+| **P2-ING-02** | [Backend] Phát triển service gọi OpenWeatherMap | Tạo logic gọi API OWM để lấy dữ liệu thời tiết (Nhiệt độ, độ ẩm...)                                         |
+| **P2-ING-03** | [Backend] Chuẩn hóa NGSI-LD (AirQuality)        | Viết hàm chuyển đổi (transformer) dữ liệu JSON từ OWM sang `AirQualityObserved` (theo Smart Data Models).   |
+| **P2-ING-04** | [Backend] Chuẩn hóa NGSI-LD (Weather)           | Viết hàm chuyển đổi dữ liệu JSON từ OWM sang `WeatherObserved` (theo Smart Data Models).                    |
+| **P2-ING-05** | [Backend] Đẩy dữ liệu vào Orion-LD              | Tạo service tương tác với Orion-LD (gọi `POST /ngsi-ld/v1/entities` hoặc `.../upsert`) để cập nhật dữ liệu. |
+| **P2-ING-06** | [Backend] Cấu hình Cron Job                     | Thiết lập một tác vụ lặp lại (ví dụ: mỗi 30 phút) để tự động chạy luồng ingestion (P2-ING-01 đến 05).       |
 
 ### Epic 2: [P2] Cấu hình Đồng bộ Dữ liệu Lịch sử (Cygnus)
 
--   **Người phụ trách:** Khải (Backend/DevOps)
--   **Mô tả:** Đảm bảo dữ liệu ngữ cảnh (context data) từ Orion-LD được lưu trữ lâu dài trong PostgreSQL để phục vụ phân tích.
+- **Người phụ trách:** Khải (Backend/DevOps)
+- **Mô tả:** Đảm bảo dữ liệu ngữ cảnh (context data) từ Orion-LD được lưu trữ lâu dài trong PostgreSQL để phục vụ phân tích.
 
 | ID            | Issue (Công việc)                       | Mô tả chi tiết                                                                                                            |
 | :------------ | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
@@ -31,8 +31,8 @@
 
 ### Epic 3: [P2] Xây dựng API Đọc Dữ liệu Môi trường
 
--   **Người phụ trách:** Khải (Backend)
--   **Mô tả:** Cung cấp API REST cho Web và Mobile sử dụng để hiển thị dữ liệu môi trường.
+- **Người phụ trách:** Khải (Backend)
+- **Mô tả:** Cung cấp API REST cho Web và Mobile sử dụng để hiển thị dữ liệu môi trường.
 
 | ID            | Issue (Công việc)                          | Mô tả chi tiết                                                                                                       |
 | :------------ | :----------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
@@ -42,8 +42,8 @@
 
 ### Epic 4: [P2] Phát triển Dashboard Hiển thị Dữ liệu (Web)
 
--   **Người phụ trách:** Đạt (Frontend Web)
--   **Mô tả:** Xây dựng giao diện trang Dashboard chính, tích hợp bản đồ và biểu đồ dữ liệu.
+- **Người phụ trách:** Đạt (Frontend Web)
+- **Mô tả:** Xây dựng giao diện trang Dashboard chính, tích hợp bản đồ và biểu đồ dữ liệu.
 
 | ID            | Issue (Công việc)              | Mô tả chi tiết                                                                               |
 | :------------ | :----------------------------- | :------------------------------------------------------------------------------------------- |
@@ -54,8 +54,8 @@
 
 ### Epic 5: [P2] Phát triển Màn hình chính (Mobile)
 
--   **Người phụ trách:** Bích (Frontend Mobile)
--   **Mô tả:** Hoàn thiện màn hình chính (Home) của app và màn hình báo cáo sự cố (UI).
+- **Người phụ trách:** Bích (Frontend Mobile)
+- **Mô tả:** Hoàn thiện màn hình chính (Home) của app và màn hình báo cáo sự cố (UI).
 
 | ID            | Issue (Công việc)                       | Mô tả chi tiết                                                                                                                  |
 | :------------ | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
@@ -65,8 +65,8 @@
 
 ### Epic 6: [P2] Cập nhật Tài liệu
 
--   **Người phụ trách:** Bích (Docs)
--   **Mô tả:** Ghi lại các API đã phát triển và hoàn thiện tài liệu kiến trúc.
+- **Người phụ trách:** Bích (Docs)
+- **Mô tả:** Ghi lại các API đã phát triển và hoàn thiện tài liệu kiến trúc.
 
 | ID            | Issue (Công việc)                 | Mô tả chi tiết                                                                          |
 | :------------ | :-------------------------------- | :-------------------------------------------------------------------------------------- |
