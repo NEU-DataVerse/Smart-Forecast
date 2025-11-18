@@ -1,0 +1,52 @@
+[
+  {
+    "id": "urn:ngsi-ld:WeatherLocation:hoan-kien",
+    "type": "WeatherLocation",
+    "name": "Hồ Hoàn Kiếm",
+    "district": "Hoàn Kiếm",
+    "location": {
+      "lat": 21.028511,
+      "lon": 105.804817
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:WeatherLocation:my-dinh",
+    "type": "WeatherLocation",
+    "name": "Mỹ Đình",
+    "district": "Nam Từ Liêm",
+    "location": {
+      "lat": 21.028023,
+      "lon": 105.778466
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:WeatherLocation:long-bien",
+    "type": "WeatherLocation",
+    "name": "Quận Long Biên",
+    "district": "Long Biên",
+    "location": {
+      "lat": 21.054351,
+      "lon": 105.886446
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:WeatherLocation:ho-tay",
+    "type": "WeatherLocation",
+    "name": "Hồ Tây",
+    "district": "Tây Hồ",
+    "location": {
+      "lat": 21.068176,
+      "lon": 105.814129
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:WeatherLocation:ha-dong",
+    "type": "WeatherLocation",
+    "name": "Hà Đông",
+    "district": "Hà Đông",
+    "location": {
+      "lat": 20.959001,
+      "lon": 105.765226
+    }
+  }
+]
