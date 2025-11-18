@@ -5,7 +5,7 @@ import {
   transformOWMAirPollutionToNGSILD,
   transformOWMToNGSILD,
 } from '../../common/transformers/ngsi-ld.transformer';
-import * as sourceLocations from './source_data.json';
+import sourceLocationsData from './source_data.json';
 
 /**
  * Interface for weather location data
@@ -35,7 +35,7 @@ export class IngestionService {
     private readonly orionClient: OrionClientProvider,
   ) {
     // Load source locations from JSON file
-    this.locations = sourceLocations as WeatherLocation[];
+    this.locations = sourceLocationsData as unknown as WeatherLocation[];
     this.logger.log(
       `Loaded ${this.locations.length} monitoring locations from source_data.json`,
     );

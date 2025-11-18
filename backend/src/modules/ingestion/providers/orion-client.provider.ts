@@ -310,8 +310,9 @@ export class OrionClientProvider {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      await this.httpClient.get('/entities?limit=1');
-      return true;
+      // Use version endpoint for health check (simple HTTP GET)
+      const response = await axios.get(`${this.orionUrl}/version`);
+      return response.status === 200;
     } catch (error) {
       this.logger.error('Orion-LD health check failed', error.message);
       return false;
