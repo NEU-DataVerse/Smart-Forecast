@@ -159,7 +159,6 @@
 
 - External APIs
 
-  - [x] OpenAQ API (URL, key)
   - [x] OpenWeatherMap API (URL, key)
 
 - Authentication

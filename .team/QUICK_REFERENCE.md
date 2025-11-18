@@ -60,7 +60,6 @@ docker-compose up -d --build
 JWT_SECRET=your_strong_secret_here
 
 # External APIs
-OPENAQ_API_KEY=your_openaq_key
 OWM_API_KEY=your_openweather_key
 
 # Firebase (for notifications)
@@ -247,7 +246,6 @@ docker build --progress=plain .   # See detailed logs
 
 ### API Keys
 
-- **OpenAQ**: https://openaq.org/#/api
 - **OpenWeatherMap**: https://openweathermap.org/api
 - **Mapbox**: https://account.mapbox.com/
 - **Firebase**: https://console.firebase.google.com/
