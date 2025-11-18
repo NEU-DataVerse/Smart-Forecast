@@ -4,6 +4,8 @@ import { OrionClientProvider } from './providers/orion-client.provider';
 import {
   transformOWMAirPollutionToNGSILD,
   transformOWMToNGSILD,
+  transformOWMAirPollutionForecastToNGSILD,
+  transformOWMDailyForecastToNGSILD,
 } from '../../common/transformers/ngsi-ld.transformer';
 import sourceLocationsData from './source_data.json';
 
@@ -43,85 +45,129 @@ export class IngestionService {
 
   /**
    * Ingest air quality data for all configured locations
-   * Fetches from OpenWeatherMap and pushes to Orion-LD
+   * Fetches current data + forecast from OpenWeatherMap and pushes to Orion-LD
    */
   async ingestAirQualityData(): Promise<{
     success: number;
     failed: number;
     errors: any[];
+    forecastSuccess: number;
+    forecastFailed: number;
   }> {
     this.logger.log(
-      `Starting air quality data ingestion for ${this.locations.length} locations`,
+      `Starting air quality data ingestion (current + forecast) for ${this.locations.length} locations`,
     );
 
     let successCount = 0;
     let failedCount = 0;
+    let forecastSuccessCount = 0;
+    let forecastFailedCount = 0;
     const errors: any[] = [];
 
     for (const location of this.locations) {
+      // Ingest current air quality data
       try {
-        // Fetch air pollution data from OpenWeatherMap
         const owmData = await this.owmProvider.getCurrentAirPollution(
           location.location.lat,
           location.location.lon,
         );
 
-        // Transform to NGSI-LD format
         const ngsiLdEntity = transformOWMAirPollutionToNGSILD(
           owmData,
           location.name,
           location.district,
         );
 
-        // Upsert to Orion-LD
         await this.orionClient.upsertEntity(ngsiLdEntity);
 
-        this.logger.debug(`✓ Air quality data ingested for ${location.name}`);
+        this.logger.debug(
+          `✓ Current air quality data ingested for ${location.name}`,
+        );
         successCount++;
       } catch (error) {
         this.logger.error(
-          `✗ Failed to ingest air quality data for ${location.name}`,
+          `✗ Failed to ingest current air quality for ${location.name}`,
           error.message,
         );
         failedCount++;
         errors.push({
           location: location.name,
+          type: 'current',
+          error: error.message,
+        });
+      }
+
+      // Ingest air quality forecast data
+      try {
+        const owmForecastData = await this.owmProvider.getAirPollutionForecast(
+          location.location.lat,
+          location.location.lon,
+        );
+
+        const forecastEntities = transformOWMAirPollutionForecastToNGSILD(
+          owmForecastData,
+          location.name,
+          location.district,
+        );
+
+        // Upsert all forecast entities
+        await this.orionClient.upsertEntities(forecastEntities);
+
+        this.logger.debug(
+          `✓ Air quality forecast (${forecastEntities.length} entries) ingested for ${location.name}`,
+        );
+        forecastSuccessCount++;
+      } catch (error) {
+        this.logger.error(
+          `✗ Failed to ingest air quality forecast for ${location.name}`,
+          error.message,
+        );
+        forecastFailedCount++;
+        errors.push({
+          location: location.name,
+          type: 'forecast',
           error: error.message,
         });
       }
     }
 
     this.logger.log(
-      `Air quality ingestion completed: ${successCount} succeeded, ${failedCount} failed`,
+      `Air quality ingestion completed: Current(${successCount}/${this.locations.length}), Forecast(${forecastSuccessCount}/${this.locations.length})`,
     );
 
     return {
       success: successCount,
       failed: failedCount,
+      forecastSuccess: forecastSuccessCount,
+      forecastFailed: forecastFailedCount,
       errors,
     };
   }
 
   /**
    * Ingest weather data for all configured locations
-   * Fetches from OpenWeatherMap and pushes to Orion-LD
+   * Fetches current data + 7-day forecast from OpenWeatherMap and pushes to Orion-LD
    */
   async ingestWeatherData(): Promise<{
     success: number;
     failed: number;
     errors: any[];
+    forecastSuccess: number;
+    forecastFailed: number;
   }> {
     this.logger.log(
-      `Starting weather data ingestion for ${this.locations.length} locations`,
+      `Starting weather data ingestion (current + 7-day forecast) for ${this.locations.length} locations`,
     );
 
     let successCount = 0;
     let failedCount = 0;
+    let forecastSuccessCount = 0;
+    let forecastFailedCount = 0;
     const errors: any[] = [];
 
     for (const location of this.locations) {
+      // Ingest current weather data
       try {
-        // Fetch current weather from OpenWeatherMap
         const owmData = await this.owmProvider.getCurrentWeather(
           location.location.lat,
           location.location.lon,
@@ -129,51 +175,104 @@ export class IngestionService {
           'vi', // Vietnamese language
         );
 
-        // Transform to NGSI-LD format
         const ngsiLdEntity = transformOWMToNGSILD(
           owmData,
           location.name,
           location.district,
         );
 
-        // Upsert to Orion-LD
         await this.orionClient.upsertEntity(ngsiLdEntity);
 
-        this.logger.debug(`✓ Weather data ingested for ${location.name}`);
+        this.logger.debug(
+          `✓ Current weather data ingested for ${location.name}`,
+        );
         successCount++;
       } catch (error) {
         this.logger.error(
-          `✗ Failed to ingest weather data for ${location.name}`,
+          `✗ Failed to ingest current weather for ${location.name}`,
           error.message,
         );
         failedCount++;
         errors.push({
           location: location.name,
+          type: 'current',
+          error: error.message,
+        });
+      }
+
+      // Ingest weather forecast data (7 days)
+      try {
+        const owmDailyData = await this.owmProvider.getDailyForecast(
+          location.location.lat,
+          location.location.lon,
+          7, // 7-day forecast
+          'metric',
+          'vi',
+        );
+
+        const forecastEntities = transformOWMDailyForecastToNGSILD(
+          owmDailyData,
+          location.name,
+          location.district,
+        );
+
+        // Upsert all forecast entities
+        await this.orionClient.upsertEntities(forecastEntities);
+
+        this.logger.debug(
+          `✓ Weather forecast (${forecastEntities.length} days) ingested for ${location.name}`,
+        );
+        forecastSuccessCount++;
+      } catch (error) {
+        this.logger.error(
+          `✗ Failed to ingest weather forecast for ${location.name}`,
+          error.message,
+        );
+        forecastFailedCount++;
+        errors.push({
+          location: location.name,
+          type: 'forecast',
           error: error.message,
         });
       }
     }
 
     this.logger.log(
-      `Weather ingestion completed: ${successCount} succeeded, ${failedCount} failed`,
+      `Weather ingestion completed: Current(${successCount}/${this.locations.length}), Forecast(${forecastSuccessCount}/${this.locations.length})`,
     );
 
     return {
       success: successCount,
       failed: failedCount,
+      forecastSuccess: forecastSuccessCount,
+      forecastFailed: forecastFailedCount,
       errors,
     };
   }
 
   /**
-   * Ingest both air quality and weather data
+   * Ingest both air quality and weather data (current + forecasts)
    * Runs both ingestion processes in parallel
    */
   async ingestAllData(): Promise<{
-    airQuality: { success: number; failed: number; errors: any[] };
-    weather: { success: number; failed: number; errors: any[] };
+    airQuality: {
+      success: number;
+      failed: number;
+      forecastSuccess: number;
+      forecastFailed: number;
+      errors: any[];
+    };
+    weather: {
+      success: number;
+      failed: number;
+      forecastSuccess: number;
+      forecastFailed: number;
+      errors: any[];
+    };
   }> {
-    this.logger.log('Starting full data ingestion (Air Quality + Weather)');
+    this.logger.log(
+      'Starting full data ingestion (Current + Forecasts: Air Quality + Weather)',
+    );
 
     const [airQualityResult, weatherResult] = await Promise.all([
       this.ingestAirQualityData(),
@@ -181,7 +280,7 @@ export class IngestionService {
     ]);
 
     this.logger.log(
-      `Full ingestion completed: AQ(${airQualityResult.success}/${this.locations.length}), Weather(${weatherResult.success}/${this.locations.length})`,
+      `Full ingestion completed: AQ[Current:${airQualityResult.success}, Forecast:${airQualityResult.forecastSuccess}], Weather[Current:${weatherResult.success}, Forecast:${weatherResult.forecastSuccess}]`,
     );
 
     return {

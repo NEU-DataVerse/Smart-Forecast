@@ -489,3 +489,244 @@ function getOpenWeatherAQICategory(aqi: number): string {
       return 'Unknown';
   }
 }
+
+/**
+ * Transform OpenWeather Air Pollution Forecast to NGSI-LD AirQualityForecast entities
+ * @param owmForecastData Raw forecast data from OpenWeather Air Pollution Forecast API
+ * @param cityName City name for entity identification
+ * @param districtName District name (optional)
+ * @returns Array of NGSI-LD AirQualityForecast entities
+ */
+export function transformOWMAirPollutionForecastToNGSILD(
+  owmForecastData: any,
+  cityName: string,
+  districtName?: string,
+): any[] {
+  if (!owmForecastData.list || owmForecastData.list.length === 0) {
+    throw new Error('No air pollution forecast data available in response');
+  }
+
+  const entities: any[] = [];
+
+  for (const forecast of owmForecastData.list) {
+    const components = forecast.components;
+    const forecastTime = new Date(forecast.dt * 1000).toISOString();
+
+    // Create unique ID with timestamp
+    const entityId = generateEntityId(
+      'AirQualityForecast',
+      `${cityName}-${owmForecastData.coord.lat}-${owmForecastData.coord.lon}-${forecast.dt}`,
+    );
+
+    const entity: any = {
+      id: entityId,
+      type: 'AirQualityForecast',
+      '@context': [
+        'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
+        'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
+      ],
+      dataProvider: createProperty('OpenWeatherMap'),
+      validFrom: createProperty(forecastTime),
+      validTo: createProperty(
+        new Date(forecast.dt * 1000 + 3600000).toISOString(),
+      ), // +1 hour
+    };
+
+    // Add location
+    if (
+      owmForecastData.coord?.lat !== undefined &&
+      owmForecastData.coord?.lon !== undefined
+    ) {
+      entity.location = createGeoProperty(
+        owmForecastData.coord.lon,
+        owmForecastData.coord.lat,
+      );
+    }
+
+    // Add address
+    if (cityName) {
+      entity.address = createAddressProperty(districtName || cityName, 'VN');
+    }
+
+    // Add pollutant forecasts
+    if (components) {
+      if (components.co !== undefined) {
+        entity.co = createProperty(components.co);
+      }
+      if (components.no !== undefined) {
+        entity.no = createProperty(components.no);
+      }
+      if (components.no2 !== undefined) {
+        entity.no2 = createProperty(components.no2);
+      }
+      if (components.o3 !== undefined) {
+        entity.o3 = createProperty(components.o3);
+      }
+      if (components.so2 !== undefined) {
+        entity.so2 = createProperty(components.so2);
+      }
+      if (components.pm2_5 !== undefined) {
+        entity.pm25 = createProperty(components.pm2_5);
+      }
+      if (components.pm10 !== undefined) {
+        entity.pm10 = createProperty(components.pm10);
+      }
+      if (components.nh3 !== undefined) {
+        entity.nh3 = createProperty(components.nh3);
+      }
+    }
+
+    // Add AQI
+    if (forecast.main?.aqi !== undefined) {
+      entity.airQualityIndex = createProperty(forecast.main.aqi);
+      entity.airQualityLevel = createProperty(
+        getOpenWeatherAQICategory(forecast.main.aqi),
+      );
+    }
+
+    entities.push(entity);
+  }
+
+  return entities;
+}
+
+/**
+ * Transform OpenWeather Daily Forecast to NGSI-LD WeatherForecast entities
+ * @param owmDailyData Raw data from OpenWeather Daily Forecast API
+ * @param cityName City name for entity identification
+ * @param districtName District name (optional)
+ * @returns Array of NGSI-LD WeatherForecast entities
+ */
+export function transformOWMDailyForecastToNGSILD(
+  owmDailyData: any,
+  cityName: string,
+  districtName?: string,
+): any[] {
+  if (!owmDailyData.list || owmDailyData.list.length === 0) {
+    throw new Error('No daily forecast data available in response');
+  }
+
+  const entities: any[] = [];
+  const coord = owmDailyData.city?.coord || { lat: 0, lon: 0 };
+
+  for (const dailyForecast of owmDailyData.list) {
+    const forecastDate = new Date(dailyForecast.dt * 1000);
+    const validFrom = new Date(forecastDate);
+    validFrom.setHours(0, 0, 0, 0);
+    const validTo = new Date(forecastDate);
+    validTo.setHours(23, 59, 59, 999);
+
+    const entityId = generateEntityId(
+      'WeatherForecast',
+      `${cityName}-${coord.lat}-${coord.lon}-${dailyForecast.dt}`,
+    );
+
+    const entity: any = {
+      id: entityId,
+      type: 'WeatherForecast',
+      '@context': [
+        'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
+        'https://raw.githubusercontent.com/smart-data-models/dataModel.Weather/master/context.jsonld',
+      ],
+      dataProvider: createProperty('OpenWeatherMap'),
+      dateIssued: createProperty(getCurrentTimestamp()),
+      validFrom: createProperty(validFrom.toISOString()),
+      validTo: createProperty(validTo.toISOString()),
+    };
+
+    // Location
+    if (coord.lat !== undefined && coord.lon !== undefined) {
+      entity.location = createGeoProperty(coord.lon, coord.lat);
+    }
+
+    // Address
+    if (cityName) {
+      entity.address = createAddressProperty(districtName || cityName, 'VN');
+    }
+
+    // Temperature (day average)
+    if (dailyForecast.temp?.day !== undefined) {
+      entity.temperature = createProperty(dailyForecast.temp.day);
+    }
+
+    // Feels like temperature
+    if (dailyForecast.feels_like?.day !== undefined) {
+      entity.feelsLikeTemperature = createProperty(
+        dailyForecast.feels_like.day,
+      );
+    }
+
+    // Day maximum
+    if (dailyForecast.temp?.max !== undefined) {
+      entity.dayMaximum = createProperty({
+        temperature: dailyForecast.temp.max,
+        feelsLikeTemperature: dailyForecast.feels_like?.eve,
+        relativeHumidity: dailyForecast.humidity
+          ? dailyForecast.humidity / 100
+          : undefined,
+      });
+    }
+
+    // Day minimum
+    if (dailyForecast.temp?.min !== undefined) {
+      entity.dayMinimum = createProperty({
+        temperature: dailyForecast.temp.min,
+        feelsLikeTemperature: dailyForecast.feels_like?.morn,
+        relativeHumidity: dailyForecast.humidity
+          ? dailyForecast.humidity / 100
+          : undefined,
+      });
+    }
+
+    // Humidity
+    if (dailyForecast.humidity !== undefined) {
+      entity.relativeHumidity = createProperty(dailyForecast.humidity / 100);
+    }
+
+    // Pressure
+    if (dailyForecast.pressure !== undefined) {
+      entity.atmosphericPressure = createProperty(dailyForecast.pressure);
+    }
+
+    // Wind
+    if (dailyForecast.speed !== undefined) {
+      entity.windSpeed = createProperty(dailyForecast.speed);
+    }
+    if (dailyForecast.deg !== undefined) {
+      entity.windDirection = createProperty(dailyForecast.deg);
+    }
+    if (dailyForecast.gust !== undefined) {
+      entity.windGust = createProperty(dailyForecast.gust);
+    }
+
+    // Cloudiness
+    if (dailyForecast.clouds !== undefined) {
+      entity.cloudiness = createProperty(dailyForecast.clouds);
+    }
+
+    // Precipitation
+    if (dailyForecast.rain !== undefined) {
+      entity.precipitation = createProperty(dailyForecast.rain);
+    }
+
+    // Precipitation probability
+    if (dailyForecast.pop !== undefined) {
+      entity.precipitationProbability = createProperty(dailyForecast.pop);
+    }
+
+    // Weather condition
+    if (dailyForecast.weather && dailyForecast.weather.length > 0) {
+      const weather = dailyForecast.weather[0];
+      if (weather.main) {
+        entity.weatherType = createProperty(weather.main);
+      }
+      if (weather.description) {
+        entity.weatherDescription = createProperty(weather.description);
+      }
+    }
+
+    entities.push(entity);
+  }
+
+  return entities;
+}

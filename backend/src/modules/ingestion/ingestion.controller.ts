@@ -80,4 +80,25 @@ export class IngestionController {
       },
     };
   }
+
+  /**
+   * Get ingestion statistics summary
+   * GET /api/v1/ingestion/stats
+   */
+  @Get('stats')
+  getStats() {
+    return {
+      message: 'Ingestion module statistics',
+      locations: this.ingestionService.getMonitoringLocations().length,
+      endpoints: {
+        current: {
+          airQuality: 'POST /api/v1/ingestion/air-quality',
+          weather: 'POST /api/v1/ingestion/weather',
+        },
+        all: 'POST /api/v1/ingestion/all',
+      },
+      description:
+        'Current ingestion includes both real-time data and forecasts (Air Quality: 4-day forecast, Weather: 7-day forecast)',
+    };
+  }
 }
