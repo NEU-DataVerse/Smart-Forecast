@@ -121,14 +121,16 @@ export function getCurrentTimestamp(): string {
  * Transform OpenWeather Air Pollution data to NGSI-LD AirQualityObserved entity
  * @param owmAirData Raw data from OpenWeather Air Pollution API
  * @param cityName City name for entity identification
+ * @param districtName District name (optional)
  * @returns NGSI-LD AirQualityObserved entity
  */
 export function transformOWMAirPollutionToNGSILD(
   owmAirData: any,
   cityName: string,
+  districtName?: string,
 ): any {
   if (!owmAirData.list || owmAirData.list.length === 0) {
-    throw new Error('No air pollution data available');
+    throw new Error('No air pollution data available in response');
   }
 
   // Get the first measurement (current data)
@@ -168,32 +170,47 @@ export function transformOWMAirPollutionToNGSILD(
 
   // Add address information
   if (cityName) {
-    entity.address = createAddressProperty(cityName);
+    entity.address = createAddressProperty(districtName || cityName, 'VN');
   }
 
   // Add pollutant measurements (all in μg/m³)
   if (components) {
+    // Carbon monoxide (CO)
     if (components.co !== undefined) {
       entity.co = createProperty(components.co, observedAt);
     }
+
+    // Nitrogen monoxide (NO)
     if (components.no !== undefined) {
       entity.no = createProperty(components.no, observedAt);
     }
+
+    // Nitrogen dioxide (NO2)
     if (components.no2 !== undefined) {
       entity.no2 = createProperty(components.no2, observedAt);
     }
+
+    // Ozone (O3)
     if (components.o3 !== undefined) {
       entity.o3 = createProperty(components.o3, observedAt);
     }
+
+    // Sulphur dioxide (SO2)
     if (components.so2 !== undefined) {
       entity.so2 = createProperty(components.so2, observedAt);
     }
+
+    // Fine particulate matter (PM2.5)
     if (components.pm2_5 !== undefined) {
       entity.pm25 = createProperty(components.pm2_5, observedAt);
     }
+
+    // Coarse particulate matter (PM10)
     if (components.pm10 !== undefined) {
       entity.pm10 = createProperty(components.pm10, observedAt);
     }
+
+    // Ammonia (NH3)
     if (components.nh3 !== undefined) {
       entity.nh3 = createProperty(components.nh3, observedAt);
     }
@@ -209,10 +226,13 @@ export function transformOWMAirPollutionToNGSILD(
   }
 
   // Calculate US EPA AQI if PM2.5 is available
-  if (entity.pm25) {
-    const usAqi = calculateAQI(entity.pm25.value);
-    entity.aqi = createProperty(usAqi, observedAt);
-    entity.aqiCategory = createProperty(getAQICategory(usAqi), observedAt);
+  if (components?.pm2_5 !== undefined) {
+    const usAQI = calculateAQI(components.pm2_5);
+    entity.airQualityIndexUS = createProperty(usAQI, observedAt);
+    entity.airQualityLevelUS = createProperty(
+      getAQICategory(usAQI),
+      observedAt,
+    );
   }
 
   return entity;
@@ -220,13 +240,24 @@ export function transformOWMAirPollutionToNGSILD(
 
 /**
  * Transform OpenWeatherMap data to NGSI-LD WeatherObserved entity
- * @param owmData Raw data from OpenWeatherMap API
+ * @param owmData Raw data from OpenWeatherMap current weather API
+ * @param cityName City name for entity identification (optional, will use owmData.name if not provided)
+ * @param districtName District name (optional)
  * @returns NGSI-LD WeatherObserved entity
  */
-export function transformOWMToNGSILD(owmData: any): any {
+export function transformOWMToNGSILD(
+  owmData: any,
+  cityName?: string,
+  districtName?: string,
+): any {
+  if (!owmData || !owmData.coord) {
+    throw new Error('Invalid weather data: missing coordinates');
+  }
+
+  const locationName = cityName || owmData.name || 'Unknown';
   const entityId = generateEntityId(
     'WeatherObserved',
-    `${owmData.name || 'unknown'}-${owmData.id || 'station'}`,
+    `${locationName}-${owmData.coord.lat}-${owmData.coord.lon}`,
   );
 
   const observedAt = owmData.dt
@@ -244,75 +275,152 @@ export function transformOWMToNGSILD(owmData: any): any {
     source: createProperty('OpenWeatherMap'),
   };
 
-  // Add location
-  if (owmData.coord?.lon !== undefined && owmData.coord?.lat !== undefined) {
+  // Add location (GeoProperty)
+  if (owmData.coord?.lat !== undefined && owmData.coord?.lon !== undefined) {
     entity.location = createGeoProperty(owmData.coord.lon, owmData.coord.lat);
   }
 
   // Add address information
-  if (owmData.name || owmData.sys?.country) {
-    entity.address = createAddressProperty(owmData.name, owmData.sys?.country);
+  const addressLocality = districtName || locationName;
+  const addressCountry = owmData.sys?.country || 'VN';
+  entity.address = createAddressProperty(addressLocality, addressCountry);
+
+  // Temperature (convert from Kelvin to Celsius if units=standard)
+  // OWM returns Celsius when units=metric is specified
+  if (owmData.main?.temp !== undefined) {
+    entity.temperature = createProperty(owmData.main.temp, observedAt);
   }
 
-  // Add weather measurements
-  if (owmData.main) {
-    if (owmData.main.temp !== undefined) {
-      entity.temperature = createProperty(owmData.main.temp, observedAt);
-    }
-    if (owmData.main.feels_like !== undefined) {
-      entity.feelsLikeTemperature = createProperty(
-        owmData.main.feels_like,
-        observedAt,
-      );
-    }
-    if (owmData.main.humidity !== undefined) {
-      entity.relativeHumidity = createProperty(
-        owmData.main.humidity,
-        observedAt,
-      );
-    }
-    if (owmData.main.pressure !== undefined) {
-      entity.atmosphericPressure = createProperty(
-        owmData.main.pressure,
-        observedAt,
-      );
+  // Feels like temperature
+  if (owmData.main?.feels_like !== undefined) {
+    entity.feelsLikeTemperature = createProperty(
+      owmData.main.feels_like,
+      observedAt,
+    );
+  }
+
+  // Min/Max temperature (current observation range)
+  if (owmData.main?.temp_min !== undefined) {
+    entity.temperatureMin = createProperty(owmData.main.temp_min, observedAt);
+  }
+  if (owmData.main?.temp_max !== undefined) {
+    entity.temperatureMax = createProperty(owmData.main.temp_max, observedAt);
+  }
+
+  // Atmospheric pressure (hPa)
+  if (owmData.main?.pressure !== undefined) {
+    entity.atmosphericPressure = createProperty(
+      owmData.main.pressure,
+      observedAt,
+    );
+  }
+
+  // Sea level and ground level pressure
+  if (owmData.main?.sea_level !== undefined) {
+    entity.pressureSeaLevel = createProperty(
+      owmData.main.sea_level,
+      observedAt,
+    );
+  }
+  if (owmData.main?.grnd_level !== undefined) {
+    entity.pressureGroundLevel = createProperty(
+      owmData.main.grnd_level,
+      observedAt,
+    );
+  }
+
+  // Relative humidity (convert from % to 0-1 range)
+  if (owmData.main?.humidity !== undefined) {
+    entity.relativeHumidity = createProperty(
+      owmData.main.humidity / 100,
+      observedAt,
+    );
+  }
+
+  // Visibility (meters, max 10km)
+  if (owmData.visibility !== undefined) {
+    entity.visibility = createProperty(owmData.visibility, observedAt);
+  }
+
+  // Wind speed (m/s by default, mph if imperial)
+  if (owmData.wind?.speed !== undefined) {
+    entity.windSpeed = createProperty(owmData.wind.speed, observedAt);
+  }
+
+  // Wind direction (degrees)
+  if (owmData.wind?.deg !== undefined) {
+    entity.windDirection = createProperty(owmData.wind.deg, observedAt);
+  }
+
+  // Wind gust
+  if (owmData.wind?.gust !== undefined) {
+    entity.windGust = createProperty(owmData.wind.gust, observedAt);
+  }
+
+  // Cloudiness (%)
+  if (owmData.clouds?.all !== undefined) {
+    entity.cloudiness = createProperty(owmData.clouds.all, observedAt);
+  }
+
+  // Precipitation (rain)
+  if (owmData.rain) {
+    if (owmData.rain['1h'] !== undefined) {
+      entity.precipitation = createProperty(owmData.rain['1h'], observedAt);
+    } else if (owmData.rain['3h'] !== undefined) {
+      // If only 3h available, use it
+      entity.precipitation = createProperty(owmData.rain['3h'], observedAt);
     }
   }
 
-  // Add wind information
-  if (owmData.wind) {
-    if (owmData.wind.speed !== undefined) {
-      entity.windSpeed = createProperty(owmData.wind.speed, observedAt);
-    }
-    if (owmData.wind.deg !== undefined) {
-      entity.windDirection = createProperty(owmData.wind.deg, observedAt);
+  // Snow
+  if (owmData.snow) {
+    if (owmData.snow['1h'] !== undefined) {
+      entity.snowHeight = createProperty(owmData.snow['1h'], observedAt);
+    } else if (owmData.snow['3h'] !== undefined) {
+      entity.snowHeight = createProperty(owmData.snow['3h'], observedAt);
     }
   }
 
-  // Add precipitation (rain/snow)
-  if (owmData.rain?.['1h'] !== undefined) {
-    entity.precipitation = createProperty(owmData.rain['1h'], observedAt);
-  } else if (owmData.snow?.['1h'] !== undefined) {
-    entity.precipitation = createProperty(owmData.snow['1h'], observedAt);
-  }
-
-  // Add weather condition
+  // Weather condition
   if (owmData.weather && owmData.weather.length > 0) {
     const weather = owmData.weather[0];
+
+    // Main weather group (Rain, Snow, Clouds, etc.)
     if (weather.main) {
       entity.weatherType = createProperty(weather.main, observedAt);
     }
+
+    // Detailed description
     if (weather.description) {
       entity.weatherDescription = createProperty(
         weather.description,
         observedAt,
       );
     }
+
+    // Icon code for display
+    if (weather.icon) {
+      entity.weatherIconCode = createProperty(weather.icon, observedAt);
+    }
   }
 
-  // Add visibility
-  if (owmData.visibility !== undefined) {
-    entity.visibility = createProperty(owmData.visibility, observedAt);
+  // Sunrise and sunset (Unix timestamp -> ISO string)
+  if (owmData.sys?.sunrise !== undefined) {
+    entity.sunrise = createProperty(
+      new Date(owmData.sys.sunrise * 1000).toISOString(),
+      observedAt,
+    );
+  }
+  if (owmData.sys?.sunset !== undefined) {
+    entity.sunset = createProperty(
+      new Date(owmData.sys.sunset * 1000).toISOString(),
+      observedAt,
+    );
+  }
+
+  // Timezone offset (seconds from UTC)
+  if (owmData.timezone !== undefined) {
+    entity.timezone = createProperty(owmData.timezone, observedAt);
   }
 
   return entity;
