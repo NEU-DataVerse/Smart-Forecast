@@ -12,9 +12,9 @@ export class SubscriptionService implements OnModuleInit {
   private subscriptionIds: Map<string, string> = new Map();
 
   // Backend notification endpoint (Native persistence service)
-  // Replaced Cygnus with custom NestJS service that handles NGSI-LD directly
   // Use host.docker.internal to allow Docker containers to reach host machine
-  private readonly cygnusEndpoint = 'http://host.docker.internal:8000/notify';
+  private readonly notificationEndpoint =
+    'http://host.docker.internal:8000/notify';
 
   // Entity types to subscribe (only observed data, not forecasts)
   private readonly entityTypes = ['AirQualityObserved', 'WeatherObserved'];
@@ -25,7 +25,7 @@ export class SubscriptionService implements OnModuleInit {
    * Lifecycle hook - Auto-create subscriptions on app startup
    */
   async onModuleInit() {
-    this.logger.log('Initializing Cygnus subscriptions...');
+    this.logger.log('Initializing persistence subscriptions...');
 
     try {
       // Cleanup stale subscriptions first
@@ -48,31 +48,31 @@ export class SubscriptionService implements OnModuleInit {
   }
 
   /**
-   * Delete all Cygnus-related subscriptions from Orion-LD
+   * Delete all stale subscriptions from Orion-LD
    * Used to cleanup stale subscriptions before creating new ones
    */
   private async cleanupStaleSubscriptions(): Promise<void> {
     try {
-      this.logger.debug('Checking for stale Cygnus subscriptions...');
+      this.logger.debug('Checking for stale subscriptions...');
 
       const existingSubscriptions = await this.orionClient.getSubscriptions();
 
-      // Filter subscriptions that point to Cygnus
-      const cygnusSubscriptions = existingSubscriptions.filter((sub) =>
-        sub.notification?.endpoint?.uri?.includes('cygnus'),
+      // Filter subscriptions that point to our backend notification endpoint
+      const staleSubscriptions = existingSubscriptions.filter((sub) =>
+        sub.notification?.endpoint?.uri?.includes('8000/notify'),
       );
 
-      if (cygnusSubscriptions.length === 0) {
+      if (staleSubscriptions.length === 0) {
         this.logger.debug('No stale subscriptions found');
         return;
       }
 
       this.logger.log(
-        `Found ${cygnusSubscriptions.length} stale subscriptions, deleting...`,
+        `Found ${staleSubscriptions.length} stale subscriptions, deleting...`,
       );
 
       // Delete all stale subscriptions
-      for (const subscription of cygnusSubscriptions) {
+      for (const subscription of staleSubscriptions) {
         try {
           await this.orionClient.deleteSubscription(subscription.id);
           this.logger.debug(`Deleted stale subscription: ${subscription.id}`);
@@ -125,7 +125,7 @@ export class SubscriptionService implements OnModuleInit {
         'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
       ],
       type: 'Subscription',
-      description: `Cygnus subscription for ${entityType} - Auto-created by Smart Forecast`,
+      description: `Persistence subscription for ${entityType} - Auto-created by Smart Forecast`,
       entities: [
         {
           type: entityType,
@@ -134,7 +134,7 @@ export class SubscriptionService implements OnModuleInit {
       notification: {
         format: 'normalized', // NGSI-LD normalized format
         endpoint: {
-          uri: this.cygnusEndpoint,
+          uri: this.notificationEndpoint,
           accept: 'application/json',
         },
         // Notify on all attribute changes
@@ -184,9 +184,9 @@ export class SubscriptionService implements OnModuleInit {
     try {
       const allSubscriptions = await this.orionClient.getSubscriptions();
 
-      // Filter only our Cygnus subscriptions
+      // Filter only our persistence subscriptions
       return allSubscriptions.filter((sub) =>
-        sub.notification?.endpoint?.uri?.includes('cygnus'),
+        sub.notification?.endpoint?.uri?.includes('8000/notify'),
       );
     } catch (error) {
       this.logger.error('Failed to get subscription details', error.message);

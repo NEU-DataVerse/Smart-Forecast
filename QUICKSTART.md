@@ -88,7 +88,6 @@ Bây giờ bạn có:
 - ✅ MongoDB cho Orion (port 27017)
 - ✅ PostgreSQL Database (port 5432)
 - ✅ MinIO Object Storage (port 9000, console 9001)
-- ✅ Cygnus Data Sink (port 5080)
 
 ## 📋 Các lệnh thường dùng
 
