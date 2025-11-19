@@ -68,8 +68,8 @@ echo "-----------------------------------"
 # Test Orion
 test_endpoint_with_response "Orion Context Broker" "http://localhost:1026/version"
 
-# Test Cygnus
-test_endpoint_with_response "Cygnus Data Sink" "http://localhost:5080/v1/version"
+# Test Backend
+test_endpoint "Backend API" "http://localhost:8000/api/v1"
 
 # Test MinIO
 test_endpoint "MinIO Health" "http://localhost:9000/minio/health/live"
@@ -102,7 +102,7 @@ echo ""
 echo -e "${YELLOW}Checking Container Health Status...${NC}"
 echo "-----------------------------------"
 
-containers=("orion" "mongodb" "postgres" "minio" "cygnus")
+containers=("orion" "mongodb" "postgres" "minio")
 
 for container in "${containers[@]}"; do
     echo -n "Checking $container... "
@@ -134,8 +134,7 @@ ports=(
     "5432:PostgreSQL"
     "9000:MinIO API"
     "9001:MinIO Console"
-    "5080:Cygnus API"
-    "5050:Cygnus Service"
+    "8000:Backend API"
 )
 
 for port_info in "${ports[@]}"; do
@@ -169,7 +168,7 @@ if [ "$healthy_count" -eq "$total_count" ] && [ "$total_count" -gt 0 ]; then
     echo ""
     echo -e "${BLUE}Service URLs:${NC}"
     echo "  - Orion: http://localhost:1026"
-    echo "  - Cygnus: http://localhost:5080"
+    echo "  - Backend: http://localhost:8000"
     echo "  - MinIO Console: http://localhost:9001"
     echo "  - PostgreSQL: localhost:5432"
     exit 0

@@ -92,37 +92,6 @@ services:
       retries: 3
       start_period: 40s
 
-  # ===== DATA SINK =====
-
-  cygnus:
-    image: fiware/cygnus-ngsi:latest
-    hostname: cygnus
-    container_name: cygnus
-    depends_on:
-      - postgres
-      - orion
-    ports:
-      - "5080:5080"
-      - "5050:5050"
-    environment:
-      - CYGNUS_POSTGRESQL_HOST=postgres
-      - CYGNUS_POSTGRESQL_PORT=5432
-      - CYGNUS_POSTGRESQL_USER=${POSTGRES_USER}
-      - CYGNUS_POSTGRESQL_PASS=${POSTGRES_PASSWORD}
-      - CYGNUS_POSTGRESQL_DATABASE=${POSTGRES_DB}
-      - CYGNUS_POSTGRESQL_ENABLE_CACHE=true
-      - CYGNUS_SERVICE_PORT=5050
-      - CYGNUS_API_PORT=5080
-      - CYGNUS_LOG_LEVEL=DEBUG
-    networks:
-      - smart-forecast-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5080/v1/version"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
   # ===== BACKEND API =====
 
   # backend:

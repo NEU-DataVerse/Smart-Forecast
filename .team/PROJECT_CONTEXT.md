@@ -38,7 +38,7 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 2. **Xử lý ngữ cảnh (Orion-LD)**
 
    - Lưu trữ và cung cấp dữ liệu ngữ cảnh môi trường theo chuẩn FIWARE.
-   - Đồng bộ dữ liệu lịch sử sang **PostgreSQL (qua Cygnus)**.
+   - Đồng bộ dữ liệu lịch sử sang **PostgreSQL**.
 
 3. **Phân tích & cảnh báo (Backend Node.js)**
 
@@ -58,11 +58,9 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 ```
 [OWM APIs]
         ↓
-[Backend (Node.js)]
+[Backend (Node.js)] ←→ [Orion-LD Context Broker] ←→ [MongoDB]
         ↓
-[Orion-LD Context Broker] ←→ [MongoDB]
-        ↓
-[Cygnus → PostgreSQL] (lưu dữ liệu lịch sử)
+[PostgreSQL] (lưu dữ liệu lịch sử)
         ↓
 [MinIO] (lưu ảnh sự cố)
         ↓
@@ -124,12 +122,12 @@ smart-forecast/
 
 ## 🧠 **Chiến lược demo**
 
-| Thành phần                      | Cách demo                                             |
-| ------------------------------- | ----------------------------------------------------- |
-| **Backend**                     | Chạy bằng Docker Compose (`localhost:8000`)           |
-| **Web**                         | Dashboard qua `localhost:3000`                        |
-| **Mobile**                      | Expo Go (`npx expo start --tunnel`) hoặc build `.apk` |
-| **Orion-LD, Cygnus, DB, MinIO** | Tự động khởi động trong Docker Compose                |
+| Thành phần              | Cách demo                                             |
+| ----------------------- | ----------------------------------------------------- |
+| **Backend**             | Chạy bằng Docker Compose (`localhost:8000`)           |
+| **Web**                 | Dashboard qua `localhost:3000`                        |
+| **Mobile**              | Expo Go (`npx expo start --tunnel`) hoặc build `.apk` |
+| **Orion-LD, DB, MinIO** | Tự động khởi động trong Docker Compose                |
 
 ---
 

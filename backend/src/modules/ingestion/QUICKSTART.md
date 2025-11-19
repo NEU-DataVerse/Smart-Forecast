@@ -213,14 +213,3 @@ async handleScheduledIngestion() {
   // ...
 }
 ```
-
-## Next Steps
-
-1. ✅ Complete Epic 1 - Ingestion Module
-2. ⏳ Epic 2 - Configure Cygnus for historical data
-3. ⏳ Epic 3 - Build REST APIs for querying data
-4. ⏳ Epic 4 - Integrate with Web/Mobile frontends
-
----
-
-**Happy Coding! 🎉**

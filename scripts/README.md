@@ -41,7 +41,7 @@ bash scripts/health-check.sh
 **Chức năng:**
 
 - ✅ Kiểm tra Docker Compose status
-- ✅ Test endpoints (Orion, Cygnus, MinIO)
+- ✅ Test endpoints (Orion, Backend, MinIO)
 - ✅ Test database connections (PostgreSQL, MongoDB)
 - ✅ Kiểm tra container health
 - ✅ Kiểm tra ports đang mở
@@ -60,7 +60,7 @@ Checking Docker Compose status...
 Testing Service Endpoints...
 -----------------------------------
 Testing Orion Context Broker... ✅ OK
-Testing Cygnus Data Sink... ✅ OK
+Testing Backend API... ✅ OK
 Testing MinIO Health... ✅ OK
 
 Testing Database Connections...
@@ -74,7 +74,6 @@ Checking orion... ✅ healthy
 Checking mongodb... ✅ healthy
 Checking postgres... ✅ healthy
 Checking minio... ✅ healthy
-Checking cygnus... ✅ healthy
 
 🎉 All services are running and healthy!
 ```

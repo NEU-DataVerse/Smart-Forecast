@@ -97,7 +97,7 @@ echo ================================
 echo [OK] Orion Context Broker: http://localhost:1026
 echo [OK] MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 echo [OK] PostgreSQL: localhost:5432 (admin/admin)
-echo [OK] Cygnus: http://localhost:5080
+echo [OK] Backend API: http://localhost:8000
 echo.
 
 REM Test Orion endpoint

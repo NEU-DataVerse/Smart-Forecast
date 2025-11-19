@@ -4,14 +4,14 @@
 
 ### Epic 1: [P3] Hoàn thiện Module Báo cáo Sự cố (Incident)
 
--   **Người phụ trách:** Khải (Backend), Bích (Mobile), Đạt (Web)
--   **Mô tả:** Cho phép người dân gửi báo cáo (ảnh, vị trí) và admin duyệt các báo cáo đó.
+- **Người phụ trách:** Khải (Backend), Bích (Mobile), Đạt (Web)
+- **Mô tả:** Cho phép người dân gửi báo cáo (ảnh, vị trí) và admin duyệt các báo cáo đó.
 
 | ID            | Issue (Công việc)                   | Mô tả chi tiết                                                                                                          | Người thực hiện |
 | :------------ | :---------------------------------- | :---------------------------------------------------------------------------------------------------------------------- | :-------------- |
 | **P3-INC-01** | [Backend] Phát triển Module `file`  | Tạo API `POST /api/v1/file/upload` để nhận ảnh (FormData), tải lên **MinIO** và trả về URL.                             | Khải            |
 | **P3-INC-02** | [Backend] Phát triển API `incident` | Tạo API `POST /api/v1/incident` để nhận báo cáo (text, location, image URLs) và lưu vào **PostgreSQL**.                 | Khải            |
-| **P3-INC-03** | [Mobile] Tích hợp Upload Ảnh        | (Bích) Tích hợp P3-INC-01: Cho phép người dùng chụp ảnh/chọn từ thư viện và upload lên server, nhận về URL.             | Bích            |
+| **P3-INC-03** | [Mobile] Tích hợp Upload Ảnh        | (Bích) Tích hợp P3-INC-01: Cho phép người dùng chụp ảnh (không upload từ thư viện) upload lên server, nhận về URL.      | Bích            |
 | **P3-INC-04** | [Mobile] Tích hợp Gửi Báo cáo       | (Bích) Tích hợp P3-INC-02: Tổng hợp (text, GPS, URLs ảnh) và gửi báo cáo sự cố. Hiển thị thông báo thành công/thất bại. | Bích            |
 | **P3-INC-05** | [Backend] API cho Admin (Web)       | Tạo API `GET /api/v1/incident` (danh sách) và `PUT /api/v1/incident/:id/status` (duyệt/từ chối).                        | Khải            |
 | **P3-INC-06** | [Web] Xây dựng UI Quản lý Sự cố     | (Đạt) Tạo trang "Quản lý sự cố" trên Dashboard, hiển thị danh sách các báo cáo từ API P3-INC-05.                        | Đạt             |
@@ -19,8 +19,8 @@
 
 ### Epic 2: [P3] Phát triển Module Cảnh báo Khẩn (Alert)
 
--   **Người phụ trách:** Khải (Backend), Bích (Mobile), Đạt (Web)
--   **Mô tả:** Cho phép Admin gửi cảnh báo khẩn cấp (Push Notification) đến tất cả người dân qua Firebase Cloud Messaging (FCM).
+- **Người phụ trách:** Khải (Backend), Bích (Mobile), Đạt (Web)
+- **Mô tả:** Cho phép Admin gửi cảnh báo khẩn cấp (Push Notification) đến tất cả người dân qua Firebase Cloud Messaging (FCM).
 
 | ID            | Issue (Công việc)                 | Mô tả chi tiết                                                                                                                           | Người thực hiện |
 | :------------ | :-------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- | :-------------- |
@@ -34,8 +34,8 @@
 
 ### Epic 3: [P3] Xây dựng Trang Thống kê (Web)
 
--   **Người phụ trách:** Khải (Backend), Đạt (Web)
--   **Mô tả:** Cung cấp các biểu đồ và số liệu thống kê tổng quan cho Admin.
+- **Người phụ trách:** Khải (Backend), Đạt (Web)
+- **Mô tả:** Cung cấp các biểu đồ và số liệu thống kê tổng quan cho Admin.
 
 | ID            | Issue (Công việc)                 | Mô tả chi tiết                                                                                                 | Người thực hiện |
 | :------------ | :-------------------------------- | :------------------------------------------------------------------------------------------------------------- | :-------------- |
@@ -45,8 +45,8 @@
 
 ### Epic 4: [P3] Hoàn thiện Tài liệu
 
--   **Người phụ trách:** Bích (Docs)
--   **Mô tả:** Hoàn thiện tài liệu API và chuẩn bị Slide thuyết trình.
+- **Người phụ trách:** Bích (Docs)
+- **Mô tả:** Hoàn thiện tài liệu API và chuẩn bị Slide thuyết trình.
 
 | ID            | Issue (Công việc)                          | Mô tả chi tiết                                                                           |
 | :------------ | :----------------------------------------- | :--------------------------------------------------------------------------------------- |

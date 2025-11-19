@@ -16,6 +16,6 @@ import { IngestionScheduler } from './schedulers/ingestion.scheduler';
     OrionClientProvider,
     IngestionScheduler,
   ],
-  exports: [IngestionService],
+  exports: [IngestionService, OrionClientProvider],
 })
 export class IngestionModule {}

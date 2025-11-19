@@ -79,8 +79,8 @@ test: ## Test các services
 	@echo "$(BLUE)🧪 Testing services...$(NC)"
 	@echo "Testing Orion Context Broker..."
 	@curl -s http://localhost:1026/version > /dev/null && echo "$(GREEN)✅ Orion OK$(NC)" || echo "$(RED)❌ Orion Failed$(NC)"
-	@echo "Testing Cygnus..."
-	@curl -s http://localhost:5080/v1/version > /dev/null && echo "$(GREEN)✅ Cygnus OK$(NC)" || echo "$(RED)❌ Cygnus Failed$(NC)"
+	@echo "Testing Backend API..."
+	@curl -s http://localhost:8000/api/v1 > /dev/null && echo "$(GREEN)✅ Backend OK$(NC)" || echo "$(RED)❌ Backend Failed$(NC)"
 	@echo "Testing MinIO..."
 	@curl -s http://localhost:9000/minio/health/live > /dev/null && echo "$(GREEN)✅ MinIO OK$(NC)" || echo "$(RED)❌ MinIO Failed$(NC)"
 
@@ -136,11 +136,11 @@ logs-orion: ## Xem logs Orion
 logs-postgres: ## Xem logs PostgreSQL
 	@docker-compose logs -f postgres
 
-logs-cygnus: ## Xem logs Cygnus
-	@docker-compose logs -f cygnus
-
 logs-minio: ## Xem logs MinIO
 	@docker-compose logs -f minio
+
+logs-backend: ## Xem logs Backend
+	@docker-compose logs -f backend
 
 reset: down clean setup up ## Reset toàn bộ hệ thống
 	@echo "$(GREEN)✅ System reset complete!$(NC)"

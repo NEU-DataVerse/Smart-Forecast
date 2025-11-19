@@ -45,7 +45,7 @@
   - Hoàn thiện module `ingestion`: Lấy dữ liệu từ OpenWeatherMap.
   - Chuẩn hoá dữ liệu thành NGSI-LD Entity (ví dụ: `AirQualityObserved`, `WeatherObserved`) theo Smart Data Models.
   - Gửi dữ liệu thành công vào Orion-LD Context Broker.
-  - Cấu hình Cygnus để đồng bộ dữ liệu lịch sử từ Orion-LD sang PostgreSQL.
+  - Cấu hình để đồng bộ dữ liệu lịch sử từ Orion-LD sang PostgreSQL.
   - Xây dựng API (modules `airquality/`, `weather/`) để Frontend lấy dữ liệu (đã qua xử lý) từ Orion-LD và PostgreSQL.
 
 - **👨‍💻 Đạt (Frontend Web)**

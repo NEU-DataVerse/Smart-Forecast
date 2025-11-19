@@ -16,18 +16,19 @@
 | **P2-ING-05** | [Backend] Đẩy dữ liệu vào Orion-LD              | Tạo service tương tác với Orion-LD (gọi `POST /ngsi-ld/v1/entities` hoặc `.../upsert`) để cập nhật dữ liệu. |
 | **P2-ING-06** | [Backend] Cấu hình Cron Job                     | Thiết lập một tác vụ lặp lại (ví dụ: mỗi 30 phút) để tự động chạy luồng ingestion (P2-ING-01 đến 05).       |
 
-### Epic 2: [P2] Cấu hình Đồng bộ Dữ liệu Lịch sử (Cygnus)
+### Epic 2: [P2] Cấu hình Đồng bộ Dữ liệu Lịch sử (Native Persistence)
 
-- **Người phụ trách:** Khải (Backend/DevOps)
-- **Mô tả:** Đảm bảo dữ liệu ngữ cảnh (context data) từ Orion-LD được lưu trữ lâu dài trong PostgreSQL để phục vụ phân tích.
+- **Người phụ trách:** Khải (Backend)
+- **Mô tả:** Đảm bảo dữ liệu ngữ cảnh (context data) từ Orion-LD được lưu trữ lâu dài trong PostgreSQL thông qua Native Persistence Service để phục vụ phân tích.
 
-| ID            | Issue (Công việc)                       | Mô tả chi tiết                                                                                                            |
-| :------------ | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
-| **P2-CYG-01** | [DevOps] Thêm Cygnus vào Docker Compose | Tích hợp dịch vụ FIWARE Cygnus vào file `docker-compose.yml`.                                                             |
-| **P2-CYG-02** | [DevOps] Cấu hình Cygnus-Orion          | Cấu hình Cygnus để "lắng nghe" (subscribe) các thay đổi từ Orion-LD.                                                      |
-| **P2-CYG-03** | [DevOps] Cấu hình Cygnus-PostgreSQL     | Cấu hình Cygnus để ghi dữ liệu (sink) vào database PostgreSQL (đã tạo ở P1).                                              |
-| **P2-CYG-04** | [Backend] Tạo Subscription              | Tạo một Subscription trong Orion-LD để thông báo cho Cygnus mỗi khi `AirQualityObserved` hoặc `WeatherObserved` thay đổi. |
-| **P2-CYG-05** | [Kiểm thử] Xác thực luồng dữ liệu       | Chạy P2-ING-06 và kiểm tra trong PostgreSQL để đảm bảo dữ liệu lịch sử được ghi thành công.                               |
+| ID            | Issue (Công việc)                          | Mô tả chi tiết                                                                                                   |
+| :------------ | :----------------------------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| **P2-PER-01** | [Backend] Tạo PersistenceModule            | Tạo module NestJS xử lý NGSI-LD notifications từ Orion-LD (Controller, Service, Entities).                       |
+| **P2-PER-02** | [Backend] Implement Notification Endpoint  | Tạo endpoint `POST /api/v1/notify` để nhận NGSI-LD notifications từ Orion-LD subscriptions.                      |
+| **P2-PER-03** | [Backend] Parser NGSI-LD Normalized Format | Viết service parse NGSI-LD normalized format và extract values từ object structure `{ type, value }`.            |
+| **P2-PER-04** | [Backend] Tạo Time-Series Entities         | Tạo TypeORM entities cho `AirQualityObserved` và `WeatherObserved` với indexes phù hợp cho time-series queries.  |
+| **P2-PER-05** | [Backend] Tạo Subscription Service         | Implement service tự động tạo subscriptions trong Orion-LD khi backend khởi động, trỏ về endpoint `/notify`.     |
+| **P2-PER-06** | [Kiểm thử] Xác thực luồng dữ liệu          | Chạy ingestion và kiểm tra PostgreSQL để đảm bảo notifications được nhận và dữ liệu lịch sử được lưu thành công. |
 
 ### Epic 3: [P2] Xây dựng API Đọc Dữ liệu Môi trường
 
@@ -68,7 +69,7 @@
 - **Người phụ trách:** Bích (Docs)
 - **Mô tả:** Ghi lại các API đã phát triển và hoàn thiện tài liệu kiến trúc.
 
-| ID            | Issue (Công việc)                 | Mô tả chi tiết                                                                          |
-| :------------ | :-------------------------------- | :-------------------------------------------------------------------------------------- |
-| **P2-DOC-01** | [Docs] Viết tài liệu API          | Sử dụng Postman/Swagger (hoặc `API.md`) để mô tả các API đã hoàn thành trong P2-API-xx. |
-| **P2-DOC-02** | [Docs] Hoàn thiện Sơ đồ Kiến trúc | Cập nhật sơ đồ trong `docs/ARCHITECTURE.md` để thể hiện rõ luồng Cygnus -> PostgreSQL.  |
+| ID            | Issue (Công việc)                 | Mô tả chi tiết                                                                                     |
+| :------------ | :-------------------------------- | :------------------------------------------------------------------------------------------------- |
+| **P2-DOC-01** | [Docs] Viết tài liệu API          | Sử dụng Postman/Swagger (hoặc `API.md`) để mô tả các API đã hoàn thành trong P2-API-xx.            |
+| **P2-DOC-02** | [Docs] Hoàn thiện Sơ đồ Kiến trúc | Cập nhật sơ đồ trong `docs/ARCHITECTURE.md` để thể hiện rõ luồng Native Persistence -> PostgreSQL. |

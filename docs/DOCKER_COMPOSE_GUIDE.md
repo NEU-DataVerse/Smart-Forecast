@@ -60,16 +60,6 @@ minio:
   - Health check: curl /minio/health/live
 ```
 
-### 5. Cygnus
-
-```yaml
-cygnus:
-  - Image: fiware/cygnus-ngsi-ld:latest
-  - Port: 5080
-  - Depends on: postgres, orion
-  - Health check: curl /v1/version
-```
-
 ## 🔧 Lệnh Docker Compose
 
 ### Khởi động Services

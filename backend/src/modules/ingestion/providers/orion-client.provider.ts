@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
+import axiosRetry from 'axios-retry';
+import * as http from 'http';
+import * as https from 'https';
 
 /**
  * Orion-LD Context Broker Client
@@ -28,11 +31,45 @@ export class OrionClientProvider {
 
     this.httpClient = axios.create({
       baseURL,
-      timeout: 15000,
+      timeout: 30000, // Increased to 30 seconds
       headers: {
         'Content-Type': 'application/ld+json',
         Accept: 'application/ld+json',
         ...(this.tenant && { 'NGSILD-Tenant': this.tenant }),
+      },
+      // Keep connections alive to prevent socket hang ups
+      httpAgent: new http.Agent({
+        keepAlive: true,
+        keepAliveMsecs: 30000,
+        maxSockets: 50,
+        maxFreeSockets: 10,
+      }),
+      httpsAgent: new https.Agent({
+        keepAlive: true,
+        keepAliveMsecs: 30000,
+        maxSockets: 50,
+        maxFreeSockets: 10,
+      }),
+    });
+
+    // Configure retry logic for network errors and timeouts
+    axiosRetry(this.httpClient, {
+      retries: 3,
+      retryDelay: (retryCount) => axiosRetry.exponentialDelay(retryCount),
+      retryCondition: (error: AxiosError) => {
+        // Retry on network errors, timeouts, or 5xx errors
+        return (
+          axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+          error.code === 'ECONNRESET' ||
+          error.code === 'ETIMEDOUT' ||
+          error.message.includes('socket hang up') ||
+          (error.response?.status ? error.response.status >= 500 : false)
+        );
+      },
+      onRetry: (retryCount, error, requestConfig) => {
+        this.logger.warn(
+          `Retrying request (attempt ${retryCount}): ${requestConfig.url} - ${error.message}`,
+        );
       },
     });
   }
@@ -99,12 +136,49 @@ export class OrionClientProvider {
    * POST /ngsi-ld/v1/entityOperations/upsert
    *
    * @param entities Array of NGSI-LD entities to upsert
+   * @param batchSize Optional batch size for splitting large arrays (default: 50)
    * @returns Upsert result
    */
-  async upsertEntities(entities: any[]): Promise<any> {
+  async upsertEntities(entities: any[], batchSize: number = 50): Promise<any> {
     try {
       this.logger.debug(`Upserting ${entities.length} entities`);
 
+      // Split into batches if there are too many entities
+      if (entities.length > batchSize) {
+        this.logger.debug(
+          `Splitting ${entities.length} entities into batches of ${batchSize}`,
+        );
+
+        const results: any[] = [];
+        for (let i = 0; i < entities.length; i += batchSize) {
+          const batch = entities.slice(i, i + batchSize);
+          this.logger.debug(
+            `Upserting batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(entities.length / batchSize)} (${batch.length} entities)`,
+          );
+
+          const response = await this.httpClient.post(
+            '/entityOperations/upsert',
+            batch,
+            {
+              params: { options: 'update' },
+            },
+          );
+
+          results.push(response.data);
+
+          // Small delay between batches to avoid overwhelming the server
+          if (i + batchSize < entities.length) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
+
+        this.logger.log(
+          `Successfully upserted ${entities.length} entities in ${results.length} batches`,
+        );
+        return results;
+      }
+
+      // Single batch
       const response = await this.httpClient.post(
         '/entityOperations/upsert',
         entities,

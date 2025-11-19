@@ -47,15 +47,15 @@ Module này chịu trách nhiệm cho các endpoint _công khai_ (public) mà ng
 3.  Nhận JSON từ OWM.
 4.  Chuyển đổi (transform) JSON đó thành định dạng **NGSI-LD Entity** (ví dụ: `AirQualityObserved`) theo chuẩn Smart Data Models.
 5.  Gửi (POST/PATCH) Entity này đến **Orion-LD Context Broker** (`http://orion-ld:1026/ngsi-ld/v1/entities`).
-6.  Orion-LD lưu vào MongoDB và thông báo cho Cygnus.
-7.  Cygnus lưu dữ liệu lịch sử vào PostgreSQL.
+6.  Orion-LD lưu vào MongoDB và gửi thông báo (notification) đến Backend.
+7.  Backend nhận notification qua `/api/v1/notify` và lưu dữ liệu lịch sử vào PostgreSQL (Native Persistence Service).
 8.  Backend trả về thông báo thành công.
 
 ---
 
 ## Module 3: `analysis` (Thống kê & Phân tích)
 
-**Mục tiêu:** Cung cấp các số liệu thống kê tổng hợp cho **Dashboard của Admin (Web)**. Dữ liệu này chủ yếu được truy vấn từ **PostgreSQL** (nơi Cygnus lưu dữ liệu lịch sử).
+**Mục tiêu:** Cung cấp các số liệu thống kê tổng hợp cho **Dashboard của Admin (Web)**. Dữ liệu này chủ yếu được truy vấn từ **PostgreSQL** (nơi Native Persistence Service lưu dữ liệu lịch sử từ Orion-LD).
 
 | Method  | Route                               | Vai trò | Mô tả                                                                                      | Request Body (Payload)                                | Success Response (20x)                                                                                                  |
 | :------ | :---------------------------------- | :------ | :----------------------------------------------------------------------------------------- | :---------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |

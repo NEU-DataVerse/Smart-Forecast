@@ -117,7 +117,7 @@ echo "==============="
 echo -e "${GREEN}✅ Orion Context Broker:${NC} http://localhost:1026"
 echo -e "${GREEN}✅ MinIO Console:${NC} http://localhost:9001 (minioadmin/minioadmin)"
 echo -e "${GREEN}✅ PostgreSQL:${NC} localhost:5432 (admin/admin)"
-echo -e "${GREEN}✅ Cygnus:${NC} http://localhost:5080"
+echo -e "${GREEN}✅ Backend API:${NC} http://localhost:8000"
 echo ""
 
 # Test Orion endpoint

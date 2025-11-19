@@ -24,7 +24,7 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
 - **Context Broker**: FIWARE Orion-LD
 - **Databases**: PostgreSQL, MongoDB
 - **Object Storage**: MinIO
-- **Data Sink**: Cygnus
+- **Data Persistence**: Native NestJS Service
 
 ## 🏗️ Kiến trúc hệ thống
 
@@ -37,8 +37,8 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
          └───────────┬───────────┘
                      │
               ┌──────▼──────┐
-              │   Backend   │
-              │  (NestJS)   │
+              │   Backend   │◄─── NGSI-LD Notifications
+              │  (NestJS)   │     (Native Persistence)
               └──────┬──────┘
                      │
          ┌───────────┼───────────┐
@@ -50,11 +50,6 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
          │
     ┌────▼────┐
     │ MongoDB │
-    └─────────┘
-         │
-    ┌────▼────┐
-    │ Cygnus  │
-    │  Sink   │
     └─────────┘
 ```
 
@@ -143,7 +138,7 @@ docker-compose logs
 # Xem logs của service cụ thể
 docker-compose logs -f orion
 docker-compose logs -f postgres
-docker-compose logs -f cygnus
+docker-compose logs -f minio
 ```
 
 ### 5️⃣ Dừng các dịch vụ
@@ -209,13 +204,7 @@ docker-compose down --rmi all
 - **Password**: minioadmin (hoặc theo `.env`)
 - **Mô tả**: Lưu trữ file, ảnh, video của incidents
 
-### Cygnus (Data Sink)
-
-- **Port**: 5080
-- **Health Check**: http://localhost:5080/v1/version
-- **Mô tả**: Đồng bộ dữ liệu từ Orion sang PostgreSQL
-
-### Backend API (NestJS) - Đang development
+### Backend API (NestJS)
 
 - **Port**: 8000
 - **URL**: http://localhost:8000
@@ -235,7 +224,7 @@ docker inspect --format='{{json .State.Health}}' orion
 
 # Kiểm tra thủ công từng service
 curl http://localhost:1026/version        # Orion
-curl http://localhost:5080/v1/version     # Cygnus
+curl http://localhost:8000/api/v1         # Backend
 curl http://localhost:9000/minio/health/live  # MinIO
 ```
 
@@ -359,7 +348,6 @@ docker volume prune
 ## 📚 Tài liệu thêm
 
 - [FIWARE Orion-LD Documentation](https://fiware-orion.readthedocs.io/)
-- [Cygnus Documentation](https://fiware-cygnus.readthedocs.io/)
 - [MinIO Documentation](https://min.io/docs/minio/linux/index.html)
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [Next.js Documentation](https://nextjs.org/docs)
