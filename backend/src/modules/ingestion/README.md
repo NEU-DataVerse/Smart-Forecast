@@ -1335,20 +1335,6 @@ Old forecast entities remain in Orion-LD.
 **Cause:**
 Orion-LD doesn't auto-delete expired entities.
 
-**Solution:**
-
-**Option 1 - Manual cleanup:**
-
-```bash
-# Delete old forecasts (example for entities older than 7 days)
-# This requires a cleanup script or Cygnus to manage
-```
-
-**Option 2 - Use Cygnus:**
-Cygnus can persist historical data and manage retention policies.
-
-**Option 3 - Implement TTL in code:**
-
 ```typescript
 // Add to ingestion service
 async cleanupOldForecasts() {

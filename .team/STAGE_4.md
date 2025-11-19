@@ -8,8 +8,8 @@ Chắc chắn rồi. Đây là phân rã chi tiết cho Giai đoạn 4, giai đo
 
 ### Epic 1: [P4] Kiểm thử & Sửa lỗi (Bug Fixing)
 
--   **Người phụ trách:** Toàn nhóm
--   **Mô tả:** Chuyển từ chế độ "Phát triển" (Development) sang "Kiểm thử" (Testing). Tính năng mới sẽ bị "đóng băng" (Feature Freeze).
+- **Người phụ trách:** Toàn nhóm
+- **Mô tả:** Chuyển từ chế độ "Phát triển" (Development) sang "Kiểm thử" (Testing). Tính năng mới sẽ bị "đóng băng" (Feature Freeze).
 
 | ID            | Issue (Công việc)                      | Mô tả chi tiết                                                                                                              | Người thực hiện |
 | :------------ | :------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :-------------- |
@@ -23,20 +23,20 @@ Chắc chắn rồi. Đây là phân rã chi tiết cho Giai đoạn 4, giai đo
 
 ### Epic 2: [P4] Đóng gói & Triển khai (Packaging)
 
--   **Người phụ trách:** Khải (DevOps)
--   **Mô tả:** Đảm bảo dự án có thể chạy mượt mà trên máy của ban giám khảo chỉ bằng một lệnh.
+- **Người phụ trách:** Khải (DevOps)
+- **Mô tả:** Đảm bảo dự án có thể chạy mượt mà trên máy của ban giám khảo chỉ bằng một lệnh.
 
-| ID            | Issue (Công việc)                        | Mô tả chiE-mail                                                                                                                                |
-| :------------ | :--------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P4-DEP-01** | [DevOps] Hoàn thiện `docker-compose.yml` | Rà soát, dọn dẹp và tối ưu file docker-compose. Đảm bảo các service (backend, orion, cygnus, db...) khởi động đúng thứ tự (dùng `depends_on`). |
-| **P4-DEP-02** | [DevOps] Hoàn thiện file `.env.example`  | Cung cấp file `.env.example` đầy đủ, rõ ràng tất cả các biến môi trường cần thiết để chạy dự án.                                               |
-| **P4-DEP-03** | [DevOps] Build Docker Image (Backend)    | Tối ưu `Dockerfile` cho backend Node.js (dùng multi-stage build) để giảm dung lượng image.                                                     |
-| **P4-DEP-04** | [DevOps] Build file `.apk` (Mobile)      | (Hỗ trợ Bích) Hướng dẫn hoặc thực hiện build file `.apk` (Android) để cài đặt demo trực tiếp (nếu cần).                                        |
+| ID            | Issue (Công việc)                        | Mô tả chiE-mail                                                                                                                           |
+| :------------ | :--------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------- |
+| **P4-DEP-01** | [DevOps] Hoàn thiện `docker-compose.yml` | Rà soát, dọn dẹp và tối ưu file docker-compose. Đảm bảo các service (backend, orion-ld, db...) khởi động đúng thứ tự (dùng `depends_on`). |
+| **P4-DEP-02** | [DevOps] Hoàn thiện file `.env.example`  | Cung cấp file `.env.example` đầy đủ, rõ ràng tất cả các biến môi trường cần thiết để chạy dự án.                                          |
+| **P4-DEP-03** | [DevOps] Build Docker Image (Backend)    | Tối ưu `Dockerfile` cho backend Node.js (dùng multi-stage build) để giảm dung lượng image.                                                |
+| **P4-DEP-04** | [DevOps] Build file `.apk` (Mobile)      | (Hỗ trợ Bích) Hướng dẫn hoặc thực hiện build file `.apk` (Android) để cài đặt demo trực tiếp (nếu cần).                                   |
 
 ### Epic 3: [P4] Hoàn thiện Tài liệu & Kịch bản Demo
 
--   **Người phụ trách:** Bích (Docs), Toàn nhóm
--   **Mô tả:** Hoàn tất mọi tài liệu và chuẩn bị cho buổi thuyết trình cuối cùng.
+- **Người phụ trách:** Bích (Docs), Toàn nhóm
+- **Mô tả:** Hoàn tất mọi tài liệu và chuẩn bị cho buổi thuyết trình cuối cùng.
 
 | ID            | Issue (Công việc)                    | Mô tả chi tiết                                                                                                                                                   | Người thực hiện |
 | :------------ | :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------- |
@@ -49,4 +49,4 @@ Chắc chắn rồi. Đây là phân rã chi tiết cho Giai đoạn 4, giai đo
 
 ### Ngày 05/12: D-Day (Ngày Demo)
 
--   **Toàn nhóm:** Tự tin trình bày sản phẩm Smart Forecast!
+- **Toàn nhóm:** Tự tin trình bày sản phẩm Smart Forecast!

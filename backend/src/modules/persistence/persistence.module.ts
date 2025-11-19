@@ -11,7 +11,6 @@ import { IngestionModule } from '../ingestion/ingestion.module';
  * Persistence Module
  *
  * Handles NGSI-LD notification persistence to PostgreSQL
- * Replaces Cygnus with native NestJS implementation
  */
 @Module({
   imports: [

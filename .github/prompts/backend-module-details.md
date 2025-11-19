@@ -16,11 +16,7 @@
 ### Luồng hoạt động:
 
 ```
-[OWM API] → [Provider] → [Transformer] → [Orion Client] → [Orion-LD]
-                                                                        ↓
-                                                                   [Cygnus]
-                                                                        ↓
-                                                                  [PostgreSQL]
+[OWM API] → [Provider] → [Transformer] → [Orion Client] → [Orion-LD] → [PostgreSQL]
 ```
 
 ### API endpoints:

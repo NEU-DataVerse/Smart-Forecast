@@ -93,7 +93,6 @@ services:
       start_period: 40s
 
   # ===== BACKEND API =====
-  # Native persistence service in backend replaces Cygnus
 
   # backend:
   #   container_name: backend
