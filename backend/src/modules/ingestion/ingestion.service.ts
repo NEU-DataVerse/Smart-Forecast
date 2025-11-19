@@ -110,7 +110,11 @@ export class IngestionService {
           location.district,
         );
 
-        // Upsert all forecast entities
+        this.logger.debug(
+          `Upserting ${forecastEntities.length} air quality forecast entities for ${location.name}`,
+        );
+
+        // Upsert all forecast entities with batching (default batch size: 50)
         await this.orionClient.upsertEntities(forecastEntities);
 
         this.logger.debug(
@@ -120,13 +124,14 @@ export class IngestionService {
       } catch (error) {
         this.logger.error(
           `✗ Failed to ingest air quality forecast for ${location.name}`,
-          error.message,
+          error.stack || error.message,
         );
         forecastFailedCount++;
         errors.push({
           location: location.name,
           type: 'forecast',
           error: error.message,
+          details: error.response?.data || error.code || 'Unknown error',
         });
       }
     }
@@ -216,7 +221,11 @@ export class IngestionService {
           location.district,
         );
 
-        // Upsert all forecast entities
+        this.logger.debug(
+          `Upserting ${forecastEntities.length} weather forecast entities for ${location.name}`,
+        );
+
+        // Upsert all forecast entities with batching (default batch size: 50)
         await this.orionClient.upsertEntities(forecastEntities);
 
         this.logger.debug(
@@ -226,13 +235,14 @@ export class IngestionService {
       } catch (error) {
         this.logger.error(
           `✗ Failed to ingest weather forecast for ${location.name}`,
-          error.message,
+          error.stack || error.message,
         );
         forecastFailedCount++;
         errors.push({
           location: location.name,
           type: 'forecast',
           error: error.message,
+          details: error.response?.data || error.code || 'Unknown error',
         });
       }
     }
