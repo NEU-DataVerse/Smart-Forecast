@@ -118,6 +118,10 @@ export class SubscriptionService implements OnModuleInit {
    */
   private async createSubscription(entityType: string): Promise<string> {
     const subscription = {
+      '@context': [
+        'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
+        'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
+      ],
       type: 'Subscription',
       description: `Cygnus subscription for ${entityType} - Auto-created by Smart Forecast`,
       entities: [
