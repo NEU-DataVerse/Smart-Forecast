@@ -3,7 +3,7 @@ import { OrionClientProvider } from '../../ingestion/providers/orion-client.prov
 
 /**
  * Subscription Service
- * Manages NGSI-LD subscriptions for Cygnus data persistence
+ * Manages NGSI-LD subscriptions for native persistence service
  * Auto-creates subscriptions on application startup
  */
 @Injectable()
@@ -11,8 +11,10 @@ export class SubscriptionService implements OnModuleInit {
   private readonly logger = new Logger(SubscriptionService.name);
   private subscriptionIds: Map<string, string> = new Map();
 
-  // Cygnus notification endpoint (Docker network)
-  private readonly cygnusEndpoint = 'http://cygnus:5050/notify';
+  // Backend notification endpoint (Native persistence service)
+  // Replaced Cygnus with custom NestJS service that handles NGSI-LD directly
+  // Use host.docker.internal to allow Docker containers to reach host machine
+  private readonly cygnusEndpoint = 'http://host.docker.internal:8000/notify';
 
   // Entity types to subscribe (only observed data, not forecasts)
   private readonly entityTypes = ['AirQualityObserved', 'WeatherObserved'];
@@ -130,6 +132,7 @@ export class SubscriptionService implements OnModuleInit {
         },
       ],
       notification: {
+        format: 'normalized', // NGSI-LD normalized format
         endpoint: {
           uri: this.cygnusEndpoint,
           accept: 'application/json',
