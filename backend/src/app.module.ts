@@ -9,6 +9,7 @@ import { UserModule } from './modules/user/user.module';
 import { AirQualityModule } from './modules/airquality/airquality.module';
 import { WeatherModule } from './modules/weather/weather.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
+import { CygnusModule } from './modules/cygnus/cygnus.module';
 import { appConfig, databaseConfig, jwtConfig, orionConfig } from './config';
 
 @Module({
@@ -26,6 +27,7 @@ import { appConfig, databaseConfig, jwtConfig, orionConfig } from './config';
     }),
     ScheduleModule.forRoot(),
     IngestionModule,
+    CygnusModule,
     AuthModule,
     UserModule,
     AirQualityModule,
