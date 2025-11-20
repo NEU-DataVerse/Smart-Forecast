@@ -60,7 +60,8 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
 - **Docker**: >= 20.10
 - **Docker Compose**: >= 2.0
 - **Git**: Để clone repository
-- **Node.js**: >= 18.x (nếu chạy development local)
+- **Node.js**: >= 20.x (cho development)
+- **pnpm**: >= 8.x (package manager cho monorepo)
 
 ### Kiểm tra version:
 
@@ -68,6 +69,24 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
 docker --version
 docker-compose --version
 git --version
+node --version
+pnpm --version
+```
+
+### Cài đặt pnpm:
+
+```bash
+# Sử dụng npm (đã có sẵn với Node.js)
+npm install -g pnpm
+
+# Hoặc sử dụng các phương pháp khác:
+# Windows (PowerShell)
+iwr https://get.pnpm.io/install.ps1 -useb | iex
+
+# macOS/Linux
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+# Xem thêm: https://pnpm.io/installation
 ```
 
 ## 🚀 Cài đặt và chạy
@@ -77,6 +96,16 @@ git --version
 ```bash
 git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
 cd Smart-Forecast
+```
+
+### 1.5️⃣ Cài đặt dependencies (cho development)
+
+```bash
+# Cài đặt tất cả dependencies cho monorepo
+pnpm install
+
+# Build shared package (cần thiết trước khi chạy backend/web/mobile)
+pnpm run build:shared
 ```
 
 ### 2️⃣ Cấu hình môi trường
