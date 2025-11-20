@@ -16,11 +16,17 @@ interface WeatherLocation {
   id: string;
   type: string;
   name: string;
+  city?: string;
   district: string;
   location: {
     lat: number;
     lon: number;
   };
+  address?: {
+    addressLocality: string;
+    addressCountry: string;
+  };
+  timezone?: number;
 }
 
 /**

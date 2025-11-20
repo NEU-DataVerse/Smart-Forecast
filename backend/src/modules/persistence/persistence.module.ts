@@ -5,6 +5,8 @@ import { PersistenceService } from './services/persistence.service';
 import { SubscriptionService } from './services/subscription.service';
 import { AirQualityObservedEntity } from './entities/air-quality-observed.entity';
 import { WeatherObservedEntity } from './entities/weather-observed.entity';
+import { AirQualityForecastEntity } from './entities/air-quality-forecast.entity';
+import { WeatherForecastEntity } from './entities/weather-forecast.entity';
 import { IngestionModule } from '../ingestion/ingestion.module';
 
 /**
@@ -14,7 +16,12 @@ import { IngestionModule } from '../ingestion/ingestion.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AirQualityObservedEntity, WeatherObservedEntity]),
+    TypeOrmModule.forFeature([
+      AirQualityObservedEntity,
+      WeatherObservedEntity,
+      AirQualityForecastEntity,
+      WeatherForecastEntity,
+    ]),
     IngestionModule,
   ],
   controllers: [PersistenceController],
