@@ -126,25 +126,19 @@ Xem [Troubleshooting](README.md#troubleshooting) trong README.md
 ### Chạy Backend (NestJS)
 
 ```bash
-cd backend
-npm install
-npm run start:dev
+pnpm --filter backend run start:dev
 ```
 
 ### Chạy Web Frontend (Next.js)
 
 ```bash
-cd web
-npm install
-npm run dev
+pnpm --filter web run dev
 ```
 
 ### Chạy Mobile App (Expo)
 
 ```bash
-cd mobile
-npm install
-npx expo start
+pnpm --filter mobile run start
 ```
 
 ---

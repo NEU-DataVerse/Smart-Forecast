@@ -140,19 +140,13 @@ docker system prune -a --volumes
 
 ```bash
 # Backend (NestJS)
-cd backend
-npm install
-npm run start:dev
+pnpm --filter backend run start:dev
 
 # Web (Next.js)
-cd web
-npm install
-npm run dev
+pnpm --filter web run dev
 
 # Mobile (Expo)
-cd mobile
-npm install
-npx expo start
+pnpm --filter mobile run start
 ```
 
 ## 📊 Monitoring

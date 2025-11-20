@@ -104,18 +104,20 @@ smart-forecast/
 ├── shared/         # Models & constants chung (TypeScript)
 ├── docs/           # Tài liệu, hướng dẫn, slide
 ├── docker-compose.yml
-├── package.json    # NPM workspace root
+├── package.json           # Root package
+├── pnpm-workspace.yaml    # PNPM workspace config
 ├── .env.example
 └── README.md
 ```
 
-### 🔹 NPM Workspace
+### 🔹 PNPM Workspace
 
-```json
-{
-  "private": true,
-  "workspaces": ["backend", "web", "mobile", "shared"]
-}
+```yaml
+packages:
+  - "backend"
+  - "web"
+  - "mobile"
+  - "shared"
 ```
 
 ---

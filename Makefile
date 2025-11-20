@@ -86,22 +86,19 @@ test: ## Test các services
 
 dev-backend: ## Chạy backend development
 	@echo "$(BLUE)🚀 Starting backend development...$(NC)"
-	@cd backend && npm install && npm run start:dev
+	@pnpm --filter backend run start:dev
 
 dev-web: ## Chạy web frontend development
 	@echo "$(BLUE)🚀 Starting web development...$(NC)"
-	@cd web && npm install && npm run dev
+	@pnpm --filter web run dev
 
 dev-mobile: ## Chạy mobile app development
 	@echo "$(BLUE)🚀 Starting mobile development...$(NC)"
-	@cd mobile && npm install && npx expo start
+	@pnpm --filter mobile run start
 
 install: ## Install dependencies cho tất cả packages
 	@echo "$(BLUE)📦 Installing dependencies...$(NC)"
-	@cd backend && npm install
-	@cd web && npm install
-	@cd mobile && npm install
-	@cd shared && npm install
+	@pnpm install
 	@echo "$(GREEN)✅ All dependencies installed!$(NC)"
 
 db-shell: ## Mở PostgreSQL shell

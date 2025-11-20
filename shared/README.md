@@ -52,13 +52,13 @@ import { IncidentStatus, IAuthResponse } from "@smart-forecast/shared";
 Build the package:
 
 ```bash
-npm run build
+pnpm --filter shared run build
 ```
 
 Watch mode for development:
 
 ```bash
-npm run watch
+pnpm --filter shared run watch
 ```
 
 ## License

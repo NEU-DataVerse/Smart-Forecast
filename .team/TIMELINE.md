@@ -16,7 +16,7 @@
 
 - **👨‍💻 Khải (PM, Backend, DevOps)**
 
-  - Khởi tạo Monorepo với NPM workspace (`backend`, `web`, `mobile`, `shared`).
+  - Khởi tạo Monorepo với PNPM workspace (`backend`, `web`, `mobile`, `shared`).
   - Hoàn thiện `docker-compose.yml` để khởi chạy các dịch vụ cốt lõi: Orion-LD, MongoDB, PostgreSQL, MinIO.
   - Thiết lập "bộ khung" cho Backend (Node.js): cài đặt NestJS, cấu trúc module, kết nối cơ sở dữ liệu.
   - Phát triển module `auth` (JWT) cơ bản cho 2 vai trò: `Admin` và `Citizen`.

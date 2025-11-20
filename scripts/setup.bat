@@ -123,9 +123,9 @@ echo   3. View logs: docker-compose logs -f
 echo   4. Stop services: docker-compose down
 echo.
 echo For development:
-echo   - Backend: cd backend ^&^& npm install ^&^& npm run start:dev
-echo   - Web: cd web ^&^& npm install ^&^& npm run dev
-echo   - Mobile: cd mobile ^&^& npm install ^&^& npx expo start
+echo   - Backend: pnpm --filter backend run start:dev
+echo   - Web: pnpm --filter web run dev
+echo   - Mobile: pnpm --filter mobile run start
 echo.
 echo Happy coding!
 echo.
