@@ -56,9 +56,7 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
       localStorage.setItem('access_token', access_token);
 
       // Update axios header
-      userAxios.defaults.headers.common[
-        'Authorization'
-      ] = `Bearer ${access_token}`;
+      userAxios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
       // Update user context
       setUser(user as IUser);

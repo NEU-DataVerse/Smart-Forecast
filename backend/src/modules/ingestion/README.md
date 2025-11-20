@@ -777,7 +777,7 @@ curl "http://localhost:1026/ngsi-ld/v1/entities?type=https://smartdatamodels.org
 Run backend integration tests:
 
 ```bash
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 ### Unit Tests
@@ -786,16 +786,16 @@ Test individual services:
 
 ```bash
 # Test OpenWeatherMap provider
-npm run test -- openweathermap.provider
+pnpm run test -- openweathermap.provider
 
 # Test Orion client
-npm run test -- orion-client.provider
+pnpm run test -- orion-client.provider
 
 # Test transformers
-npm run test -- ngsi-ld.transformer
+pnpm run test -- ngsi-ld.transformer
 
 # Test ingestion service
-npm run test -- ingestion.service
+pnpm run test -- ingestion.service
 ```
 
 ## 📝 Logging
@@ -843,14 +843,14 @@ The module provides comprehensive logging at different levels:
 **Development:**
 
 ```bash
-npm run start:dev
+pnpm run start:dev
 # Logs appear in console with colors
 ```
 
 **Production:**
 
 ```bash
-npm run start:prod > logs/ingestion.log 2>&1
+pnpm run start:prod > logs/ingestion.log 2>&1
 # Logs saved to file
 ```
 
@@ -1069,9 +1069,9 @@ async ingestAll(@Req() req) {
 4. **Test Locally**
 
    ```bash
-   npm run test
-   npm run test:e2e
-   npm run lint
+   pnpm run test
+   pnpm run test:e2e
+   pnpm run lint
    ```
 
 5. **Commit and Push**
@@ -1154,7 +1154,7 @@ This project is licensed under the MIT License - see the [LICENSE](../../../LICE
 echo "OWM_API_KEY=your_api_key_here" >> .env
 
 # Restart backend
-npm run start:dev
+pnpm run start:dev
 ```
 
 **Verify:**
@@ -1441,7 +1441,7 @@ app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
 Or via environment:
 
 ```bash
-LOG_LEVEL=debug npm run start:dev
+LOG_LEVEL=debug pnpm run start:dev
 ```
 
 ### Getting Help

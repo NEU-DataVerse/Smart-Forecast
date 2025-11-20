@@ -1,13 +1,5 @@
 import { useState, type ComponentType, type SVGProps } from 'react';
-import {
-  Bell,
-  Check,
-  Trash2,
-  FileText,
-  Key,
-  Database,
-  Zap,
-} from 'lucide-react';
+import { Bell, Check, Trash2, FileText, Key, Database, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -96,9 +88,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id: number) => {
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const markAllAsRead = () => {
@@ -161,12 +151,8 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
                     }`}
                   >
                     <div className="flex items-start gap-2.5">
-                      <div
-                        className={`${notification.iconBg} p-1.5 rounded-lg flex-shrink-0`}
-                      >
-                        <Icon
-                          className={`h-3.5 w-3.5 ${notification.iconColor}`}
-                        />
+                      <div className={`${notification.iconBg} p-1.5 rounded-lg flex-shrink-0`}>
+                        <Icon className={`h-3.5 w-3.5 ${notification.iconColor}`} />
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -184,9 +170,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
                         </p>
 
                         <div className="flex items-center justify-between">
-                          <span className="text-slate-400 text-xs">
-                            {notification.timestamp}
-                          </span>
+                          <span className="text-slate-400 text-xs">{notification.timestamp}</span>
 
                           <div className="flex gap-0.5">
                             {!notification.read && (
@@ -202,9 +186,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() =>
-                                deleteNotification(notification.id)
-                              }
+                              onClick={() => deleteNotification(notification.id)}
                               className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -221,12 +203,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
         </ScrollArea>
 
         <div className="border-t border-slate-200 px-4 py-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full h-8"
-            onClick={onViewAll}
-          >
+          <Button variant="outline" size="sm" className="w-full h-8" onClick={onViewAll}>
             View All Notifications
           </Button>
         </div>

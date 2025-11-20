@@ -26,15 +26,7 @@ ORION_LD_URL=http://localhost:1026
 ORION_LD_API_VERSION=ngsi-ld/v1
 ```
 
-### 2. Start the Backend
-
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
-### 3. Verify Health
+### 2. Verify Health
 
 ```bash
 curl http://localhost:8000/api/v1/ingestion/health
@@ -98,7 +90,7 @@ The ingestion runs automatically every 30 minutes:
 docker logs backend-container -f
 
 # Or in development
-npm run start:dev
+pnpm run start:dev
 # Watch for: "🕐 Scheduled ingestion started"
 ```
 

@@ -14,11 +14,30 @@ help: ## Hiển thị help
 
 setup: ## Thiết lập môi trường lần đầu
 	@echo "$(BLUE)🚀 Setting up Smart-Forecast...$(NC)"
-	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo "$(GREEN)✅ Created .env file$(NC)"; \
+	@if [ ! -f docker/.env.infrastructure ]; then \
+		cp docker/.env.infrastructure.example docker/.env.infrastructure; \
+		echo "$(GREEN)✅ Created docker/.env.infrastructure$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  .env already exists$(NC)"; \
+		echo "$(YELLOW)⚠️  docker/.env.infrastructure already exists$(NC)"; \
+	fi
+	@if [ ! -f backend/.env ]; then \
+		cp backend/.env.example backend/.env; \
+		echo "$(GREEN)✅ Created backend/.env$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  backend/.env already exists$(NC)"; \
+	fi
+	@if [ ! -f web/.env.local ]; then \
+		cp web/.env.local.example web/.env.local; \
+		echo "$(GREEN)✅ Created web/.env.local$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  web/.env.local already exists$(NC)"; \
+	fi
+	@if [ ! -f mobile/.env ]; then \
+		cp mobile/.env.example mobile/.env; \
+		echo "$(GREEN)✅ Created mobile/.env$(NC)"; \
+		echo "$(YELLOW)⚠️  Remember to update EXPO_PUBLIC_API_URL in mobile/.env$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  mobile/.env already exists$(NC)"; \
 	fi
 	@mkdir -p backend/logs web/public/uploads mobile/assets/temp
 	@echo "$(GREEN)✅ Setup complete!$(NC)"
@@ -86,22 +105,19 @@ test: ## Test các services
 
 dev-backend: ## Chạy backend development
 	@echo "$(BLUE)🚀 Starting backend development...$(NC)"
-	@cd backend && npm install && npm run start:dev
+	@pnpm --filter backend run start:dev
 
 dev-web: ## Chạy web frontend development
 	@echo "$(BLUE)🚀 Starting web development...$(NC)"
-	@cd web && npm install && npm run dev
+	@pnpm --filter web run dev
 
 dev-mobile: ## Chạy mobile app development
 	@echo "$(BLUE)🚀 Starting mobile development...$(NC)"
-	@cd mobile && npm install && npx expo start
+	@pnpm --filter mobile run start
 
 install: ## Install dependencies cho tất cả packages
 	@echo "$(BLUE)📦 Installing dependencies...$(NC)"
-	@cd backend && npm install
-	@cd web && npm install
-	@cd mobile && npm install
-	@cd shared && npm install
+	@pnpm install
 	@echo "$(GREEN)✅ All dependencies installed!$(NC)"
 
 db-shell: ## Mở PostgreSQL shell

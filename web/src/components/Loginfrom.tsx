@@ -1,13 +1,7 @@
 'use client';
 
 import { Eye, EyeOff } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -35,15 +29,12 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
 
   useEffect(() => {
     // Load remember me data on mount
-    const { rememberMe: storedRemember, email: storedEmail } =
-      loadRememberedCredentials();
+    const { rememberMe: storedRemember, email: storedEmail } = loadRememberedCredentials();
     setRememberMe(storedRemember);
     if (storedRemember) setEmail(storedEmail);
   }, []);
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     // Validation
@@ -108,9 +99,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
       <Card className="shadow-xl border-slate-200">
         <CardHeader className="space-y-1">
           <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>
-            Sign in to your administrator account
-          </CardDescription>
+          <CardDescription>Sign in to your administrator account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -157,11 +146,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
                   disabled={loading}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
@@ -200,10 +185,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
       <div className="mt-6 text-center">
         <p className="text-sm text-slate-500">
           You do not have an account?{' '}
-          <button
-            className="text-blue-600 hover:text-blue-700 transition-colors"
-            type="button"
-          >
+          <button className="text-blue-600 hover:text-blue-700 transition-colors" type="button">
             Contact your system administrator
           </button>
         </p>

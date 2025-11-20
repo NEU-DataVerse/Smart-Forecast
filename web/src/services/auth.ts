@@ -26,14 +26,9 @@ export const validateEmail = (email: string): boolean => {
 
 // Authenticate user with email and password
 
-export const authenticateUser = async (
-  credentials: LoginCredentials
-): Promise<AuthResult> => {
+export const authenticateUser = async (credentials: LoginCredentials): Promise<AuthResult> => {
   try {
-    const response = await userAxios.post<LoginResponse>(
-      '/auth/login',
-      credentials
-    );
+    const response = await userAxios.post<LoginResponse>('/auth/login', credentials);
 
     const { access_token, user } = response.data;
 
@@ -54,9 +49,7 @@ export const authenticateUser = async (
       message?: string;
     };
     const errorMessage =
-      err?.response?.data?.message ||
-      err?.message ||
-      'Failed to login. Please try again.';
+      err?.response?.data?.message || err?.message || 'Failed to login. Please try again.';
 
     return {
       success: false,
@@ -71,9 +64,7 @@ export const storeAuthData = (accessToken: string, userRole: string): void => {
   localStorage.setItem('user_role', userRole);
 
   // Lưu vào cookie để middleware có thể đọc
-  document.cookie = `access_token=${accessToken}; path=/; max-age=${
-    7 * 24 * 60 * 60
-  }`; // 7 days
+  document.cookie = `access_token=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
 
   // Update axios default header
   userAxios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;

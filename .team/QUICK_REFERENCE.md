@@ -14,10 +14,10 @@ cp .env.example .env
 # Edit .env with your actual values
 
 # Install all dependencies
-npm install
+pnpm install
 
 # Build shared package
-npm run build:shared
+pnpm run build:shared
 ```
 
 ### Daily Development
@@ -27,12 +27,12 @@ npm run build:shared
 git status
 
 # Start development servers
-npm run dev:backend   # Terminal 1: Backend (NestJS)
-npm run dev:web       # Terminal 2: Web (Next.js)
-npm run dev:mobile    # Terminal 3: Mobile (Expo)
+pnpm run dev:backend   # Terminal 1: Backend (NestJS)
+pnpm run dev:web       # Terminal 2: Web (Next.js)
+pnpm run dev:mobile    # Terminal 3: Mobile (Expo)
 
 # Build shared package (if changed)
-npm run build:shared
+pnpm run build:shared
 ```
 
 ### Docker
@@ -100,7 +100,7 @@ Smart-Forecast/
 ├── .gitattributes       # Line ending rules
 ├── .dockerignore        # What to ignore in Docker
 ├── .editorconfig        # Editor settings
-├── .npmrc               # NPM configuration
+├── .npmrc               # PNPM configuration
 ├── .env.example         # Environment template
 ├── .env                 # Your local env (NOT in git)
 │
@@ -112,8 +112,8 @@ Smart-Forecast/
 └── .team/               # Team documentation
     ├── API.md
     ├── PROJECT_CONTEXT.md
-    ├── GIT_CONFIG.md
-    └── CONFIG_CHECKLIST.md
+    ├── CONTRIBUTING.md
+    └── TIMELINE.md
 ```
 
 ## 🚫 What's Ignored by Git
@@ -174,29 +174,29 @@ git reset HEAD file.txt       # Unstage file
 git reset --hard HEAD         # Discard all changes (careful!)
 ```
 
-## 📦 NPM Workspace Commands
+## 📦 PNPM Workspace Commands
 
 ### Install Package in Specific Workspace
 
 ```bash
-npm install lodash --workspace backend
-npm install axios --workspace web
-npm install expo-notifications --workspace mobile
+pnpm add lodash --filter backend
+pnpm add axios --filter web
+pnpm add expo-notifications --filter mobile
 ```
 
 ### Run Script in Specific Workspace
 
 ```bash
-npm run build --workspace shared
-npm run test --workspace backend
-npm run lint --workspace web
+pnpm --filter shared run build
+pnpm --filter backend run test
+pnpm --filter web run lint
 ```
 
 ### Run Script in All Workspaces
 
 ```bash
-npm run build --workspaces
-npm run test --workspaces
+pnpm -r run build
+pnpm -r run test
 ```
 
 ## 🐛 Troubleshooting
@@ -254,7 +254,7 @@ docker build --progress=plain .   # See detailed logs
 
 - **Git**: https://git-scm.com/doc
 - **Docker**: https://docs.docker.com/
-- **NPM Workspaces**: https://docs.npmjs.com/cli/v7/using-npm/workspaces
+- **PNPM Workspaces**: https://pnpm.io/workspaces
 - **EditorConfig**: https://editorconfig.org/
 
 ### Project Docs

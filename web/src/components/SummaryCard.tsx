@@ -13,9 +13,7 @@ export default function SummaryCards({ cards }: SummaryCardsProps) {
         return (
           <Card key={card.title} className="p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
-              <CardTitle className="text-slate-600 text-sm">
-                {card.title}
-              </CardTitle>
+              <CardTitle className="text-slate-600 text-sm">{card.title}</CardTitle>
               <div className={`${card.bgColor} p-1.5 rounded-lg`}>
                 <Icon className={`h-4 w-4 ${card.color}`} />
               </div>

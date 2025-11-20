@@ -32,19 +32,19 @@ src/
 ### In Backend (NestJS)
 
 ```typescript
-import { UserRole, IUser, IncidentType } from "@smart-forecast/shared";
+import { UserRole, IUser, IncidentType } from '@smart-forecast/shared';
 ```
 
 ### In Web (Next.js)
 
 ```typescript
-import { IAlert, AlertLevel, IIncident } from "@smart-forecast/shared";
+import { IAlert, AlertLevel, IIncident } from '@smart-forecast/shared';
 ```
 
 ### In Mobile (Expo)
 
 ```typescript
-import { IncidentStatus, IAuthResponse } from "@smart-forecast/shared";
+import { IncidentStatus, IAuthResponse } from '@smart-forecast/shared';
 ```
 
 ## Development
@@ -52,13 +52,13 @@ import { IncidentStatus, IAuthResponse } from "@smart-forecast/shared";
 Build the package:
 
 ```bash
-npm run build
+pnpm --filter shared run build
 ```
 
 Watch mode for development:
 
 ```bash
-npm run watch
+pnpm --filter shared run watch
 ```
 
 ## License

@@ -44,15 +44,11 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen }: SidebarProps) {
               key={item.id}
               onClick={() => {
                 setCurrentPage(item.id);
-                router.push(
-                  `/dashboard/${item.id === 'dashboard' ? '' : item.id}`
-                );
+                router.push(`/dashboard/${item.id === 'dashboard' ? '' : item.id}`);
               }}
               className={cn(
                 'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors text-sm',
-                isActive
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-slate-600 hover:bg-slate-50'
+                isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50',
               )}
             >
               <Icon className="h-4 w-4" />

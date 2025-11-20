@@ -12,10 +12,7 @@ interface DetailsReportsProps {
   setSelectedReport: (report: (typeof recentReports)[0] | null) => void;
 }
 
-export default function DetailsReport({
-  selectedReport,
-  setSelectedReport,
-}: DetailsReportsProps) {
+export default function DetailsReport({ selectedReport, setSelectedReport }: DetailsReportsProps) {
   return (
     <Dialog
       open={!!selectedReport}
@@ -24,33 +21,23 @@ export default function DetailsReport({
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Report Details</DialogTitle>
-          <DialogDescription>
-            Submitted {selectedReport?.time}
-          </DialogDescription>
+          <DialogDescription>Submitted {selectedReport?.time}</DialogDescription>
         </DialogHeader>
         {selectedReport && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-xs text-slate-500 mb-1">Location</div>
-                <div className="text-sm text-slate-900">
-                  {selectedReport.location}
-                </div>
+                <div className="text-sm text-slate-900">{selectedReport.location}</div>
               </div>
               <div>
                 <div className="text-xs text-slate-500 mb-1">Type</div>
-                <div className="text-sm text-slate-900">
-                  {selectedReport.type}
-                </div>
+                <div className="text-sm text-slate-900">{selectedReport.type}</div>
               </div>
               <div>
                 <div className="text-xs text-slate-500 mb-1">Status</div>
                 <Badge
-                  variant={
-                    selectedReport.status === 'Approved'
-                      ? 'default'
-                      : 'secondary'
-                  }
+                  variant={selectedReport.status === 'Approved' ? 'default' : 'secondary'}
                   className="text-xs"
                 >
                   {selectedReport.status}
@@ -59,11 +46,7 @@ export default function DetailsReport({
               <div>
                 <div className="text-xs text-slate-500 mb-1">Severity</div>
                 <Badge
-                  variant={
-                    selectedReport.severity === 'High'
-                      ? 'destructive'
-                      : 'default'
-                  }
+                  variant={selectedReport.severity === 'High' ? 'destructive' : 'default'}
                   className="text-xs"
                 >
                   {selectedReport.severity}
@@ -73,16 +56,12 @@ export default function DetailsReport({
 
             <div>
               <div className="text-xs text-slate-500 mb-1">Reporter</div>
-              <div className="text-sm text-slate-900">
-                {selectedReport.reporter}
-              </div>
+              <div className="text-sm text-slate-900">{selectedReport.reporter}</div>
             </div>
 
             <div>
               <div className="text-xs text-slate-500 mb-1">Coordinates</div>
-              <div className="text-sm text-slate-900 font-mono">
-                {selectedReport.coordinates}
-              </div>
+              <div className="text-sm text-slate-900 font-mono">{selectedReport.coordinates}</div>
             </div>
 
             <div>

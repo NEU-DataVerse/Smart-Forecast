@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { recentReports } from '@/services/data';
 interface RecentReportsProps {
@@ -12,17 +6,12 @@ interface RecentReportsProps {
   setSelectedReport: (report: (typeof recentReports)[0]) => void;
 }
 
-export default function SummaryCards({
-  reports,
-  setSelectedReport,
-}: RecentReportsProps) {
+export default function SummaryCards({ reports, setSelectedReport }: RecentReportsProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Recent User Reports</CardTitle>
-        <CardDescription className="text-xs">
-          Latest submissions from mobile app
-        </CardDescription>
+        <CardDescription className="text-xs">Latest submissions from mobile app</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
@@ -38,16 +27,12 @@ export default function SummaryCards({
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge
-                  variant={
-                    report.status === 'Approved' ? 'default' : 'secondary'
-                  }
+                  variant={report.status === 'Approved' ? 'default' : 'secondary'}
                   className="text-xs"
                 >
                   {report.status}
                 </Badge>
-                <span className="text-slate-400 text-xs hidden sm:inline">
-                  {report.time}
-                </span>
+                <span className="text-slate-400 text-xs hidden sm:inline">{report.time}</span>
               </div>
             </div>
           ))}
