@@ -526,65 +526,56 @@ Closes #45
 ### Backend (NestJS)
 
 ```bash
-# Di chuyển vào thư mục backend
-cd backend
-
-# Chạy ESLint
-npm run lint
+# Chạy ESLint cho backend
+pnpm --filter backend run lint
 
 # Tự động fix các lỗi có thể fix được
-npm run lint:fix
+pnpm --filter backend run lint:fix
 
 # Chạy unit tests
-npm run test
+pnpm --filter backend run test
 
 # Chạy e2e tests
-npm run test:e2e
+pnpm --filter backend run test:e2e
 
 # Chạy tests với coverage
-npm run test:cov
+pnpm --filter backend run test:cov
 ```
 
 ### Frontend Web (Next.js)
 
 ```bash
-# Di chuyển vào thư mục web
-cd web
-
-# Chạy ESLint
-npm run lint
+# Chạy ESLint cho web
+pnpm --filter web run lint
 
 # Tự động fix các lỗi có thể fix được
-npm run lint -- --fix
+pnpm --filter web run lint -- --fix
 
 # Chạy type checking
-npm run type-check  # nếu có script này
+pnpm --filter web run type-check  # nếu có script này
 
 # Build để check errors
-npm run build
+pnpm --filter web run build
 ```
 
 ### Mobile (Expo/React Native)
 
 ```bash
-# Di chuyển vào thư mục mobile
-cd mobile
-
-# Chạy ESLint
-npm run lint
+# Chạy ESLint cho mobile
+pnpm --filter mobile run lint
 
 # Tự động fix
-npm run lint -- --fix
+pnpm --filter mobile run lint -- --fix
 ```
 
 ### Chạy tất cả lint cùng lúc (từ root)
 
 ```bash
-# Nếu project có script lint cho toàn bộ
-npm run lint
+# Chạy lint cho tất cả packages
+pnpm -r run lint
 
-# Hoặc chạy tuần tự
-cd backend && npm run lint && cd ../web && npm run lint && cd ../mobile && npm run lint
+# Hoặc chạy tuần tự từng package
+pnpm --filter backend run lint && pnpm --filter web run lint && pnpm --filter mobile run lint
 ```
 
 ### Setup Git Hooks (Tự động)
@@ -594,7 +585,7 @@ Sử dụng **husky** và **lint-staged** để tự động chạy lint trướ
 #### 1. Cài đặt (nếu chưa có)
 
 ```bash
-npm install --save-dev husky lint-staged
+pnpm add -D husky lint-staged
 npx husky install
 ```
 
@@ -623,13 +614,13 @@ Sau khi setup, mỗi lần commit, lint sẽ tự động chạy!
 
 ```bash
 # Nếu có lỗi lint, fix bằng tay hoặc:
-npm run lint:fix
+pnpm -r run lint:fix
 
 # Nếu không fix được, đọc error message và fix manual
 # KHÔNG BAO GIỜ dùng --no-verify để skip lint!
 
 # Check lại sau khi fix
-npm run lint
+pnpm -r run lint
 ```
 
 ---
@@ -650,15 +641,12 @@ git checkout -b feature/user-profile
 # (Viết code, tạo components, services, etc.)
 
 # 4. Chạy lint
-cd backend
-npm run lint:fix
-cd ../web
-npm run lint:fix
+pnpm --filter backend run lint:fix
+pnpm --filter web run lint:fix
 
 # 5. Chạy tests
-cd ../backend
-npm run test
-npm run test:e2e
+pnpm --filter backend run test
+pnpm --filter backend run test:e2e
 
 # 6. Commit code
 git add .
