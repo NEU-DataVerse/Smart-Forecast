@@ -14,19 +14,23 @@ November 20, 2025
 
 ```
 Smart-Forecast/
+├── .env                              # ← Docker Compose variable substitution
+├── .env.example                      # ← Template for .env
 ├── docker/
-│   ├── .env.infrastructure           # ← NEW: Docker services config
+│   ├── .env.infrastructure           # ← DEPRECATED: Use root .env instead
 │   └── .env.infrastructure.example
 ├── backend/
-│   ├── .env                          # ← UPDATED: Connection strings, no raw credentials
+│   ├── .env                          # ← Backend API config
 │   └── .env.example
 ├── web/
-│   ├── .env.local                    # ← NEW: Only NEXT_PUBLIC_* variables
+│   ├── .env.local                    # ← Web public variables
 │   └── .env.local.example
 └── mobile/
-    ├── .env                          # ← NEW: Only EXPO_PUBLIC_* variables
+    ├── .env                          # ← Mobile public variables
     └── .env.example
 ```
+
+**Important Note:** Docker Compose automatically loads `.env` from root directory for `${VARIABLE}` substitution. The `docker/.env.infrastructure` file is loaded into containers via `env_file` directive, but variables are NOT available for substitution in docker-compose.yml itself.
 
 ### 2. Environment Variables Distribution
 

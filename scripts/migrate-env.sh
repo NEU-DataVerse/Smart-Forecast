@@ -121,13 +121,6 @@ API_PREFIX=$(get_env_value API_PREFIX)
 # ====== PostgreSQL Database Connection ======
 DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
 
-# Legacy support (fallback)
-DB_HOST=${POSTGRES_HOST}
-DB_PORT=5432
-DB_USERNAME=${POSTGRES_USER}
-DB_PASSWORD=${POSTGRES_PASSWORD}
-DB_DATABASE=${POSTGRES_DB}
-
 # ====== MongoDB Connection ======
 MONGO_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:27017/orion?authSource=admin
 

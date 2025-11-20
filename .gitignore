@@ -32,7 +32,11 @@ mobile/dist/
 shared/dist/
 
 # ====== Environment Variables ======
+# Root .env is used by docker-compose for variable substitution
+# Keep it but don't commit secrets
 .env
+
+# Other environment files
 .env.local
 .env.development
 .env.development.local

@@ -31,10 +31,18 @@ echo.
 REM Setup environment files
 echo Setting up environment variables...
 
-REM Docker infrastructure
+REM Root .env for Docker Compose
+if not exist ".env" (
+    copy .env.example .env >nul
+    echo [OK] .env created (for Docker Compose)
+) else (
+    echo [SKIP] .env already exists
+)
+
+REM Docker infrastructure (deprecated but kept for compatibility)
 if not exist "docker\.env.infrastructure" (
     copy docker\.env.infrastructure.example docker\.env.infrastructure >nul
-    echo [OK] docker\.env.infrastructure created
+    echo [WARNING] docker\.env.infrastructure created (deprecated - use root .env)
 ) else (
     echo [SKIP] docker\.env.infrastructure already exists
 )

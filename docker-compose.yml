@@ -16,9 +16,7 @@ services:
     container_name: orion
     ports:
       - '1026:1026'
-    env_file:
-      - docker/.env.infrastructure
-    command: -dbhost mongodb -logLevel ${ORION_LOG_LEVEL:-DEBUG}
+    command: -dbhost mongodb -dbuser ${MONGO_INITDB_ROOT_USERNAME} -dbpwd ${MONGO_INITDB_ROOT_PASSWORD} -logLevel ${ORION_LOG_LEVEL:-DEBUG}
     depends_on:
       - mongodb
     networks:
@@ -36,8 +34,6 @@ services:
     container_name: mongodb
     ports:
       - '27017:27017'
-    env_file:
-      - docker/.env.infrastructure
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -62,8 +58,6 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - docker/.env.infrastructure
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -87,8 +81,6 @@ services:
       # Console (web UI)
       - '9001:9001'
     command: server /data --console-address ":9001"
-    env_file:
-      - docker/.env.infrastructure
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}

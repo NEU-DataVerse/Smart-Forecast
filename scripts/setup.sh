@@ -34,10 +34,18 @@ echo ""
 # Setup environment files
 echo "⚙️  Setting up environment variables..."
 
-# Docker infrastructure
+# Root .env for Docker Compose
+if [ ! -f .env ]; then
+    cp .env.example .env
+    echo -e "${GREEN}✅ .env created (for Docker Compose)${NC}"
+else
+    echo -e "${YELLOW}⏭️  .env already exists${NC}"
+fi
+
+# Docker infrastructure (deprecated but kept for compatibility)
 if [ ! -f docker/.env.infrastructure ]; then
     cp docker/.env.infrastructure.example docker/.env.infrastructure
-    echo -e "${GREEN}✅ docker/.env.infrastructure created${NC}"
+    echo -e "${YELLOW}⚠️  docker/.env.infrastructure created (deprecated - use root .env)${NC}"
 else
     echo -e "${YELLOW}⏭️  docker/.env.infrastructure already exists${NC}"
 fi
