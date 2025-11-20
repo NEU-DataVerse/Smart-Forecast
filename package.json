@@ -1,19 +1,13 @@
 {
-    "name": "smart-forecast",
-    "version": "0.0.0",
-    "private": true,
-    "workspaces": [
-        "backend",
-        "mobile",
-        "web",
-        "shared"
-    ],
-    "scripts": {
-        "build:shared": "npm --workspace shared run build",
-        "dev:shared": "npm --workspace shared run watch",
-        "dev:backend": "npm --workspace backend run start:dev",
-        "dev:web": "npm --workspace web run dev",
-        "dev:mobile": "npm --workspace mobile run start",
-        "format": "prettier --write ."
-    }
+  "name": "smart-forecast",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build:shared": "pnpm --filter shared run build",
+    "dev:shared": "pnpm --filter shared run watch",
+    "dev:backend": "pnpm --filter backend run start:dev",
+    "dev:web": "pnpm --filter web run dev",
+    "dev:mobile": "pnpm --filter mobile run start",
+    "format": "prettier --write ."
+  }
 }
