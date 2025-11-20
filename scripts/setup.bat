@@ -28,20 +28,40 @@ echo [OK] Docker is installed
 echo [OK] Docker Compose is installed
 echo.
 
-REM Check if .env file exists
+REM Setup environment files
 echo Setting up environment variables...
-if exist .env (
-    echo [WARNING] .env file already exists.
-    set /p "overwrite=Do you want to overwrite it? (y/N): "
-    if /i "%overwrite%"=="y" (
-        copy /Y .env.example .env >nul
-        echo [OK] .env file created from .env.example
-    ) else (
-        echo [SKIP] Keeping existing .env file
-    )
+
+REM Docker infrastructure
+if not exist "docker\.env.infrastructure" (
+    copy docker\.env.infrastructure.example docker\.env.infrastructure >nul
+    echo [OK] docker\.env.infrastructure created
 ) else (
-    copy .env.example .env >nul
-    echo [OK] .env file created from .env.example
+    echo [SKIP] docker\.env.infrastructure already exists
+)
+
+REM Backend
+if not exist "backend\.env" (
+    copy backend\.env.example backend\.env >nul
+    echo [OK] backend\.env created
+) else (
+    echo [SKIP] backend\.env already exists
+)
+
+REM Web
+if not exist "web\.env.local" (
+    copy web\.env.local.example web\.env.local >nul
+    echo [OK] web\.env.local created
+) else (
+    echo [SKIP] web\.env.local already exists
+)
+
+REM Mobile
+if not exist "mobile\.env" (
+    copy mobile\.env.example mobile\.env >nul
+    echo [OK] mobile\.env created
+    echo [WARNING] Remember to update EXPO_PUBLIC_API_URL with your local IP address
+) else (
+    echo [SKIP] mobile\.env already exists
 )
 echo.
 
@@ -49,10 +69,10 @@ REM API Configuration notice
 echo ================================
 echo API Configuration
 echo ================================
-echo You need to configure the following API keys in .env file:
-echo   1. OPENAQ_API_KEY - Get from: https://openaq.org/
-echo   2. OWM_API_KEY - Get from: https://openweathermap.org/api
-echo   3. NEXT_PUBLIC_MAPBOX_TOKEN - Get from: https://www.mapbox.com/
+echo You need to configure the following:
+echo   1. backend\.env - OPENWEATHER_API_KEY (Get from: https://openweathermap.org/api)
+echo   2. backend\.env - JWT_SECRET (Change to a secure random string)
+echo   3. mobile\.env - EXPO_PUBLIC_API_URL (Replace YOUR_LOCAL_IP with your machine's IP)
 echo.
 echo Press any key to continue...
 pause >nul

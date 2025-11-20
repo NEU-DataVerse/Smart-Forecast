@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const USER_SERVICE_URL = process.env.NEXT_PUBLIC_USER_SERVICE_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 // User service instance
 const userAxios = axios.create({
-  baseURL: `${USER_SERVICE_URL}/api/v1`,
+  baseURL: API_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

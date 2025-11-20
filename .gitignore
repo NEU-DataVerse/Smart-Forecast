@@ -41,6 +41,12 @@ shared/dist/
 .env.production
 .env.production.local
 
+# Specific environment files
+docker/.env.infrastructure
+backend/.env
+web/.env.local
+mobile/.env
+
 # ====== IDE / Editors ======
 # VSCode
 .vscode/

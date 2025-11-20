@@ -17,11 +17,14 @@ export class OpenWeatherMapProvider {
     'https://history.openweathermap.org/data/2.5';
 
   constructor(private configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('OWM_API_KEY') || '';
+    this.apiKey =
+      this.configService.get<string>('OPENWEATHER_API_KEY') ||
+      this.configService.get<string>('OWM_API_KEY') ||
+      '';
 
     if (!this.apiKey) {
       this.logger.warn(
-        'OWM_API_KEY is not configured. OpenWeatherMap provider will not work.',
+        'OPENWEATHER_API_KEY is not configured. OpenWeatherMap provider will not work.',
       );
     }
 
