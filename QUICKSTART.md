@@ -46,18 +46,29 @@ pnpm install
 pnpm run build:shared
 ```
 
-### 2. Tạo file cấu hình
+### 2. Tạo các file cấu hình environment
+
+Hệ thống sử dụng 4 file .env riêng biệt:
 
 ```bash
-# Windows (Git Bash)
-cp .env.example .env
+# Tự động (khuyến nghị)
+bash scripts/setup.sh     # Linux/Mac/Git Bash
+scripts\setup.bat         # Windows
 
-# Windows (PowerShell)
-copy .env.example .env
-
-# Linux/Mac
-cp .env.example .env
+# Hoặc thủ công
+cp docker/.env.infrastructure.example docker/.env.infrastructure
+cp backend/.env.example backend/.env
+cp web/.env.local.example web/.env.local
+cp mobile/.env.example mobile/.env
 ```
+
+**Quan trọng:** Chỉnh sửa `backend/.env` để thêm API key:
+
+```bash
+OPENWEATHER_API_KEY=your_api_key_here
+```
+
+(Đăng ký miễn phí tại: https://openweathermap.org/api)
 
 ### 3. Khởi động Docker Compose
 

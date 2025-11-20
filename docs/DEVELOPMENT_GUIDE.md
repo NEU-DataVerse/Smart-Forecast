@@ -20,35 +20,44 @@ Hướng dẫn phát triển cho thành viên mới trong dự án Smart-Forecas
 
 ```
 Smart-Forecast/
-├── package.json              # Root package với workspace scripts
-├── pnpm-workspace.yaml       # PNPM workspace config
-├── .env                      # Environment variables
-├── docker-compose.yml        # Docker services
+├── package.json                       # Root package với workspace scripts
+├── pnpm-workspace.yaml                # PNPM workspace config
+├── docker-compose.yml                 # Docker services
 │
-├── backend/                  # NestJS Backend API
+├── docker/                            # Docker infrastructure config
+│   ├── .env.infrastructure           # Docker services environment
+│   └── .env.infrastructure.example   # Template
+│
+├── backend/                           # NestJS Backend API
 │   ├── src/
 │   ├── test/
+│   ├── .env                          # Backend environment
+│   ├── .env.example                  # Template
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── web/                      # Next.js Web Frontend
+├── web/                               # Next.js Web Frontend
 │   ├── src/
-│   │   ├── app/             # App router
-│   │   ├── components/      # React components
-│   │   └── services/        # API services
+│   │   ├── app/                      # App router
+│   │   ├── components/               # React components
+│   │   └── services/                 # API services
+│   ├── .env.local                    # Web environment (NEXT_PUBLIC_*)
+│   ├── .env.local.example            # Template
 │   ├── package.json
 │   └── next.config.ts
 │
-├── mobile/                   # Expo Mobile App
-│   ├── app/                 # Expo router
-│   ├── components/          # React Native components
+├── mobile/                            # Expo Mobile App
+│   ├── app/                          # Expo router
+│   ├── components/                   # React Native components
+│   ├── .env                          # Mobile environment (EXPO_PUBLIC_*)
+│   ├── .env.example                  # Template
 │   ├── package.json
 │   └── app.json
 │
-└── shared/                   # Shared TypeScript types
+└── shared/                            # Shared TypeScript types
     ├── src/
-    │   ├── types/           # Type definitions
-    │   └── constants/       # Shared constants
+    │   ├── types/                    # Type definitions
+    │   └── constants/                # Shared constants
     ├── package.json
     └── tsconfig.json
 ```
@@ -97,15 +106,107 @@ scripts\setup.bat   # Windows
 
 ### 3️⃣ Environment Variables
 
-```bash
-# Tạo file .env
-cp .env.example .env
+Hệ thống sử dụng cấu trúc environment variables được tách biệt theo layer:
 
-# Cấu hình các biến quan trọng
-# - JWT_SECRET
-# - OWM_API_KEY (OpenWeatherMap)
-# - Database credentials
+#### Cấu trúc Environment Files
+
 ```
+docker/.env.infrastructure     # Docker services (PostgreSQL, MongoDB, MinIO, Orion-LD)
+backend/.env                   # Backend API (connection strings, API keys, secrets)
+web/.env.local                 # Web frontend (chỉ NEXT_PUBLIC_* variables)
+mobile/.env                    # Mobile app (chỉ EXPO_PUBLIC_* variables)
+```
+
+#### Setup Environment Files
+
+```bash
+# Tự động copy tất cả file .env.example
+bash scripts/setup.sh          # Linux/Mac/Git Bash
+scripts\setup.bat              # Windows
+
+# Hoặc thủ công
+cp docker/.env.infrastructure.example docker/.env.infrastructure
+cp backend/.env.example backend/.env
+cp web/.env.local.example web/.env.local
+cp mobile/.env.example mobile/.env
+```
+
+#### Cấu hình Environment Variables
+
+**1. Docker Infrastructure (`docker/.env.infrastructure`)**
+
+Chứa credentials cho Docker services (không share với backend):
+
+```bash
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin
+POSTGRES_DB=smart_forecast_db
+
+MONGO_INITDB_ROOT_USERNAME=admin
+MONGO_INITDB_ROOT_PASSWORD=admin
+
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin
+
+ORION_LOG_LEVEL=DEBUG
+```
+
+**2. Backend (`backend/.env`)**
+
+Chứa connection strings và API keys (không chứa raw credentials):
+
+```bash
+# Database - Dùng connection string
+DATABASE_URL=postgresql://admin:admin@localhost:5432/smart_forecast_db
+MONGO_URL=mongodb://admin:admin@localhost:27017/orion?authSource=admin
+
+# API Keys
+OPENWEATHER_API_KEY=your_api_key_here  # ← Cần thay đổi!
+JWT_SECRET=change_this_in_production   # ← Cần thay đổi!
+
+# MinIO
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+
+# Orion-LD
+ORION_LD_URL=http://localhost:1026
+```
+
+**3. Web Frontend (`web/.env.local`)**
+
+Chỉ chứa biến public (`NEXT_PUBLIC_*`):
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+NEXT_PUBLIC_MINIO_URL=http://localhost:9000
+```
+
+**4. Mobile App (`mobile/.env`)**
+
+Chỉ chứa biến public (`EXPO_PUBLIC_*`), **QUAN TRỌNG**: Không dùng localhost!
+
+```bash
+# Thay YOUR_LOCAL_IP bằng IP máy của bạn
+# Tìm IP: ipconfig (Windows) hoặc ifconfig (Mac/Linux)
+EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
+EXPO_PUBLIC_MINIO_URL=http://192.168.1.100:9000
+```
+
+#### Security Best Practices
+
+✅ **DO:**
+
+- Backend dùng connection string thay vì raw credentials
+- Web/Mobile chỉ chứa biến `NEXT_PUBLIC_*` hoặc `EXPO_PUBLIC_*`
+- Không share secret keys giữa Docker và application
+- Thay đổi `JWT_SECRET` trong production
+
+❌ **DON'T:**
+
+- Không commit file `.env` vào Git
+- Không chứa `POSTGRES_PASSWORD` trong backend/.env
+- Không dùng `localhost` trong mobile/.env
+- Không expose API keys trong web/mobile environment
 
 ---
 

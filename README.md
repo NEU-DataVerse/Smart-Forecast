@@ -116,28 +116,37 @@ pnpm run build:shared
 
 ### 2️⃣ Cấu hình môi trường
 
-Tạo file `.env` từ template:
+Hệ thống sử dụng cấu trúc environment variables được tách biệt cho từng layer:
 
 ```bash
-cp .env.example .env
+# Tự động copy tất cả file .env.example (khuyến nghị)
+bash scripts/setup.sh  # Linux/Mac/Git Bash
+# hoặc
+scripts\setup.bat      # Windows
+
+# Hoặc copy thủ công từng file:
+cp docker/.env.infrastructure.example docker/.env.infrastructure
+cp backend/.env.example backend/.env
+cp web/.env.local.example web/.env.local
+cp mobile/.env.example mobile/.env
 ```
 
-Chỉnh sửa file `.env` với các thông tin cần thiết:
+**Cấu trúc environment files:**
+
+- `docker/.env.infrastructure` - Biến cho Docker services (PostgreSQL, MongoDB, MinIO, Orion-LD)
+- `backend/.env` - Biến cho NestJS backend (API keys, database connection strings)
+- `web/.env.local` - Biến public cho Next.js frontend (chỉ `NEXT_PUBLIC_*`)
+- `mobile/.env` - Biến public cho Expo app (chỉ `EXPO_PUBLIC_*`)
+
+**Chỉnh sửa các file sau khi copy:**
 
 ```bash
-# Cấu hình cơ bản (có thể giữ nguyên cho development)
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=admin
-POSTGRES_DB=smart_forecast_db
+# backend/.env - Cấu hình API key
+OPENWEATHER_API_KEY=your_openweathermap_api_key_here
+JWT_SECRET=change_this_to_secure_random_string
 
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=minioadmin
-
-# Cấu hình API keys (cần đăng ký tài khoản)
-OWM_API_KEY=your_openweathermap_api_key_here
-
-# JWT Secret (nên thay đổi trong production)
-JWT_SECRET=your_very_secure_jwt_secret_key_change_this_in_production
+# mobile/.env - Thay YOUR_LOCAL_IP bằng IP máy của bạn (không dùng localhost)
+EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 ```
 
 ### 3️⃣ Khởi động các dịch vụ
@@ -189,19 +198,59 @@ docker-compose down -v
 docker-compose down --rmi all
 ```
 
-## ⚙️ Cấu hình môi trường
+## ⚙️ Cấu hình môi trường chi tiết
 
-### Các biến môi trường quan trọng:
+### Environment Files Structure:
 
-| Biến                  | Mô tả                  | Giá trị mặc định  |
-| --------------------- | ---------------------- | ----------------- |
-| `POSTGRES_USER`       | Username PostgreSQL    | admin             |
-| `POSTGRES_PASSWORD`   | Password PostgreSQL    | admin             |
-| `POSTGRES_DB`         | Tên database           | smart_forecast_db |
-| `MINIO_ROOT_USER`     | MinIO admin user       | minioadmin        |
-| `MINIO_ROOT_PASSWORD` | MinIO admin password   | minioadmin        |
-| `OWM_API_KEY`         | API key OpenWeatherMap | -                 |
-| `JWT_SECRET`          | Secret key cho JWT     | -                 |
+```
+Smart-Forecast/
+├── docker/.env.infrastructure     # Docker services config
+├── backend/.env                   # Backend API config
+├── web/.env.local                 # Web frontend config
+└── mobile/.env                    # Mobile app config
+```
+
+### Các biến môi trường theo layer:
+
+**Docker Infrastructure (`docker/.env.infrastructure`):**
+
+| Biến                         | Mô tả                | Giá trị mặc định  |
+| ---------------------------- | -------------------- | ----------------- |
+| `POSTGRES_USER`              | PostgreSQL username  | admin             |
+| `POSTGRES_PASSWORD`          | PostgreSQL password  | admin             |
+| `POSTGRES_DB`                | Database name        | smart_forecast_db |
+| `MONGO_INITDB_ROOT_USERNAME` | MongoDB username     | admin             |
+| `MONGO_INITDB_ROOT_PASSWORD` | MongoDB password     | admin             |
+| `MINIO_ROOT_USER`            | MinIO admin user     | minioadmin        |
+| `MINIO_ROOT_PASSWORD`        | MinIO admin password | minioadmin        |
+| `ORION_LOG_LEVEL`            | Orion log level      | DEBUG             |
+
+**Backend (`backend/.env`):**
+
+| Biến                  | Mô tả                        | Giá trị mặc định                                             |
+| --------------------- | ---------------------------- | ------------------------------------------------------------ |
+| `DATABASE_URL`        | PostgreSQL connection string | postgresql://admin:admin@localhost:5432/smart_forecast_db    |
+| `MONGO_URL`           | MongoDB connection string    | mongodb://admin:admin@localhost:27017/orion?authSource=admin |
+| `OPENWEATHER_API_KEY` | OpenWeatherMap API key       | (cần đăng ký)                                                |
+| `JWT_SECRET`          | JWT signing secret           | (đổi trong production)                                       |
+| `MINIO_ACCESS_KEY`    | MinIO access key             | minioadmin                                                   |
+| `MINIO_SECRET_KEY`    | MinIO secret key             | minioadmin                                                   |
+
+**Web Frontend (`web/.env.local`):**
+
+| Biến                    | Mô tả             | Giá trị mặc định             |
+| ----------------------- | ----------------- | ---------------------------- |
+| `NEXT_PUBLIC_API_URL`   | Backend API URL   | http://localhost:8000/api/v1 |
+| `NEXT_PUBLIC_MINIO_URL` | MinIO storage URL | http://localhost:9000        |
+
+**Mobile App (`mobile/.env`):**
+
+| Biến                    | Mô tả                  | Giá trị mặc định                 |
+| ----------------------- | ---------------------- | -------------------------------- |
+| `EXPO_PUBLIC_API_URL`   | Backend API URL        | http://YOUR_LOCAL_IP:8000/api/v1 |
+| `EXPO_PUBLIC_MINIO_URL` | MinIO storage URL      | http://YOUR_LOCAL_IP:9000        |
+| `OWM_API_KEY`           | API key OpenWeatherMap | -                                |
+| `JWT_SECRET`            | Secret key cho JWT     | -                                |
 
 ### Lấy API Keys:
 
