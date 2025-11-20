@@ -55,7 +55,7 @@ kill -9 <PID>
 
 ```yaml
 ports:
-  - "5433:5432" # Đổi 5432 thành 5433
+  - '5433:5432' # Đổi 5432 thành 5433
 ```
 
 ## 🏥 Container Health Issues
@@ -252,7 +252,7 @@ Sửa trong `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "5433:5432" # External:Internal
+  - '5433:5432' # External:Internal
 ```
 
 ## 💽 Volume Issues

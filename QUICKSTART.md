@@ -169,16 +169,13 @@ pnpm -r run test
 ## 🔧 Tiếp theo
 
 1. **Khám phá PNPM Workspace**:
-
    - Xem `.team/QUICK_REFERENCE.md` cho hướng dẫn chi tiết
    - Đọc về [PNPM Workspaces](https://pnpm.io/workspaces)
 
 2. **Khám phá FIWARE Orion**:
-
    - Xem [FIWARE Tutorial](https://fiware-tutorials.readthedocs.io/)
 
 3. **Phát triển Backend**:
-
    - `pnpm --filter backend run start:dev`
 
 4. **Phát triển Frontend**:

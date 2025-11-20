@@ -275,7 +275,7 @@ docker inspect --format='{{range .State.Health.Log}}{{.Output}}{{end}}' orion
 
 ```yaml
 healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:1026/version"]
+  test: ['CMD', 'curl', '-f', 'http://localhost:1026/version']
   interval: 30s # Kiểm tra mỗi 30 giây
   timeout: 10s # Timeout sau 10 giây
   retries: 3 # Thử lại 3 lần
@@ -288,7 +288,7 @@ Bạn có thể tùy chỉnh health check trong `docker-compose.yml`:
 
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+  test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
   interval: 10s # Kiểm tra thường xuyên hơn
   timeout: 5s # Timeout nhanh hơn
   retries: 5 # Thử lại nhiều hơn
@@ -318,7 +318,7 @@ docker-compose ps
 nginx:
   image: nginx:alpine
   ports:
-    - "80:80"
+    - '80:80'
   depends_on:
     - backend
   volumes:
@@ -363,10 +363,10 @@ depends_on:
 deploy:
   resources:
     limits:
-      cpus: "0.5"
+      cpus: '0.5'
       memory: 512M
     reservations:
-      cpus: "0.25"
+      cpus: '0.25'
       memory: 256M
 ```
 
@@ -374,10 +374,10 @@ deploy:
 
 ```yaml
 logging:
-  driver: "json-file"
+  driver: 'json-file'
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 ```
 
 ### 6. Security

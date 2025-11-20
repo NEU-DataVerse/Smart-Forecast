@@ -25,9 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="mdl-js">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <UserProvider>{children}</UserProvider>
         <Toaster />
       </body>

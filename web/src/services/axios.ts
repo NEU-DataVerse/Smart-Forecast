@@ -34,7 +34,7 @@ userAxios.interceptors.response.use(
 
     // Reject promise để các component vẫn có thể handle error
     return Promise.reject(error);
-  }
+  },
 );
 
 export { userAxios };

@@ -488,7 +488,7 @@ Sửa port trong `docker-compose.yml`:
 services:
   postgres:
     ports:
-      - "5433:5432" # Đổi port bên trái
+      - '5433:5432' # Đổi port bên trái
 ```
 
 Sau đó:

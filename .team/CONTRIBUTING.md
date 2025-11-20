@@ -465,7 +465,6 @@ Closes #45
 ### Khi bạn là người tạo PR
 
 1. **Self-review trước:**
-
    - Đọc lại toàn bộ code changes
    - Check formatting và style
    - Đảm bảo không commit files không cần thiết
@@ -486,7 +485,6 @@ Closes #45
 ### Khi bạn review PR của người khác
 
 1. **Review kỹ càng:**
-
    - Logic có đúng không?
    - Code có dễ đọc, dễ maintain không?
    - Có potential bugs không?
@@ -505,7 +503,6 @@ Closes #45
    ```
 
 3. **Phân loại comments:**
-
    - 🔴 **Critical:** Phải fix trước khi merge
    - 🟡 **Suggestion:** Nên fix nhưng không bắt buộc
    - 💬 **Question:** Hỏi để hiểu rõ hơn

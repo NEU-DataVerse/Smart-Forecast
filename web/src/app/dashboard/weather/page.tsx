@@ -1,3 +1,3 @@
 export default function Weather() {
-    return <div>Weather</div>
+  return <div>Weather</div>;
 }

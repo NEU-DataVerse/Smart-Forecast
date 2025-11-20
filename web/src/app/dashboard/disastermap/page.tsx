@@ -1,3 +1,3 @@
 export default function DisasterMap() {
-    return <div>Disaster Map</div>
+  return <div>Disaster Map</div>;
 }

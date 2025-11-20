@@ -30,18 +30,15 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 ## 🧠 **Luồng hoạt động tổng quát**
 
 1. **Thu thập dữ liệu (Ingestion Module)**
-
    - Lấy dữ liệu từ API OpenWeatherMap.
    - Chuẩn hoá về dạng **NGSI-LD Entity (AirQualityObserved, WeatherObserved)**.
    - Gửi vào **Orion-LD Context Broker**.
 
 2. **Xử lý ngữ cảnh (Orion-LD)**
-
    - Lưu trữ và cung cấp dữ liệu ngữ cảnh môi trường theo chuẩn FIWARE.
    - Đồng bộ dữ liệu lịch sử sang **PostgreSQL**.
 
 3. **Phân tích & cảnh báo (Backend Node.js)**
-
    - Xử lý dữ liệu từ Orion-LD và DB.
    - Gửi **cảnh báo khẩn (Alert)** đến người dân qua **Firebase Cloud Messaging**.
    - Tiếp nhận **báo cáo sự cố** từ người dân (ảnh, vị trí, mô tả).
@@ -114,10 +111,10 @@ smart-forecast/
 
 ```yaml
 packages:
-  - "backend"
-  - "web"
-  - "mobile"
-  - "shared"
+  - 'backend'
+  - 'web'
+  - 'mobile'
+  - 'shared'
 ```
 
 ---

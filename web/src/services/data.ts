@@ -66,8 +66,7 @@ export const recentReports = [
     status: 'Approved',
     time: '2 hours ago',
     severity: 'Medium',
-    description:
-      'Hail storm reported with medium-sized hailstones. Some vehicle damage reported.',
+    description: 'Hail storm reported with medium-sized hailstones. Some vehicle damage reported.',
     reporter: 'Emily Davis',
     coordinates: '40.7282, -74.0776',
     images: 2,

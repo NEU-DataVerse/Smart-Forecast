@@ -126,7 +126,13 @@ The shared package is now ready to be used by:
 **Example Usage:**
 
 ```typescript
-import { UserRole, IIncident, IncidentType, AlertLevel, IAirQualityObserved } from "@smart-forecast/shared";
+import {
+  UserRole,
+  IIncident,
+  IncidentType,
+  AlertLevel,
+  IAirQualityObserved,
+} from '@smart-forecast/shared';
 ```
 
 ### ✅ Build Status

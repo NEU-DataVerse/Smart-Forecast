@@ -1,23 +1,23 @@
 {
-    "name": "@smart-forecast/shared",
-    "version": "1.0.0",
-    "description": "Shared TypeScript types, interfaces, and constants for Smart Forecast platform",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "watch": "tsc --watch",
-        "clean": "rm -rf dist"
-    },
-    "keywords": [
-        "smart-forecast",
-        "types",
-        "shared",
-        "typescript"
-    ],
-    "author": "NEU-DataVerse",
-    "license": "MIT",
-    "devDependencies": {
-        "typescript": "^5.3.3"
-    }
+  "name": "@smart-forecast/shared",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types, interfaces, and constants for Smart Forecast platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "smart-forecast",
+    "types",
+    "shared",
+    "typescript"
+  ],
+  "author": "NEU-DataVerse",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
 }

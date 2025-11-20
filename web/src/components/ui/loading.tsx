@@ -7,12 +7,7 @@ interface LoadingProps {
   text?: string;
 }
 
-export function Loading({
-  size = 'md',
-  variant = 'spinner',
-  className,
-  text,
-}: LoadingProps) {
+export function Loading({ size = 'md', variant = 'spinner', className, text }: LoadingProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
@@ -33,12 +28,10 @@ export function Loading({
         <div
           className={cn(
             'animate-spin rounded-full border-2 border-gray-300 border-t-blue-600',
-            sizeClasses[size]
+            sizeClasses[size],
           )}
         />
-        {text && (
-          <p className={cn('text-gray-600', textSizeClasses[size])}>{text}</p>
-        )}
+        {text && <p className={cn('text-gray-600', textSizeClasses[size])}>{text}</p>}
       </div>
     );
   }
@@ -55,10 +48,10 @@ export function Loading({
                 size === 'sm'
                   ? 'w-2 h-2'
                   : size === 'md'
-                  ? 'w-3 h-3'
-                  : size === 'lg'
-                  ? 'w-4 h-4'
-                  : 'w-5 h-5'
+                    ? 'w-3 h-3'
+                    : size === 'lg'
+                      ? 'w-4 h-4'
+                      : 'w-5 h-5',
               )}
               style={{
                 animationDelay: `${i * 0.2}s`,
@@ -67,9 +60,7 @@ export function Loading({
             />
           ))}
         </div>
-        {text && (
-          <p className={cn('text-gray-600', textSizeClasses[size])}>{text}</p>
-        )}
+        {text && <p className={cn('text-gray-600', textSizeClasses[size])}>{text}</p>}
       </div>
     );
   }
@@ -77,19 +68,8 @@ export function Loading({
   if (variant === 'pulse') {
     return (
       <div className={cn('flex items-center justify-center gap-2', className)}>
-        <div
-          className={cn(
-            'bg-blue-600 rounded-full animate-pulse',
-            sizeClasses[size]
-          )}
-        />
-        {text && (
-          <p
-            className={cn('text-gray-600 animate-pulse', textSizeClasses[size])}
-          >
-            {text}
-          </p>
-        )}
+        <div className={cn('bg-blue-600 rounded-full animate-pulse', sizeClasses[size])} />
+        {text && <p className={cn('text-gray-600 animate-pulse', textSizeClasses[size])}>{text}</p>}
       </div>
     );
   }
@@ -103,32 +83,18 @@ export function Loading({
               key={i}
               className={cn(
                 'bg-blue-600 animate-pulse',
-                size === 'sm'
-                  ? 'w-1'
-                  : size === 'md'
-                  ? 'w-1.5'
-                  : size === 'lg'
-                  ? 'w-2'
-                  : 'w-3'
+                size === 'sm' ? 'w-1' : size === 'md' ? 'w-1.5' : size === 'lg' ? 'w-2' : 'w-3',
               )}
               style={{
                 height:
-                  size === 'sm'
-                    ? '12px'
-                    : size === 'md'
-                    ? '16px'
-                    : size === 'lg'
-                    ? '20px'
-                    : '24px',
+                  size === 'sm' ? '12px' : size === 'md' ? '16px' : size === 'lg' ? '20px' : '24px',
                 animationDelay: `${i * 0.1}s`,
                 animationDuration: '0.8s',
               }}
             />
           ))}
         </div>
-        {text && (
-          <p className={cn('text-gray-600', textSizeClasses[size])}>{text}</p>
-        )}
+        {text && <p className={cn('text-gray-600', textSizeClasses[size])}>{text}</p>}
       </div>
     );
   }

@@ -17,11 +17,7 @@ interface HeaderProps {
   onNavigate: (page: string) => void;
 }
 
-export function Header({
-  sidebarOpen,
-  setSidebarOpen,
-  onNavigate,
-}: HeaderProps) {
+export function Header({ sidebarOpen, setSidebarOpen, onNavigate }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-50">
       <div className="flex items-center justify-between h-full px-3">
@@ -38,9 +34,7 @@ export function Header({
             <div className="w-7 h-7 bg-linear-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-sm">
               <span className="text-white">Logo</span>
             </div>
-            <h1 className="text-slate-900 text-sm md:text-base">
-              Smart Forecast
-            </h1>
+            <h1 className="text-slate-900 text-sm md:text-base">Smart Forecast</h1>
           </div>
         </div>
 
@@ -51,15 +45,11 @@ export function Header({
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                 <Avatar className="h-7 w-7">
-                  <AvatarFallback className="bg-blue-500 text-white text-xs">
-                    AD
-                  </AvatarFallback>
+                  <AvatarFallback className="bg-blue-500 text-white text-xs">AD</AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden lg:block">
                   <div className="text-slate-900 text-xs">Admin User</div>
-                  <div className="text-slate-500 text-xs">
-                    admin@weather.system
-                  </div>
+                  <div className="text-slate-500 text-xs">admin@weather.system</div>
                 </div>
               </button>
             </DropdownMenuTrigger>

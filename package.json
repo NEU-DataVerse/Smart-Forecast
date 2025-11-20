@@ -4,10 +4,31 @@
   "private": true,
   "scripts": {
     "build:shared": "pnpm --filter shared run build",
+    "build:backend": "pnpm --filter backend run build",
+    "build:web": "pnpm --filter web run build",
+    "build:all": "pnpm -r run build",
     "dev:shared": "pnpm --filter shared run watch",
     "dev:backend": "pnpm --filter backend run start:dev",
     "dev:web": "pnpm --filter web run dev",
     "dev:mobile": "pnpm --filter mobile run start",
-    "format": "prettier --write ."
+    "start:backend": "pnpm --filter backend run start",
+    "start:web": "pnpm --filter web run start",
+    "lint": "pnpm -r run lint",
+    "lint:backend": "pnpm --filter backend run lint",
+    "lint:web": "pnpm --filter web run lint",
+    "lint:mobile": "pnpm --filter mobile run lint",
+    "lint:fix": "pnpm -r run lint:fix",
+    "test": "pnpm -r run test",
+    "test:backend": "pnpm --filter backend run test",
+    "test:web": "pnpm --filter web run test",
+    "test:e2e": "pnpm --filter backend run test:e2e",
+    "test:cov": "pnpm --filter backend run test:cov",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "pnpm -r run clean && rm -rf node_modules",
+    "clean:cache": "pnpm store prune"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }

@@ -14,6 +14,12 @@ Smart urban environmental monitoring and warning system - Hệ thống giám sá
 - [Quản lý dữ liệu](#quản-lý-dữ-liệu)
 - [Troubleshooting](#troubleshooting)
 
+> 📖 **New to the project?** Check out:
+>
+> - [MONOREPO_MIGRATION_SUMMARY.md](docs/MONOREPO_MIGRATION_SUMMARY.md) - PNPM monorepo migration overview
+> - [DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md) - Comprehensive development guide
+> - [AUTOMATION_GUIDE.md](docs/AUTOMATION_GUIDE.md) - Makefile and scripts guide
+
 ## 🎯 Giới thiệu
 
 Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô thị sử dụng công nghệ FIWARE và các công nghệ hiện đại:
@@ -333,7 +339,7 @@ Nếu port đã được sử dụng, sửa trong `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "5433:5432" # Thay đổi port bên trái
+  - '5433:5432' # Thay đổi port bên trái
 ```
 
 ### Xóa tất cả và start lại:

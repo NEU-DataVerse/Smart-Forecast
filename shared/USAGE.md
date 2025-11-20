@@ -18,7 +18,14 @@ pnpm run dev:shared
 
 ```typescript
 // Import specific types and constants
-import { UserRole, IUser, ICreateIncidentRequest, IncidentType, IncidentStatus, AlertLevel } from "@smart-forecast/shared";
+import {
+  UserRole,
+  IUser,
+  ICreateIncidentRequest,
+  IncidentType,
+  IncidentStatus,
+  AlertLevel,
+} from '@smart-forecast/shared';
 
 // Use in service
 class UserService {
@@ -63,12 +70,17 @@ function Dashboard({ alerts, incidents }: DashboardProps) {
 
 ```typescript
 // Import types for state management
-import { IActiveAlert, IActiveIncident, IncidentType, GeoPoint } from "@smart-forecast/shared";
+import { IActiveAlert, IActiveIncident, IncidentType, GeoPoint } from '@smart-forecast/shared';
 
 // Use in API service
-const reportIncident = async (type: IncidentType, description: string, location: GeoPoint, images: string[]): Promise<IIncident> => {
-  const response = await fetch("/api/v1/incident", {
-    method: "POST",
+const reportIncident = async (
+  type: IncidentType,
+  description: string,
+  location: GeoPoint,
+  images: string[],
+): Promise<IIncident> => {
+  const response = await fetch('/api/v1/incident', {
+    method: 'POST',
     body: JSON.stringify({ type, description, location, imageUrls: images }),
   });
   return response.json();
