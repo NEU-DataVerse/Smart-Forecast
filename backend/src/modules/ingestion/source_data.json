@@ -1,82 +1,70 @@
-[
-  {
-    "id": "urn:ngsi-ld:WeatherLocation:hanoi-hoan-kien",
-    "type": "WeatherLocation",
-    "name": "Hồ Hoàn Kiếm",
-    "city": "Hanoi",
-    "district": "Hoàn Kiếm",
-    "location": {
-      "lat": 21.028511,
-      "lon": 105.804817
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-21T00:00:00.000Z",
+  "stations": [
+    {
+      "id": "urn:ngsi-ld:WeatherStation:hoan-kiem",
+      "type": "WeatherStation",
+      "name": "Hồ Hoàn Kiếm",
+      "code": "HN-HK-001",
+      "status": "active",
+      "city": "Hanoi",
+      "district": "Hoàn Kiếm",
+      "ward": "Hàng Trống",
+      "location": {
+        "lat": 21.028511,
+        "lon": 105.804817,
+        "altitude": 12
+      },
+      "address": {
+        "streetAddress": "Hồ Hoàn Kiếm",
+        "addressLocality": "Hoàn Kiếm",
+        "addressRegion": "Hà Nội",
+        "addressCountry": "VN",
+        "postalCode": "100000"
+      },
+      "timezone": "Asia/Ho_Chi_Minh",
+      "timezoneOffset": 25200,
+      "priority": "high",
+      "categories": ["urban", "tourist", "heritage"],
+      "metadata": {
+        "installationDate": "2024-01-01T00:00:00.000Z",
+        "operator": "Hanoi Environmental Department",
+        "contact": "hoankiem@environment.hanoi.gov.vn",
+        "description": "Trạm quan trắc tại khu vực trung tâm lịch sử Hà Nội, khu vực du lịch quan trọng"
+      }
     },
-    "address": {
-      "addressLocality": "Hoàn Kiếm",
-      "addressCountry": "VN"
-    },
-    "timezone": 25200
-  },
-  {
-    "id": "urn:ngsi-ld:WeatherLocation:hanoi-my-dinh",
-    "type": "WeatherLocation",
-    "name": "Mỹ Đình",
-    "city": "Hanoi",
-    "district": "Nam Từ Liêm",
-    "location": {
-      "lat": 21.028023,
-      "lon": 105.778466
-    },
-    "address": {
-      "addressLocality": "Nam Từ Liêm",
-      "addressCountry": "VN"
-    },
-    "timezone": 25200
-  },
-  {
-    "id": "urn:ngsi-ld:WeatherLocation:hanoi-long-bien",
-    "type": "WeatherLocation",
-    "name": "Quận Long Biên",
-    "city": "Hanoi",
-    "district": "Long Biên",
-    "location": {
-      "lat": 21.054351,
-      "lon": 105.886446
-    },
-    "address": {
-      "addressLocality": "Long Biên",
-      "addressCountry": "VN"
-    },
-    "timezone": 25200
-  },
-  {
-    "id": "urn:ngsi-ld:WeatherLocation:hanoi-ho-tay",
-    "type": "WeatherLocation",
-    "name": "Hồ Tây",
-    "city": "Hanoi",
-    "district": "Tây Hồ",
-    "location": {
-      "lat": 21.068176,
-      "lon": 105.814129
-    },
-    "address": {
-      "addressLocality": "Tây Hồ",
-      "addressCountry": "VN"
-    },
-    "timezone": 25200
-  },
-  {
-    "id": "urn:ngsi-ld:WeatherLocation:hanoi-ha-dong",
-    "type": "WeatherLocation",
-    "name": "Hà Đông",
-    "city": "Hanoi",
-    "district": "Hà Đông",
-    "location": {
-      "lat": 20.959001,
-      "lon": 105.765226
-    },
-    "address": {
-      "addressLocality": "Hà Đông",
-      "addressCountry": "VN"
-    },
-    "timezone": 25200
-  }
-]
+    {
+      "id": "urn:ngsi-ld:WeatherStation:ha-dong",
+      "type": "WeatherStation",
+      "name": "Hà Đông",
+      "code": "HN-HD-002",
+      "status": "active",
+      "city": "Hanoi",
+      "district": "Hà Đông",
+      "ward": "Quang Trung",
+      "location": {
+        "lat": 20.959001,
+        "lon": 105.765226,
+        "altitude": 15
+      },
+      "address": {
+        "streetAddress": "Phố Quang Trung",
+        "addressLocality": "Hà Đông",
+        "addressRegion": "Hà Nội",
+        "addressCountry": "VN",
+        "postalCode": "100000"
+      },
+      "timezone": "Asia/Ho_Chi_Minh",
+      "timezoneOffset": 25200,
+      "priority": "medium",
+      "categories": ["urban", "residential"],
+      "metadata": {
+        "installationDate": "2024-01-01T00:00:00.000Z",
+        "operator": "Hanoi Environmental Department",
+        "contact": "hadong@environment.hanoi.gov.vn",
+        "description": "Trạm quan trắc tại khu vực Hà Đông, khu đô thị phía Tây Hà Nội"
+      }
+    }
+  ]
+}
