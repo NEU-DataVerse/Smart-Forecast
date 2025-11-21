@@ -14,7 +14,7 @@ export class SubscriptionService implements OnModuleInit {
   // Backend notification endpoint (Native persistence service)
   // Use host.docker.internal to allow Docker containers to reach host machine
   private readonly notificationEndpoint =
-    'http://host.docker.internal:8000/notify';
+    'http://host.docker.internal:8000/api/v1/notify';
 
   // Entity types to subscribe (only observed data, not forecasts)
   private readonly entityTypes = ['AirQualityObserved', 'WeatherObserved'];

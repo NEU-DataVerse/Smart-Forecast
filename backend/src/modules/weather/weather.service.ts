@@ -38,22 +38,65 @@ export class WeatherService {
    */
   async getCurrentWeather(stationId: string): Promise<IWeatherObserved> {
     // Validate station exists
-    this.stationsService.getStationById(stationId);
+    const station = this.stationsService.getStationById(stationId);
 
     try {
-      // Query Orion-LD for latest observation
-      const entities = await this.orionClient.queryEntities({
-        type: 'WeatherObserved',
-        q: `locationId=='${stationId}'`,
-        limit: 1,
-        orderBy: 'dateObserved',
-        sortOrder: 'desc',
-      });
-
-      if (!entities || entities.length === 0) {
-        throw new NotFoundException(
-          `No current weather data found for station ${stationId}`,
+      // Try Orion-LD first
+      let entities;
+      try {
+        entities = await this.orionClient.queryEntities({
+          type: 'WeatherObserved',
+          q: `https://uri.etsi.org/ngsi-ld/default-context/locationId=="${stationId}"`,
+          limit: 1,
+          options: 'keyValues',
+        });
+      } catch (orionError) {
+        this.logger.warn(
+          `Orion-LD query failed for ${stationId}: ${orionError.message}`,
         );
+        entities = [];
+      }
+
+      // Fallback to PostgreSQL if Orion-LD has no data
+      if (!entities || entities.length === 0) {
+        this.logger.log(
+          `No current data in Orion-LD, querying PostgreSQL for ${stationId}`,
+        );
+
+        const dbEntity = await this.weatherRepo.findOne({
+          where: { locationId: stationId },
+          order: { dateObserved: 'DESC' },
+        });
+
+        if (!dbEntity) {
+          throw new NotFoundException(
+            `No current weather data found for station ${stationId}`,
+          );
+        }
+
+        // Return data from PostgreSQL
+        return {
+          id: `urn:ngsi-ld:WeatherObserved:${stationId}-${dbEntity.dateObserved.getTime()}`,
+          type: 'WeatherObserved',
+          dateObserved: dbEntity.dateObserved,
+          location: {
+            type: 'Point',
+            coordinates: [station.location.lon, station.location.lat],
+          },
+          temperature: dbEntity.temperature || undefined,
+          feelsLikeTemperature: dbEntity.feelsLikeTemperature || undefined,
+          relativeHumidity: dbEntity.relativeHumidity || undefined,
+          atmosphericPressure: dbEntity.atmosphericPressure || undefined,
+          windSpeed: dbEntity.windSpeed || undefined,
+          windDirection: dbEntity.windDirection || undefined,
+          precipitation: dbEntity.precipitation || undefined,
+          weatherType: dbEntity.weatherType
+            ? String(dbEntity.weatherType)
+            : undefined,
+          weatherDescription: dbEntity.weatherDescription || undefined,
+          visibility: dbEntity.visibility || undefined,
+          source: 'PostgreSQL',
+        };
       }
 
       const entity = entities[0];
@@ -140,10 +183,9 @@ export class WeatherService {
       // Try Orion-LD first
       let entities = await this.orionClient.queryEntities({
         type: 'WeatherForecast',
-        q: `locationId=='${stationId}'`,
+        q: `https://uri.etsi.org/ngsi-ld/default-context/locationId=="${stationId}"`,
         limit: days,
-        orderBy: 'validFrom',
-        sortOrder: 'asc',
+        options: 'keyValues',
       });
 
       // Fallback to PostgreSQL if Orion-LD has no data

@@ -92,9 +92,13 @@ export class PersistenceService {
     record.entityType = this.extractEntityType(entity.type);
     record.recvTime = new Date(notifiedAt);
 
+    // Extract locationId from locationId relationship
+    if (entity.locationId) {
+      record.locationId = this.extractValue(entity.locationId.object);
+    }
+
     // Extract location
     if (entity.location) {
-      record.locationId = this.extractValue(entity.location.object);
       record.location = entity.location.value || entity.location;
     }
 
@@ -134,9 +138,13 @@ export class PersistenceService {
     record.entityType = this.extractEntityType(entity.type);
     record.recvTime = new Date(notifiedAt);
 
+    // Extract locationId from locationId relationship
+    if (entity.locationId) {
+      record.locationId = this.extractValue(entity.locationId.object);
+    }
+
     // Extract location
     if (entity.location) {
-      record.locationId = this.extractValue(entity.location.object);
       record.location = entity.location.value || entity.location;
     }
 
@@ -193,9 +201,13 @@ export class PersistenceService {
       record.validTo = new Date(this.extractValue(entity.validTo));
     }
 
+    // Extract locationId from locationId relationship
+    if (entity.locationId) {
+      record.locationId = this.extractValue(entity.locationId.object);
+    }
+
     // Extract location
     if (entity.location) {
-      record.locationId = this.extractValue(entity.location.object);
       record.location = entity.location.value || entity.location;
     }
 
@@ -248,9 +260,13 @@ export class PersistenceService {
       record.dateIssued = new Date(this.extractValue(entity.dateIssued));
     }
 
+    // Extract locationId from locationId relationship
+    if (entity.locationId) {
+      record.locationId = this.extractValue(entity.locationId.object);
+    }
+
     // Extract location
     if (entity.location) {
-      record.locationId = this.extractValue(entity.location.object);
       record.location = entity.location.value || entity.location;
     }
 
