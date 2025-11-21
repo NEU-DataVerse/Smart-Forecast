@@ -1,10 +1,10 @@
 'use client';
 import { summaryCards, recentReports, activeAlerts } from '@/services/data';
 import { useState } from 'react';
-import SummaryCards from '@/components/SummaryCard';
-import RecentReports from '@/components/RecentReport';
-import AlertsActive from '@/components/Alert';
-import DetailsReport from '@/components/DetailReport';
+import SummaryCards from '@/components/dashboardUI/SummaryCard';
+import RecentReports from '@/components/dashboardUI/RecentReport';
+import AlertsActive from '@/components/dashboardUI/Alert';
+import DetailsReport from '@/components/dashboardUI/DetailReport';
 
 export default function Dashboard() {
   const [selectedReport, setSelectedReport] = useState<(typeof recentReports)[0] | null>(null);
