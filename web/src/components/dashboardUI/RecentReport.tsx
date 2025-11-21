@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { recentReports } from '@/services/data';
+import { recentReports } from '@/services/data/dashboard.api';
 interface RecentReportsProps {
   reports: typeof recentReports;
   setSelectedReport: (report: (typeof recentReports)[0]) => void;

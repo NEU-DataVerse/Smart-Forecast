@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { alertHistory } from '@/services/data';
+import { alertHistory } from '@/services/data/alert.api';
 import { IAlert } from '@/../../shared/src/types/alert.types';
 import { AlertHeader } from '@/components/alertsUI/alert-header';
 import SummaryStarts from '@/components/alertsUI/summary-starts';

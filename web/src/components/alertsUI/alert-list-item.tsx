@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, MapPin, Clock, Users, Send, AlertTriangle } from 'lucide-react';
 import { IAlert } from '@/../../shared/src/types/alert.types';
-import { isAlertActive, getTimeUntilExpiration, formatAlertDate } from '@/services/data';
+import { isAlertActive, getTimeUntilExpiration, formatAlertDate } from '@/services/data/alert.api';
 
 interface AlertListItemProps {
   alert: IAlert;

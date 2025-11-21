@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { MapPin, Users, Send } from 'lucide-react';
 import { IAlert } from '@/../../shared/src/types/alert.types';
-import { isAlertActive, getTimeUntilExpiration, formatAlertDate } from '@/services/data';
+import { isAlertActive, getTimeUntilExpiration, formatAlertDate } from '@/services/data/alert.api';
 
 interface AlertDetailsDialogProps {
   alert: IAlert | null;

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { summaryCards as CardType } from '@/services/data';
+import { summaryCards as CardType } from '@/services/data/dashboard.api';
 
 interface SummaryCardsProps {
   cards: typeof CardType;

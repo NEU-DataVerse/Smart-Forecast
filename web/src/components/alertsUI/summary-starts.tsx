@@ -1,6 +1,6 @@
 import { AlertTriangle, Send, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { alertHistory, getActiveAlerts } from '@/services/data';
+import { alertHistory, getActiveAlerts } from '@/services/data/dashboard.api';
 
 export default function SummaryStarts() {
   return (
