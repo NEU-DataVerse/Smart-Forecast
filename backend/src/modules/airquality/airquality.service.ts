@@ -4,7 +4,7 @@ import { Repository, Between } from 'typeorm';
 import { AirQualityObservedEntity } from '../persistence/entities/air-quality-observed.entity';
 import { AirQualityForecastEntity } from '../persistence/entities/air-quality-forecast.entity';
 import { OrionClientProvider } from '../ingestion/providers/orion-client.provider';
-import { StationsService } from '../stations/stations.service';
+import { StationManagerService } from '../ingestion/providers/station-manager.provider';
 import {
   transformNGSILDAirQualityForecastToOWM,
   extractPropertyValue,
@@ -13,6 +13,7 @@ import {
   IAirQualityObserved,
   IAirQualityDataPoint,
   IAirQualityForecastResponse,
+  IStation,
 } from '@smart-forecast/shared';
 
 /**
@@ -30,7 +31,7 @@ export class AirQualityService {
     @InjectRepository(AirQualityForecastEntity)
     private readonly airQualityForecastRepo: Repository<AirQualityForecastEntity>,
     private readonly orionClient: OrionClientProvider,
-    private readonly stationsService: StationsService,
+    private readonly stationManager: StationManagerService,
   ) {}
 
   /**
@@ -38,22 +39,66 @@ export class AirQualityService {
    */
   async getCurrentAirQuality(stationId: string): Promise<IAirQualityObserved> {
     // Validate station exists
-    this.stationsService.getStationById(stationId);
+    const station = this.stationManager.findById(stationId);
+    if (!station) {
+      throw new NotFoundException(`Station ${stationId} not found`);
+    }
 
     try {
-      // Query Orion-LD for latest observation
-      const entities = await this.orionClient.queryEntities({
-        type: 'AirQualityObserved',
-        q: `locationId=='${stationId}'`,
-        limit: 1,
-        orderBy: 'dateObserved',
-        sortOrder: 'desc',
-      });
-
-      if (!entities || entities.length === 0) {
-        throw new NotFoundException(
-          `No current air quality data found for station ${stationId}`,
+      // Try Orion-LD first
+      let entities;
+      try {
+        entities = await this.orionClient.queryEntities({
+          type: 'AirQualityObserved',
+          q: `https://uri.etsi.org/ngsi-ld/default-context/locationId=="${stationId}"`,
+          limit: 1,
+          options: 'keyValues',
+        });
+      } catch (orionError) {
+        this.logger.warn(
+          `Orion-LD query failed for ${stationId}: ${orionError.message}`,
         );
+        entities = [];
+      }
+
+      // Fallback to PostgreSQL if Orion-LD has no data
+      if (!entities || entities.length === 0) {
+        this.logger.log(
+          `No current data in Orion-LD, querying PostgreSQL for ${stationId}`,
+        );
+
+        const dbEntity = await this.airQualityRepo.findOne({
+          where: { locationId: stationId },
+          order: { dateObserved: 'DESC' },
+        });
+
+        if (!dbEntity) {
+          throw new NotFoundException(
+            `No current air quality data found for station ${stationId}`,
+          );
+        }
+
+        // Return data from PostgreSQL
+        return {
+          id: `urn:ngsi-ld:AirQualityObserved:${stationId}-${dbEntity.dateObserved.getTime()}`,
+          type: 'AirQualityObserved',
+          dateObserved: dbEntity.dateObserved,
+          location: {
+            type: 'Point',
+            coordinates: [station.location.lon, station.location.lat],
+          },
+          pm25: dbEntity.pm25 || undefined,
+          pm10: dbEntity.pm10 || undefined,
+          no2: dbEntity.no2 || undefined,
+          so2: dbEntity.so2 || undefined,
+          co: dbEntity.co || undefined,
+          o3: dbEntity.o3 || undefined,
+          aqi: dbEntity.aqi || undefined,
+          aqiCategory: this.getAQICategory(
+            dbEntity.aqi ?? undefined,
+          ) as IAirQualityObserved['aqiCategory'],
+          source: 'PostgreSQL',
+        };
       }
 
       const entity = entities[0];
@@ -79,7 +124,10 @@ export class AirQualityService {
     limit: number = 100,
   ): Promise<IAirQualityDataPoint[]> {
     // Validate station exists
-    this.stationsService.getStationById(stationId);
+    const station = this.stationManager.findById(stationId);
+    if (!station) {
+      throw new NotFoundException(`Station ${stationId} not found`);
+    }
 
     try {
       const queryOptions: any = {
@@ -126,7 +174,10 @@ export class AirQualityService {
     hours: number = 96,
   ): Promise<IAirQualityForecastResponse> {
     // Validate station exists
-    const station = this.stationsService.getStationById(stationId);
+    const station = this.stationManager.findById(stationId);
+    if (!station) {
+      throw new NotFoundException(`Station ${stationId} not found`);
+    }
 
     try {
       const now = new Date().toISOString();
@@ -134,10 +185,9 @@ export class AirQualityService {
       // Query Orion-LD for forecast entities
       const entities = await this.orionClient.queryEntities({
         type: 'AirQualityForecast',
-        q: `locationId=='${stationId}';validFrom>='${now}'`,
+        q: `https://uri.etsi.org/ngsi-ld/default-context/locationId=="${stationId}";validFrom>="${now}"`,
         limit: hours,
-        orderBy: 'validFrom',
-        sortOrder: 'asc',
+        options: 'keyValues',
       });
 
       if (!entities || entities.length === 0) {
@@ -150,7 +200,10 @@ export class AirQualityService {
       }
 
       // Transform to OWM format
-      return transformNGSILDAirQualityForecastToOWM(entities, station);
+      return transformNGSILDAirQualityForecastToOWM(
+        entities,
+        this.convertToIStation(station),
+      );
     } catch (error) {
       this.logger.error(
         `Failed to fetch air quality forecast for ${stationId}`,
@@ -181,7 +234,10 @@ export class AirQualityService {
     stationId: string,
     hours: number,
   ): Promise<IAirQualityForecastResponse> {
-    const station = this.stationsService.getStationById(stationId);
+    const station = this.stationManager.findById(stationId);
+    if (!station) {
+      throw new NotFoundException(`Station ${stationId} not found`);
+    }
     const now = new Date();
 
     const entities = await this.airQualityForecastRepo.find({
@@ -261,5 +317,24 @@ export class AirQualityService {
     if (aqi <= 200) return 'Unhealthy';
     if (aqi <= 300) return 'Very Unhealthy';
     return 'Hazardous';
+  }
+
+  /**
+   * Convert WeatherStation to IStation format
+   */
+  private convertToIStation(station: any): IStation {
+    return {
+      id: station.id,
+      type: station.type || 'WeatherLocation',
+      name: station.name,
+      city: station.city || '',
+      district: station.district,
+      location: station.location,
+      address: {
+        addressLocality: station.district,
+        addressCountry: 'VN',
+      },
+      timezone: 25200, // UTC+7 for Vietnam
+    };
   }
 }

@@ -1,52 +1,30 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpenWeatherMapProvider } from './providers/openweathermap.provider';
 import { OrionClientProvider } from './providers/orion-client.provider';
+import { StationManagerService } from './providers/station-manager.provider';
+import { WeatherStation } from './dto/station.dto';
 import {
   transformOWMAirPollutionToNGSILD,
   transformOWMToNGSILD,
   transformOWMAirPollutionForecastToNGSILD,
   transformOWMDailyForecastToNGSILD,
 } from '../../common/transformers/ngsi-ld.transformer';
-import sourceLocationsData from './source_data.json';
-
-/**
- * Interface for weather location data
- */
-interface WeatherLocation {
-  id: string;
-  type: string;
-  name: string;
-  city?: string;
-  district: string;
-  location: {
-    lat: number;
-    lon: number;
-  };
-  address?: {
-    addressLocality: string;
-    addressCountry: string;
-  };
-  timezone?: number;
-}
 
 /**
  * Ingestion Service
  * Orchestrates data collection from external APIs and pushes to Orion-LD
+ * Uses StationManager for dynamic station configuration
  */
 @Injectable()
 export class IngestionService {
   private readonly logger = new Logger(IngestionService.name);
-  private readonly locations: WeatherLocation[];
 
   constructor(
     private readonly owmProvider: OpenWeatherMapProvider,
     private readonly orionClient: OrionClientProvider,
+    private readonly stationManager: StationManagerService,
   ) {
-    // Load source locations from JSON file
-    this.locations = sourceLocationsData as unknown as WeatherLocation[];
-    this.logger.log(
-      `Loaded ${this.locations.length} monitoring locations from source_data.json`,
-    );
+    this.logger.log('IngestionService initialized with StationManager');
   }
 
   /**
@@ -60,8 +38,11 @@ export class IngestionService {
     forecastSuccess: number;
     forecastFailed: number;
   }> {
+    // Get active stations from StationManager
+    const locations = this.stationManager.findActive();
+
     this.logger.log(
-      `Starting air quality data ingestion (current + forecast) for ${this.locations.length} locations`,
+      `Starting air quality data ingestion (current + forecast) for ${locations.length} active stations`,
     );
 
     let successCount = 0;
@@ -70,7 +51,7 @@ export class IngestionService {
     let forecastFailedCount = 0;
     const errors: any[] = [];
 
-    for (const location of this.locations) {
+    for (const location of locations) {
       // Ingest current air quality data
       try {
         const owmData = await this.owmProvider.getCurrentAirPollution(
@@ -83,6 +64,12 @@ export class IngestionService {
           location.name,
           location.district,
         );
+
+        // Add locationId relationship for easy querying
+        ngsiLdEntity.locationId = {
+          type: 'Relationship',
+          object: location.id,
+        };
 
         await this.orionClient.upsertEntity(ngsiLdEntity);
 
@@ -116,6 +103,14 @@ export class IngestionService {
           location.district,
         );
 
+        // Add locationId relationship to all forecast entities
+        forecastEntities.forEach((entity) => {
+          entity.locationId = {
+            type: 'Relationship',
+            object: location.id,
+          };
+        });
+
         this.logger.debug(
           `Upserting ${forecastEntities.length} air quality forecast entities for ${location.name}`,
         );
@@ -143,7 +138,7 @@ export class IngestionService {
     }
 
     this.logger.log(
-      `Air quality ingestion completed: Current(${successCount}/${this.locations.length}), Forecast(${forecastSuccessCount}/${this.locations.length})`,
+      `Air quality ingestion completed: Current(${successCount}/${locations.length}), Forecast(${forecastSuccessCount}/${locations.length})`,
     );
 
     return {
@@ -166,8 +161,11 @@ export class IngestionService {
     forecastSuccess: number;
     forecastFailed: number;
   }> {
+    // Get active stations from StationManager
+    const locations = this.stationManager.findActive();
+
     this.logger.log(
-      `Starting weather data ingestion (current + 7-day forecast) for ${this.locations.length} locations`,
+      `Starting weather data ingestion (current + 7-day forecast) for ${locations.length} active stations`,
     );
 
     let successCount = 0;
@@ -176,7 +174,7 @@ export class IngestionService {
     let forecastFailedCount = 0;
     const errors: any[] = [];
 
-    for (const location of this.locations) {
+    for (const location of locations) {
       // Ingest current weather data
       try {
         const owmData = await this.owmProvider.getCurrentWeather(
@@ -191,6 +189,12 @@ export class IngestionService {
           location.name,
           location.district,
         );
+
+        // Add locationId relationship for easy querying
+        ngsiLdEntity.locationId = {
+          type: 'Relationship',
+          object: location.id,
+        };
 
         await this.orionClient.upsertEntity(ngsiLdEntity);
 
@@ -227,6 +231,14 @@ export class IngestionService {
           location.district,
         );
 
+        // Add locationId relationship to all forecast entities
+        forecastEntities.forEach((entity) => {
+          entity.locationId = {
+            type: 'Relationship',
+            object: location.id,
+          };
+        });
+
         this.logger.debug(
           `Upserting ${forecastEntities.length} weather forecast entities for ${location.name}`,
         );
@@ -254,7 +266,7 @@ export class IngestionService {
     }
 
     this.logger.log(
-      `Weather ingestion completed: Current(${successCount}/${this.locations.length}), Forecast(${forecastSuccessCount}/${this.locations.length})`,
+      `Weather ingestion completed: Current(${successCount}/${locations.length}), Forecast(${forecastSuccessCount}/${locations.length})`,
     );
 
     return {
@@ -308,8 +320,8 @@ export class IngestionService {
   /**
    * Get all configured monitoring locations
    */
-  getMonitoringLocations(): WeatherLocation[] {
-    return this.locations;
+  getMonitoringLocations(): WeatherStation[] {
+    return this.stationManager.findAll();
   }
 
   /**
