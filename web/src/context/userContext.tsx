@@ -36,13 +36,29 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
   async function fetchUser() {
     try {
       setLoading(true);
+
+      // Check if token exists
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      // Set token in axios header
+      userAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
       const response = await userAxios.get('/auth/me');
-      setUser(response.data.user);
+      setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
       setUser(null);
       setIsAuthenticated(false);
+      // Clear invalid token
+      localStorage.removeItem('access_token');
+      delete userAxios.defaults.headers.common['Authorization'];
     } finally {
       setLoading(false);
     }
@@ -70,16 +86,29 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
   async function logout() {
     try {
       setLoading(true);
-      await userAxios.post('/auth/logout');
+      // Try to call logout endpoint (optional, don't fail if it errors)
+      await userAxios.post('/auth/logout').catch(() => {});
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      // Clear all user data
       setUser(null);
       setIsAuthenticated(false);
       setLoading(false);
+
+      // Clear all localStorage items
       localStorage.removeItem('access_token');
+      localStorage.removeItem('user_role');
+      localStorage.removeItem('rememberMe');
+      localStorage.removeItem('userEmail');
+
+      // Clear axios authorization header
       delete userAxios.defaults.headers.common['Authorization'];
+
       toast.success('Logged out successfully');
+
+      // Redirect to login page
+      window.location.href = '/login';
     }
   }
 
