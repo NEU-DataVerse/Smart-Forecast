@@ -60,14 +60,41 @@ export class WeatherObservedEntity {
   @Column({ type: 'int', nullable: true })
   visibility: number | null;
 
-  @Column({ type: 'int', nullable: true })
-  weatherType: number | null;
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  weatherType: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   weatherDescription: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  weatherIcon: string;
+  weatherIconCode: string;
+
+  @Column({ type: 'int', nullable: true })
+  cloudiness: number | null;
+
+  @Column({ type: 'float', nullable: true })
+  temperatureMin: number | null;
+
+  @Column({ type: 'float', nullable: true })
+  temperatureMax: number | null;
+
+  @Column({ type: 'float', nullable: true })
+  pressureSeaLevel: number | null;
+
+  @Column({ type: 'float', nullable: true })
+  pressureGroundLevel: number | null;
+
+  @Column({ type: 'float', nullable: true })
+  windGust: number | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  sunrise: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  sunset: Date | null;
+
+  @Column({ type: 'int', nullable: true })
+  timezone: number | null;
 
   // Store full NGSI-LD entity for reference
   @Column({ type: 'jsonb' })

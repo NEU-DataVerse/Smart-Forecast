@@ -119,10 +119,16 @@ export class SubscriptionService implements OnModuleInit {
    * Create a single subscription for a specific entity type
    */
   private async createSubscription(entityType: string): Promise<string> {
+    // Use appropriate context based on entity type
+    const contextUrl =
+      entityType === 'AirQualityObserved'
+        ? 'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld'
+        : 'https://raw.githubusercontent.com/smart-data-models/dataModel.Weather/master/context.jsonld';
+
     const subscription = {
       '@context': [
         'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
-        'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
+        contextUrl,
       ],
       type: 'Subscription',
       description: `Persistence subscription for ${entityType} - Auto-created by Smart Forecast`,

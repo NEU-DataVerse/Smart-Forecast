@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AirQualityObservedEntity } from '../entities/air-quality-observed.entity';
 import { WeatherObservedEntity } from '../entities/weather-observed.entity';
-import { AirQualityForecastEntity } from '../entities/air-quality-forecast.entity';
-import { WeatherForecastEntity } from '../entities/weather-forecast.entity';
 
 /**
  * Persistence Service
@@ -20,10 +18,6 @@ export class PersistenceService {
     private readonly airQualityRepo: Repository<AirQualityObservedEntity>,
     @InjectRepository(WeatherObservedEntity)
     private readonly weatherRepo: Repository<WeatherObservedEntity>,
-    @InjectRepository(AirQualityForecastEntity)
-    private readonly airQualityForecastRepo: Repository<AirQualityForecastEntity>,
-    @InjectRepository(WeatherForecastEntity)
-    private readonly weatherForecastRepo: Repository<WeatherForecastEntity>,
   ) {}
 
   /**
@@ -41,8 +35,15 @@ export class PersistenceService {
     let failed = 0;
     const errors: string[] = [];
 
+    this.logger.debug(
+      `Received ${entities.length} entities to persist at ${notifiedAt}`,
+    );
+
     for (const entity of entities) {
       try {
+        this.logger.debug(
+          `Processing entity: ${entity.id}, type: ${entity.type}`,
+        );
         await this.persistEntity(entity, notifiedAt);
         success++;
       } catch (error) {
@@ -61,6 +62,10 @@ export class PersistenceService {
   private async persistEntity(entity: any, notifiedAt: string): Promise<void> {
     const entityType = this.extractEntityType(entity.type);
 
+    this.logger.debug(
+      `Processing entity ${entity.id} with type: ${entity.type} -> extracted: ${entityType}`,
+    );
+
     switch (entityType) {
       case 'AirQualityObserved':
         await this.persistAirQuality(entity, notifiedAt);
@@ -68,14 +73,10 @@ export class PersistenceService {
       case 'WeatherObserved':
         await this.persistWeather(entity, notifiedAt);
         break;
-      case 'AirQualityForecast':
-        await this.persistAirQualityForecast(entity, notifiedAt);
-        break;
-      case 'WeatherForecast':
-        await this.persistWeatherForecast(entity, notifiedAt);
-        break;
       default:
-        this.logger.warn(`Unknown entity type: ${entity.type}`);
+        this.logger.warn(
+          `Unknown entity type: ${entity.type} (extracted: ${entityType})`,
+        );
     }
   }
 
@@ -119,7 +120,14 @@ export class PersistenceService {
     record.pm25 = this.extractNumericValue(entity.pm25);
     record.pm10 = this.extractNumericValue(entity.pm10);
     record.nh3 = this.extractNumericValue(entity.nh3);
-    record.aqi = this.extractNumericValue(entity.aqi);
+
+    // Extract AQI indices
+    record.airQualityIndex = this.extractNumericValue(entity.airQualityIndex);
+    record.airQualityLevel = this.extractValue(entity.airQualityLevel);
+    record.airQualityIndexUS = this.extractNumericValue(
+      entity.airQualityIndexUS,
+    );
+    record.airQualityLevelUS = this.extractValue(entity.airQualityLevelUS);
 
     // Store raw entity
     record.rawEntity = entity;
@@ -169,165 +177,36 @@ export class PersistenceService {
     record.windDirection = this.extractNumericValue(entity.windDirection);
     record.precipitation = this.extractNumericValue(entity.precipitation);
     record.visibility = this.extractNumericValue(entity.visibility);
-    record.weatherType = this.extractNumericValue(entity.weatherType);
+    record.weatherType = this.extractValue(entity.weatherType);
     record.weatherDescription = this.extractValue(entity.weatherDescription);
-    record.weatherIcon = this.extractValue(entity.weatherIcon);
+    record.weatherIconCode = this.extractValue(entity.weatherIconCode);
+
+    // Additional weather fields
+    record.cloudiness = this.extractNumericValue(entity.cloudiness);
+    record.temperatureMin = this.extractNumericValue(entity.temperatureMin);
+    record.temperatureMax = this.extractNumericValue(entity.temperatureMax);
+    record.pressureSeaLevel = this.extractNumericValue(entity.pressureSeaLevel);
+    record.pressureGroundLevel = this.extractNumericValue(
+      entity.pressureGroundLevel,
+    );
+    record.windGust = this.extractNumericValue(entity.windGust);
+
+    // Timestamp fields
+    if (entity.sunrise) {
+      const sunriseValue = this.extractValue(entity.sunrise);
+      record.sunrise = sunriseValue ? new Date(sunriseValue) : null;
+    }
+    if (entity.sunset) {
+      const sunsetValue = this.extractValue(entity.sunset);
+      record.sunset = sunsetValue ? new Date(sunsetValue) : null;
+    }
+    record.timezone = this.extractNumericValue(entity.timezone);
 
     // Store raw entity
     record.rawEntity = entity;
 
     await this.weatherRepo.save(record);
     this.logger.debug(`Persisted Weather: ${record.entityId}`);
-  }
-
-  /**
-   * Persist AirQualityForecast entity
-   */
-  private async persistAirQualityForecast(
-    entity: any,
-    notifiedAt: string,
-  ): Promise<void> {
-    const record = new AirQualityForecastEntity();
-
-    record.entityId = entity.id;
-    record.entityType = this.extractEntityType(entity.type);
-    record.recvTime = new Date(notifiedAt);
-
-    // Extract validity period
-    if (entity.validFrom) {
-      record.validFrom = new Date(this.extractValue(entity.validFrom));
-    }
-    if (entity.validTo) {
-      record.validTo = new Date(this.extractValue(entity.validTo));
-    }
-
-    // Extract locationId from locationId relationship
-    if (entity.locationId) {
-      record.locationId = this.extractValue(entity.locationId.object);
-    }
-
-    // Extract location
-    if (entity.location) {
-      record.location = entity.location.value || entity.location;
-    }
-
-    if (entity.address) {
-      record.address = this.extractValue(entity.address);
-    }
-
-    // Extract air quality index
-    record.airQualityIndex = this.extractNumericValue(entity.airQualityIndex);
-    record.airQualityLevel = this.extractValue(entity.airQualityLevel);
-
-    // Extract pollutant forecasts
-    record.co = this.extractNumericValue(entity.co);
-    record.no = this.extractNumericValue(entity.no);
-    record.no2 = this.extractNumericValue(entity.no2);
-    record.o3 = this.extractNumericValue(entity.o3);
-    record.so2 = this.extractNumericValue(entity.so2);
-    record.pm25 = this.extractNumericValue(entity.pm25);
-    record.pm10 = this.extractNumericValue(entity.pm10);
-    record.nh3 = this.extractNumericValue(entity.nh3);
-
-    // Store raw entity
-    record.rawEntity = entity;
-
-    await this.airQualityForecastRepo.save(record);
-    this.logger.debug(`Persisted AirQualityForecast: ${record.entityId}`);
-  }
-
-  /**
-   * Persist WeatherForecast entity
-   */
-  private async persistWeatherForecast(
-    entity: any,
-    notifiedAt: string,
-  ): Promise<void> {
-    const record = new WeatherForecastEntity();
-
-    record.entityId = entity.id;
-    record.entityType = this.extractEntityType(entity.type);
-    record.recvTime = new Date(notifiedAt);
-
-    // Extract validity period
-    if (entity.validFrom) {
-      record.validFrom = new Date(this.extractValue(entity.validFrom));
-    }
-    if (entity.validTo) {
-      record.validTo = new Date(this.extractValue(entity.validTo));
-    }
-    if (entity.dateIssued) {
-      record.dateIssued = new Date(this.extractValue(entity.dateIssued));
-    }
-
-    // Extract locationId from locationId relationship
-    if (entity.locationId) {
-      record.locationId = this.extractValue(entity.locationId.object);
-    }
-
-    // Extract location
-    if (entity.location) {
-      record.location = entity.location.value || entity.location;
-    }
-
-    if (entity.address) {
-      record.address = this.extractValue(entity.address);
-    }
-
-    // Extract temperature forecasts from nested objects
-    if (entity.temp) {
-      const tempObj = this.extractValue(entity.temp);
-      if (typeof tempObj === 'object') {
-        record.tempDay = tempObj.day;
-        record.tempMin = tempObj.min;
-        record.tempMax = tempObj.max;
-        record.tempNight = tempObj.night;
-        record.tempEve = tempObj.eve;
-        record.tempMorn = tempObj.morn;
-      }
-    }
-
-    // Handle individual temperature properties (fallback)
-    if (entity.temperature) {
-      record.tempDay = this.extractNumericValue(entity.temperature);
-    }
-
-    // Extract feels-like temperatures from nested object
-    if (entity.feels_like) {
-      const feelsObj = this.extractValue(entity.feels_like);
-      if (typeof feelsObj === 'object') {
-        record.feelsLikeDay = feelsObj.day;
-        record.feelsLikeNight = feelsObj.night;
-        record.feelsLikeEve = feelsObj.eve;
-        record.feelsLikeMorn = feelsObj.morn;
-      }
-    }
-
-    // Handle individual feels-like property (fallback)
-    if (entity.feelsLikeTemperature) {
-      record.feelsLikeDay = this.extractNumericValue(
-        entity.feelsLikeTemperature,
-      );
-    }
-
-    // Extract weather conditions
-    record.pressure = this.extractNumericValue(entity.atmosphericPressure);
-    record.humidity = this.extractNumericValue(entity.relativeHumidity);
-    record.windSpeed = this.extractNumericValue(entity.windSpeed);
-    record.windDirection = this.extractNumericValue(entity.windDirection);
-    record.windGust = this.extractNumericValue(entity.windGust);
-    record.clouds = this.extractNumericValue(entity.cloudiness);
-    record.pop = this.extractNumericValue(entity.precipitationProbability);
-    record.precipitation = this.extractNumericValue(entity.precipitation);
-    record.weatherType = this.extractValue(entity.weatherType);
-    record.weatherDescription = this.extractValue(entity.weatherDescription);
-    record.weatherIcon = this.extractValue(entity.weatherIcon);
-
-    // Store raw entity
-    record.rawEntity = entity;
-
-    await this.weatherForecastRepo.save(record);
-    this.logger.debug(`Persisted WeatherForecast: ${record.entityId}`);
   }
 
   /**
