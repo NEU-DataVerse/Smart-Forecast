@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpenWeatherMapProvider } from './providers/openweathermap.provider';
 import { OrionClientProvider } from './providers/orion-client.provider';
-import { StationManagerService } from './providers/station-manager.provider';
-import { WeatherStation } from './dto/station.dto';
+import { StationService } from '../stations/station.service';
+import { ObservationStation } from '../stations/dto/station.dto';
 import {
   transformOWMAirPollutionToNGSILD,
   transformOWMToNGSILD,
@@ -22,7 +22,7 @@ export class IngestionService {
   constructor(
     private readonly owmProvider: OpenWeatherMapProvider,
     private readonly orionClient: OrionClientProvider,
-    private readonly stationManager: StationManagerService,
+    private readonly stationManager: StationService,
   ) {
     this.logger.log('IngestionService initialized with StationManager');
   }
@@ -39,7 +39,7 @@ export class IngestionService {
     forecastFailed: number;
   }> {
     // Get active stations from StationManager
-    const locations = this.stationManager.findActive();
+    const locations = await this.stationManager.findActive();
 
     this.logger.log(
       `Starting air quality data ingestion (current + forecast) for ${locations.length} active stations`,
@@ -61,30 +61,26 @@ export class IngestionService {
 
         const ngsiLdEntity = transformOWMAirPollutionToNGSILD(
           owmData,
-          location.name,
+          location.code,
+          location.id,
+          location.city || 'Unknown',
           location.district,
         );
-
-        // Add locationId relationship for easy querying
-        ngsiLdEntity.locationId = {
-          type: 'Relationship',
-          object: location.id,
-        };
 
         await this.orionClient.upsertEntity(ngsiLdEntity);
 
         this.logger.debug(
-          `✓ Current air quality data ingested for ${location.name}`,
+          `✓ Current air quality data ingested for ${location.code}`,
         );
         successCount++;
       } catch (error) {
         this.logger.error(
-          `✗ Failed to ingest current air quality for ${location.name}`,
+          `✗ Failed to ingest current air quality for ${location.code}`,
           error.message,
         );
         failedCount++;
         errors.push({
-          location: location.name,
+          location: location.code,
           type: 'current',
           error: error.message,
         });
@@ -99,37 +95,31 @@ export class IngestionService {
 
         const forecastEntities = transformOWMAirPollutionForecastToNGSILD(
           owmForecastData,
-          location.name,
+          location.code,
+          location.id,
+          location.city || 'Unknown',
           location.district,
         );
 
-        // Add locationId relationship to all forecast entities
-        forecastEntities.forEach((entity) => {
-          entity.locationId = {
-            type: 'Relationship',
-            object: location.id,
-          };
-        });
-
         this.logger.debug(
-          `Upserting ${forecastEntities.length} air quality forecast entities for ${location.name}`,
+          `Upserting ${forecastEntities.length} air quality forecast entities for ${location.code}`,
         );
 
         // Upsert all forecast entities with batching (default batch size: 50)
         await this.orionClient.upsertEntities(forecastEntities);
 
         this.logger.debug(
-          `✓ Air quality forecast (${forecastEntities.length} entries) ingested for ${location.name}`,
+          `✓ Air quality forecast (${forecastEntities.length} entries) ingested for ${location.code}`,
         );
         forecastSuccessCount++;
       } catch (error) {
         this.logger.error(
-          `✗ Failed to ingest air quality forecast for ${location.name}`,
+          `✗ Failed to ingest air quality forecast for ${location.code}`,
           error.stack || error.message,
         );
         forecastFailedCount++;
         errors.push({
-          location: location.name,
+          location: location.code,
           type: 'forecast',
           error: error.message,
           details: error.response?.data || error.code || 'Unknown error',
@@ -162,7 +152,7 @@ export class IngestionService {
     forecastFailed: number;
   }> {
     // Get active stations from StationManager
-    const locations = this.stationManager.findActive();
+    const locations = await this.stationManager.findActive();
 
     this.logger.log(
       `Starting weather data ingestion (current + 7-day forecast) for ${locations.length} active stations`,
@@ -186,30 +176,26 @@ export class IngestionService {
 
         const ngsiLdEntity = transformOWMToNGSILD(
           owmData,
-          location.name,
+          location.code,
+          location.id,
+          location.city,
           location.district,
         );
-
-        // Add locationId relationship for easy querying
-        ngsiLdEntity.locationId = {
-          type: 'Relationship',
-          object: location.id,
-        };
 
         await this.orionClient.upsertEntity(ngsiLdEntity);
 
         this.logger.debug(
-          `✓ Current weather data ingested for ${location.name}`,
+          `✓ Current weather data ingested for ${location.code}`,
         );
         successCount++;
       } catch (error) {
         this.logger.error(
-          `✗ Failed to ingest current weather for ${location.name}`,
+          `✗ Failed to ingest current weather for ${location.code}`,
           error.message,
         );
         failedCount++;
         errors.push({
-          location: location.name,
+          location: location.code,
           type: 'current',
           error: error.message,
         });
@@ -227,37 +213,31 @@ export class IngestionService {
 
         const forecastEntities = transformOWMDailyForecastToNGSILD(
           owmDailyData,
-          location.name,
+          location.code,
+          location.id,
+          location.city || 'Unknown',
           location.district,
         );
 
-        // Add locationId relationship to all forecast entities
-        forecastEntities.forEach((entity) => {
-          entity.locationId = {
-            type: 'Relationship',
-            object: location.id,
-          };
-        });
-
         this.logger.debug(
-          `Upserting ${forecastEntities.length} weather forecast entities for ${location.name}`,
+          `Upserting ${forecastEntities.length} weather forecast entities for ${location.code}`,
         );
 
         // Upsert all forecast entities with batching (default batch size: 50)
         await this.orionClient.upsertEntities(forecastEntities);
 
         this.logger.debug(
-          `✓ Weather forecast (${forecastEntities.length} days) ingested for ${location.name}`,
+          `✓ Weather forecast (${forecastEntities.length} days) ingested for ${location.code}`,
         );
         forecastSuccessCount++;
       } catch (error) {
         this.logger.error(
-          `✗ Failed to ingest weather forecast for ${location.name}`,
+          `✗ Failed to ingest weather forecast for ${location.code}`,
           error.stack || error.message,
         );
         forecastFailedCount++;
         errors.push({
-          location: location.name,
+          location: location.code,
           type: 'forecast',
           error: error.message,
           details: error.response?.data || error.code || 'Unknown error',
@@ -320,7 +300,7 @@ export class IngestionService {
   /**
    * Get all configured monitoring locations
    */
-  getMonitoringLocations(): WeatherStation[] {
+  async getMonitoringLocations() {
     return this.stationManager.findAll();
   }
 

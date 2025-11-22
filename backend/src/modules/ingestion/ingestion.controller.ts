@@ -57,8 +57,8 @@ export class IngestionController {
    * GET /api/v1/ingestion/locations
    */
   @Get('locations')
-  getLocations(): { count: number; locations: any[] } {
-    const locations = this.ingestionService.getMonitoringLocations();
+  async getLocations(): Promise<{ count: number; locations: any[] }> {
+    const locations = await this.ingestionService.getMonitoringLocations();
     return {
       count: locations.length,
       locations,
@@ -86,10 +86,11 @@ export class IngestionController {
    * GET /api/v1/ingestion/stats
    */
   @Get('stats')
-  getStats() {
+  async getStats() {
+    const locations = await this.ingestionService.getMonitoringLocations();
     return {
       message: 'Ingestion module statistics',
-      locations: this.ingestionService.getMonitoringLocations().length,
+      locations: locations.length,
       endpoints: {
         current: {
           airQuality: 'POST /api/v1/ingestion/air-quality',
