@@ -9,6 +9,8 @@ import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 @Entity('weather_observed')
 @Index(['entityId', 'recvTime'])
 @Index(['recvTime'])
+@Index(['locationId', 'dateObserved'])
+@Index(['dateObserved'])
 export class WeatherObservedEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
