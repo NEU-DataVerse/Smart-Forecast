@@ -2,25 +2,30 @@
  * User Roles in Smart Forecast Platform
  */
 export enum UserRole {
-    /**
-     * Administrator - Can manage alerts, view all incidents, access dashboard
-     */
-    ADMIN = "ADMIN",
+  /**
+   * Administrator - Can manage alerts, view all incidents, access dashboard
+   */
+  ADMIN = 'ADMIN',
 
-    /**
-     * Citizen - Can receive alerts, report incidents, view own reports
-     */
-    CITIZEN = "CITIZEN",
+  /**
+   * Manager - Can manage stations, trigger ingestion, view environmental data dashboard
+   */
+  MANAGER = 'MANAGER',
+
+  /**
+   * Citizen - Can receive alerts, report incidents, view own reports
+   */
+  CITIZEN = 'CITIZEN',
 }
 
 /**
  * System roles for internal operations
  */
 export enum SystemRole {
-    /**
-     * System/Cron jobs for data ingestion
-     */
-    SYSTEM = "SYSTEM",
+  /**
+   * System/Cron jobs for data ingestion
+   */
+  SYSTEM = 'SYSTEM',
 }
 
 /**

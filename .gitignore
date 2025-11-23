@@ -32,7 +32,11 @@ mobile/dist/
 shared/dist/
 
 # ====== Environment Variables ======
+# Root .env is used by docker-compose for variable substitution
+# Keep it but don't commit secrets
 .env
+
+# Other environment files
 .env.local
 .env.development
 .env.development.local
@@ -40,6 +44,12 @@ shared/dist/
 .env.test.local
 .env.production
 .env.production.local
+
+# Specific environment files
+docker/.env.infrastructure
+backend/.env
+web/.env.local
+mobile/.env
 
 # ====== IDE / Editors ======
 # VSCode

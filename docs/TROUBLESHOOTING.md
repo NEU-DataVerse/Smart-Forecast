@@ -13,29 +13,6 @@ Hướng dẫn khắc phục các lỗi thường gặp với Smart-Forecast
 
 ## 🐳 Docker Compose Errors
 
-### ❌ Error: "pull access denied for fiware/cygnus-ngsi-ld"
-
-**Lỗi:**
-
-```
-Error response from daemon: pull access denied for fiware/cygnus-ngsi-ld,
-repository does not exist or may require 'docker login'
-```
-
-**Nguyên nhân:** Image `fiware/cygnus-ngsi-ld` không tồn tại trên Docker Hub.
-
-**Giải pháp:** ✅ Đã sửa trong `docker-compose.yml`
-
-- Image chính xác: `fiware/cygnus-ngsi:latest`
-- Đã cập nhật environment variables phù hợp
-
-**Kiểm tra:**
-
-```bash
-docker-compose pull cygnus
-docker-compose up -d cygnus
-```
-
 ### ❌ Error: "network smart-forecast-net not found"
 
 **Lỗi:**
@@ -78,7 +55,7 @@ kill -9 <PID>
 
 ```yaml
 ports:
-  - "5433:5432" # Đổi 5432 thành 5433
+  - '5433:5432' # Đổi 5432 thành 5433
 ```
 
 ## 🏥 Container Health Issues
@@ -128,33 +105,6 @@ docker-compose restart orion
 
 # Hoặc rebuild
 docker-compose up -d --build orion
-```
-
-### 🔴 Cygnus không healthy
-
-**Kiểm tra:**
-
-```bash
-# Xem logs
-docker-compose logs cygnus
-
-# Test endpoint
-curl http://localhost:5080/v1/version
-```
-
-**Giải pháp:**
-
-```bash
-# Đảm bảo PostgreSQL và Orion đang chạy
-docker-compose ps postgres orion
-
-# Restart cygnus
-docker-compose restart cygnus
-
-# Tăng start_period nếu cần
-# Sửa trong docker-compose.yml:
-healthcheck:
-  start_period: 90s  # Tăng lên 90 giây
 ```
 
 ### 🔴 PostgreSQL không healthy
@@ -259,7 +209,7 @@ docker network inspect smartforecast_smart-forecast-net
 
 # Test ping
 docker-compose exec orion ping mongodb
-docker-compose exec cygnus ping postgres
+docker-compose exec orion ping postgres
 ```
 
 **Giải pháp:**
@@ -288,14 +238,13 @@ docker-compose up -d --force-recreate
 
 ### Các port đang sử dụng:
 
-| Service        | Port | Alternative |
-| -------------- | ---- | ----------- |
-| Orion          | 1026 | 1027        |
-| PostgreSQL     | 5432 | 5433        |
-| MinIO API      | 9000 | 9002        |
-| MinIO Console  | 9001 | 9003        |
-| Cygnus API     | 5080 | 5081        |
-| Cygnus Service | 5050 | 5051        |
+| Service       | Port | Alternative |
+| ------------- | ---- | ----------- |
+| Orion         | 1026 | 1027        |
+| PostgreSQL    | 5432 | 5433        |
+| MinIO API     | 9000 | 9002        |
+| MinIO Console | 9001 | 9003        |
+| Backend API   | 8000 | 8001        |
 
 **Cách đổi port:**
 
@@ -303,7 +252,7 @@ Sửa trong `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "5433:5432" # External:Internal
+  - '5433:5432' # External:Internal
 ```
 
 ## 💽 Volume Issues
@@ -478,7 +427,7 @@ docker-compose ps
 
 # 3. Test endpoints
 curl http://localhost:1026/version        # Orion
-curl http://localhost:5080/v1/version     # Cygnus
+curl http://localhost:8000/api/v1         # Backend
 curl http://localhost:9000/minio/health/live  # MinIO
 
 # 4. Test database connections

@@ -15,7 +15,7 @@
 ### 📝 Nhiệm vụ theo vai trò
 
 - **👨‍💻 Khải (PM, Backend, DevOps)**
-  - Khởi tạo Monorepo với NPM workspace (`backend`, `web`, `mobile`, `shared`).
+  - Khởi tạo Monorepo với PNPM workspace (`backend`, `web`, `mobile`, `shared`).
   - Hoàn thiện `docker-compose.yml` để khởi chạy các dịch vụ cốt lõi: Orion-LD, MongoDB, PostgreSQL, MinIO.
   - Thiết lập "bộ khung" cho Backend (Node.js): cài đặt NestJS, cấu trúc module, kết nối cơ sở dữ liệu.
   - Phát triển module `auth` (JWT) cơ bản cho 2 vai trò: `Admin` và `Citizen`.
@@ -39,10 +39,10 @@
 ### 📝 Nhiệm vụ theo vai trò
 
 - **👨‍💻 Khải (Backend, DevOps)**
-  - Hoàn thiện module `ingestion`: Lấy dữ liệu từ OpenAQ và OpenWeatherMap.
+  - Hoàn thiện module `ingestion`: Lấy dữ liệu từ OpenWeatherMap.
   - Chuẩn hoá dữ liệu thành NGSI-LD Entity (ví dụ: `AirQualityObserved`, `WeatherObserved`) theo Smart Data Models.
   - Gửi dữ liệu thành công vào Orion-LD Context Broker.
-  - Cấu hình Cygnus để đồng bộ dữ liệu lịch sử từ Orion-LD sang PostgreSQL.
+  - Cấu hình để đồng bộ dữ liệu lịch sử từ Orion-LD sang PostgreSQL.
   - Xây dựng API (modules `airquality/`, `weather/`) để Frontend lấy dữ liệu (đã qua xử lý) từ Orion-LD và PostgreSQL.
 
 - **👨‍💻 Đạt (Frontend Web)**

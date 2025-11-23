@@ -21,12 +21,40 @@ scripts\setup.bat
 **Chức năng:**
 
 - ✅ Kiểm tra Docker và Docker Compose
-- ✅ Tạo file `.env` từ template
+- ✅ Tạo các file environment từ template:
+  - `docker/.env.infrastructure` (Docker services)
+  - `backend/.env` (Backend API)
+  - `web/.env.local` (Web frontend)
+  - `mobile/.env` (Mobile app)
 - ✅ Tạo các thư mục cần thiết
 - ✅ Pull Docker images
 - ✅ Khởi động services
 - ✅ Kiểm tra health status
 - ✅ Hiển thị service URLs
+
+### 1.5. migrate-env.sh
+
+**Mô tả:** Migrate từ cấu trúc .env cũ (single file) sang cấu trúc mới (separated files)
+
+**Sử dụng:**
+
+```bash
+bash scripts/migrate-env.sh
+```
+
+**Chức năng:**
+
+- ✅ Parse .env file cũ ở root
+- ✅ Tạo 4 file .env mới theo cấu trúc separated
+- ✅ Backup .env cũ thành .env.backup
+- ✅ Map biến môi trường đúng vị trí
+- ✅ Hướng dẫn next steps
+
+**Khi nào dùng:**
+
+- Khi bạn có file `.env` cũ ở root directory
+- Khi upgrade từ version cũ lên cấu trúc environment mới
+- Để tự động convert thay vì manual copy
 
 ### 2. health-check.sh
 
@@ -41,7 +69,7 @@ bash scripts/health-check.sh
 **Chức năng:**
 
 - ✅ Kiểm tra Docker Compose status
-- ✅ Test endpoints (Orion, Cygnus, MinIO)
+- ✅ Test endpoints (Orion, Backend, MinIO)
 - ✅ Test database connections (PostgreSQL, MongoDB)
 - ✅ Kiểm tra container health
 - ✅ Kiểm tra ports đang mở
@@ -60,7 +88,7 @@ Checking Docker Compose status...
 Testing Service Endpoints...
 -----------------------------------
 Testing Orion Context Broker... ✅ OK
-Testing Cygnus Data Sink... ✅ OK
+Testing Backend API... ✅ OK
 Testing MinIO Health... ✅ OK
 
 Testing Database Connections...
@@ -74,7 +102,6 @@ Checking orion... ✅ healthy
 Checking mongodb... ✅ healthy
 Checking postgres... ✅ healthy
 Checking minio... ✅ healthy
-Checking cygnus... ✅ healthy
 
 🎉 All services are running and healthy!
 ```

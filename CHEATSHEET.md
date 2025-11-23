@@ -44,8 +44,8 @@ docker-compose ps
 # Test Orion
 curl http://localhost:1026/version
 
-# Test Cygnus
-curl http://localhost:5080/v1/version
+# Test Backend
+curl http://localhost:8000/api/v1
 
 # Test MinIO
 curl http://localhost:9000/minio/health/live
@@ -140,19 +140,13 @@ docker system prune -a --volumes
 
 ```bash
 # Backend (NestJS)
-cd backend
-npm install
-npm run start:dev
+pnpm --filter backend run start:dev
 
 # Web (Next.js)
-cd web
-npm install
-npm run dev
+pnpm --filter web run dev
 
 # Mobile (Expo)
-cd mobile
-npm install
-npx expo start
+pnpm --filter mobile run start
 ```
 
 ## 📊 Monitoring
@@ -211,7 +205,6 @@ lsof -i :1026                  # Linux/Mac
 | Orion Context Broker | http://localhost:1026 | -                     |
 | MinIO Console        | http://localhost:9001 | minioadmin/minioadmin |
 | PostgreSQL           | localhost:5432        | admin/admin           |
-| Cygnus               | http://localhost:5080 | -                     |
 | Backend API          | http://localhost:8000 | -                     |
 
 ## 📚 Quick Links

@@ -31,30 +31,58 @@ echo -e "${GREEN}✅ Docker is installed: $(docker --version)${NC}"
 echo -e "${GREEN}✅ Docker Compose is installed: $(docker-compose --version)${NC}"
 echo ""
 
-# Check if .env file exists
+# Setup environment files
 echo "⚙️  Setting up environment variables..."
-if [ -f .env ]; then
-    echo -e "${YELLOW}⚠️  .env file already exists. Do you want to overwrite it? (y/N)${NC}"
-    read -r response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        cp .env.example .env
-        echo -e "${GREEN}✅ .env file created from .env.example${NC}"
-    else
-        echo -e "${YELLOW}⏭️  Skipping .env creation${NC}"
-    fi
-else
+
+# Root .env for Docker Compose
+if [ ! -f .env ]; then
     cp .env.example .env
-    echo -e "${GREEN}✅ .env file created from .env.example${NC}"
+    echo -e "${GREEN}✅ .env created (for Docker Compose)${NC}"
+else
+    echo -e "${YELLOW}⏭️  .env already exists${NC}"
+fi
+
+# Docker infrastructure (deprecated but kept for compatibility)
+if [ ! -f docker/.env.infrastructure ]; then
+    cp docker/.env.infrastructure.example docker/.env.infrastructure
+    echo -e "${YELLOW}⚠️  docker/.env.infrastructure created (deprecated - use root .env)${NC}"
+else
+    echo -e "${YELLOW}⏭️  docker/.env.infrastructure already exists${NC}"
+fi
+
+# Backend
+if [ ! -f backend/.env ]; then
+    cp backend/.env.example backend/.env
+    echo -e "${GREEN}✅ backend/.env created${NC}"
+else
+    echo -e "${YELLOW}⏭️  backend/.env already exists${NC}"
+fi
+
+# Web
+if [ ! -f web/.env.local ]; then
+    cp web/.env.local.example web/.env.local
+    echo -e "${GREEN}✅ web/.env.local created${NC}"
+else
+    echo -e "${YELLOW}⏭️  web/.env.local already exists${NC}"
+fi
+
+# Mobile
+if [ ! -f mobile/.env ]; then
+    cp mobile/.env.example mobile/.env
+    echo -e "${GREEN}✅ mobile/.env created${NC}"
+    echo -e "${YELLOW}⚠️  Remember to update EXPO_PUBLIC_API_URL with your local IP address${NC}"
+else
+    echo -e "${YELLOW}⏭️  mobile/.env already exists${NC}"
 fi
 echo ""
 
 # Prompt user to configure API keys
 echo "🔑 API Configuration"
 echo "--------------------"
-echo -e "${YELLOW}You need to configure the following API keys in .env file:${NC}"
-echo "  1. OPENAQ_API_KEY - Get from: https://openaq.org/"
-echo "  2. OWM_API_KEY - Get from: https://openweathermap.org/api"
-echo "  3. NEXT_PUBLIC_MAPBOX_TOKEN - Get from: https://www.mapbox.com/"
+echo -e "${YELLOW}You need to configure the following:${NC}"
+echo "  1. backend/.env - OPENWEATHER_API_KEY (Get from: https://openweathermap.org/api)"
+echo "  2. backend/.env - JWT_SECRET (Change to a secure random string)"
+echo "  3. mobile/.env - EXPO_PUBLIC_API_URL (Replace YOUR_LOCAL_IP with your machine's IP)"
 echo ""
 echo -e "${YELLOW}Press Enter to continue...${NC}"
 read -r
@@ -117,7 +145,7 @@ echo "==============="
 echo -e "${GREEN}✅ Orion Context Broker:${NC} http://localhost:1026"
 echo -e "${GREEN}✅ MinIO Console:${NC} http://localhost:9001 (minioadmin/minioadmin)"
 echo -e "${GREEN}✅ PostgreSQL:${NC} localhost:5432 (admin/admin)"
-echo -e "${GREEN}✅ Cygnus:${NC} http://localhost:5080"
+echo -e "${GREEN}✅ Backend API:${NC} http://localhost:8000"
 echo ""
 
 # Test Orion endpoint
@@ -140,8 +168,8 @@ echo "  3. View logs: docker-compose logs -f"
 echo "  4. Stop services: docker-compose down"
 echo ""
 echo "For development:"
-echo "  - Backend: cd backend && npm install && npm run start:dev"
-echo "  - Web: cd web && npm install && npm run dev"
-echo "  - Mobile: cd mobile && npm install && npx expo start"
+echo "  - Backend: pnpm --filter backend run start:dev"
+echo "  - Web: pnpm --filter web run dev"
+echo "  - Mobile: pnpm --filter mobile run start"
 echo ""
 echo -e "${GREEN}Happy coding! 🚀${NC}"

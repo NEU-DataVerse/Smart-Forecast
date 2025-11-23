@@ -14,6 +14,12 @@ Smart urban environmental monitoring and warning system - Hệ thống giám sá
 - [Quản lý dữ liệu](#quản-lý-dữ-liệu)
 - [Troubleshooting](#troubleshooting)
 
+> 📖 **New to the project?** Check out:
+>
+> - [MONOREPO_MIGRATION_SUMMARY.md](docs/MONOREPO_MIGRATION_SUMMARY.md) - PNPM monorepo migration overview
+> - [DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md) - Comprehensive development guide
+> - [AUTOMATION_GUIDE.md](docs/AUTOMATION_GUIDE.md) - Makefile and scripts guide
+
 ## 🎯 Giới thiệu
 
 Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô thị sử dụng công nghệ FIWARE và các công nghệ hiện đại:
@@ -24,7 +30,7 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
 - **Context Broker**: FIWARE Orion-LD
 - **Databases**: PostgreSQL, MongoDB
 - **Object Storage**: MinIO
-- **Data Sink**: Cygnus
+- **Data Persistence**: Native NestJS Service
 
 ## 🏗️ Kiến trúc hệ thống
 
@@ -37,8 +43,8 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
          └───────────┬───────────┘
                      │
               ┌──────▼──────┐
-              │   Backend   │
-              │  (NestJS)   │
+              │   Backend   │◄─── NGSI-LD Notifications
+              │  (NestJS)   │     (Native Persistence)
               └──────┬──────┘
                      │
          ┌───────────┼───────────┐
@@ -51,11 +57,6 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
     ┌────▼────┐
     │ MongoDB │
     └─────────┘
-         │
-    ┌────▼────┐
-    │ Cygnus  │
-    │  Sink   │
-    └─────────┘
 ```
 
 ## 💻 Yêu cầu hệ thống
@@ -65,7 +66,8 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
 - **Docker**: >= 20.10
 - **Docker Compose**: >= 2.0
 - **Git**: Để clone repository
-- **Node.js**: >= 18.x (nếu chạy development local)
+- **Node.js**: >= 20.x (cho development)
+- **pnpm**: >= 8.x (package manager cho monorepo)
 
 ### Kiểm tra version:
 
@@ -73,6 +75,24 @@ Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô t
 docker --version
 docker-compose --version
 git --version
+node --version
+pnpm --version
+```
+
+### Cài đặt pnpm:
+
+```bash
+# Sử dụng npm (đã có sẵn với Node.js)
+npm install -g pnpm
+
+# Hoặc sử dụng các phương pháp khác:
+# Windows (PowerShell)
+iwr https://get.pnpm.io/install.ps1 -useb | iex
+
+# macOS/Linux
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+# Xem thêm: https://pnpm.io/installation
 ```
 
 ## 🚀 Cài đặt và chạy
@@ -84,31 +104,49 @@ git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
 cd Smart-Forecast
 ```
 
-### 2️⃣ Cấu hình môi trường
-
-Tạo file `.env` từ template:
+### 1.5️⃣ Cài đặt dependencies (cho development)
 
 ```bash
-cp .env.example .env
+# Cài đặt tất cả dependencies cho monorepo
+pnpm install
+
+# Build shared package (cần thiết trước khi chạy backend/web/mobile)
+pnpm run build:shared
 ```
 
-Chỉnh sửa file `.env` với các thông tin cần thiết:
+### 2️⃣ Cấu hình môi trường
+
+Hệ thống sử dụng cấu trúc environment variables được tách biệt cho từng layer:
 
 ```bash
-# Cấu hình cơ bản (có thể giữ nguyên cho development)
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=admin
-POSTGRES_DB=smart_forecast_db
+# Tự động copy tất cả file .env.example (khuyến nghị)
+bash scripts/setup.sh  # Linux/Mac/Git Bash
+# hoặc
+scripts\setup.bat      # Windows
 
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=minioadmin
+# Hoặc copy thủ công từng file:
+cp docker/.env.infrastructure.example docker/.env.infrastructure
+cp backend/.env.example backend/.env
+cp web/.env.local.example web/.env.local
+cp mobile/.env.example mobile/.env
+```
 
-# Cấu hình API keys (cần đăng ký tài khoản)
-OPENAQ_API_KEY=your_openaq_api_key_here
-OWM_API_KEY=your_openweathermap_api_key_here
+**Cấu trúc environment files:**
 
-# JWT Secret (nên thay đổi trong production)
-JWT_SECRET=your_very_secure_jwt_secret_key_change_this_in_production
+- `docker/.env.infrastructure` - Biến cho Docker services (PostgreSQL, MongoDB, MinIO, Orion-LD)
+- `backend/.env` - Biến cho NestJS backend (API keys, database connection strings)
+- `web/.env.local` - Biến public cho Next.js frontend (chỉ `NEXT_PUBLIC_*`)
+- `mobile/.env` - Biến public cho Expo app (chỉ `EXPO_PUBLIC_*`)
+
+**Chỉnh sửa các file sau khi copy:**
+
+```bash
+# backend/.env - Cấu hình API key
+OPENWEATHER_API_KEY=your_openweathermap_api_key_here
+JWT_SECRET=change_this_to_secure_random_string
+
+# mobile/.env - Thay YOUR_LOCAL_IP bằng IP máy của bạn (không dùng localhost)
+EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 ```
 
 ### 3️⃣ Khởi động các dịch vụ
@@ -144,7 +182,7 @@ docker-compose logs
 # Xem logs của service cụ thể
 docker-compose logs -f orion
 docker-compose logs -f postgres
-docker-compose logs -f cygnus
+docker-compose logs -f minio
 ```
 
 ### 5️⃣ Dừng các dịch vụ
@@ -160,24 +198,62 @@ docker-compose down -v
 docker-compose down --rmi all
 ```
 
-## ⚙️ Cấu hình môi trường
+## ⚙️ Cấu hình môi trường chi tiết
 
-### Các biến môi trường quan trọng:
+### Environment Files Structure:
 
-| Biến                  | Mô tả                  | Giá trị mặc định  |
-| --------------------- | ---------------------- | ----------------- |
-| `POSTGRES_USER`       | Username PostgreSQL    | admin             |
-| `POSTGRES_PASSWORD`   | Password PostgreSQL    | admin             |
-| `POSTGRES_DB`         | Tên database           | smart_forecast_db |
-| `MINIO_ROOT_USER`     | MinIO admin user       | minioadmin        |
-| `MINIO_ROOT_PASSWORD` | MinIO admin password   | minioadmin        |
-| `OPENAQ_API_KEY`      | API key OpenAQ         | -                 |
-| `OWM_API_KEY`         | API key OpenWeatherMap | -                 |
-| `JWT_SECRET`          | Secret key cho JWT     | -                 |
+```
+Smart-Forecast/
+├── docker/.env.infrastructure     # Docker services config
+├── backend/.env                   # Backend API config
+├── web/.env.local                 # Web frontend config
+└── mobile/.env                    # Mobile app config
+```
+
+### Các biến môi trường theo layer:
+
+**Docker Infrastructure (`docker/.env.infrastructure`):**
+
+| Biến                         | Mô tả                | Giá trị mặc định  |
+| ---------------------------- | -------------------- | ----------------- |
+| `POSTGRES_USER`              | PostgreSQL username  | admin             |
+| `POSTGRES_PASSWORD`          | PostgreSQL password  | admin             |
+| `POSTGRES_DB`                | Database name        | smart_forecast_db |
+| `MONGO_INITDB_ROOT_USERNAME` | MongoDB username     | admin             |
+| `MONGO_INITDB_ROOT_PASSWORD` | MongoDB password     | admin             |
+| `MINIO_ROOT_USER`            | MinIO admin user     | minioadmin        |
+| `MINIO_ROOT_PASSWORD`        | MinIO admin password | minioadmin        |
+| `ORION_LOG_LEVEL`            | Orion log level      | DEBUG             |
+
+**Backend (`backend/.env`):**
+
+| Biến                  | Mô tả                        | Giá trị mặc định                                             |
+| --------------------- | ---------------------------- | ------------------------------------------------------------ |
+| `DATABASE_URL`        | PostgreSQL connection string | postgresql://admin:admin@localhost:5432/smart_forecast_db    |
+| `MONGO_URL`           | MongoDB connection string    | mongodb://admin:admin@localhost:27017/orion?authSource=admin |
+| `OPENWEATHER_API_KEY` | OpenWeatherMap API key       | (cần đăng ký)                                                |
+| `JWT_SECRET`          | JWT signing secret           | (đổi trong production)                                       |
+| `MINIO_ACCESS_KEY`    | MinIO access key             | minioadmin                                                   |
+| `MINIO_SECRET_KEY`    | MinIO secret key             | minioadmin                                                   |
+
+**Web Frontend (`web/.env.local`):**
+
+| Biến                    | Mô tả             | Giá trị mặc định             |
+| ----------------------- | ----------------- | ---------------------------- |
+| `NEXT_PUBLIC_API_URL`   | Backend API URL   | http://localhost:8000/api/v1 |
+| `NEXT_PUBLIC_MINIO_URL` | MinIO storage URL | http://localhost:9000        |
+
+**Mobile App (`mobile/.env`):**
+
+| Biến                    | Mô tả                  | Giá trị mặc định                 |
+| ----------------------- | ---------------------- | -------------------------------- |
+| `EXPO_PUBLIC_API_URL`   | Backend API URL        | http://YOUR_LOCAL_IP:8000/api/v1 |
+| `EXPO_PUBLIC_MINIO_URL` | MinIO storage URL      | http://YOUR_LOCAL_IP:9000        |
+| `OWM_API_KEY`           | API key OpenWeatherMap | -                                |
+| `JWT_SECRET`            | Secret key cho JWT     | -                                |
 
 ### Lấy API Keys:
 
-1. **OpenAQ API**: Đăng ký tại https://openaq.org/
 2. **OpenWeatherMap**: Đăng ký tại https://openweathermap.org/api
 3. **Mapbox** (cho frontend): https://www.mapbox.com/
 
@@ -212,13 +288,7 @@ docker-compose down --rmi all
 - **Password**: minioadmin (hoặc theo `.env`)
 - **Mô tả**: Lưu trữ file, ảnh, video của incidents
 
-### Cygnus (Data Sink)
-
-- **Port**: 5080
-- **Health Check**: http://localhost:5080/v1/version
-- **Mô tả**: Đồng bộ dữ liệu từ Orion sang PostgreSQL
-
-### Backend API (NestJS) - Đang development
+### Backend API (NestJS)
 
 - **Port**: 8000
 - **URL**: http://localhost:8000
@@ -238,7 +308,7 @@ docker inspect --format='{{json .State.Health}}' orion
 
 # Kiểm tra thủ công từng service
 curl http://localhost:1026/version        # Orion
-curl http://localhost:5080/v1/version     # Cygnus
+curl http://localhost:8000/api/v1         # Backend
 curl http://localhost:9000/minio/health/live  # MinIO
 ```
 
@@ -318,7 +388,7 @@ Nếu port đã được sử dụng, sửa trong `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "5433:5432" # Thay đổi port bên trái
+  - '5433:5432' # Thay đổi port bên trái
 ```
 
 ### Xóa tất cả và start lại:
@@ -362,7 +432,6 @@ docker volume prune
 ## 📚 Tài liệu thêm
 
 - [FIWARE Orion-LD Documentation](https://fiware-orion.readthedocs.io/)
-- [Cygnus Documentation](https://fiware-cygnus.readthedocs.io/)
 - [MinIO Documentation](https://min.io/docs/minio/linux/index.html)
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [Next.js Documentation](https://nextjs.org/docs)
