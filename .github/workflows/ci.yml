@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, feat/**]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Phát hiện thay đổi để optimize CI
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      shared: ${{ steps.filter.outputs.shared }}
+      backend: ${{ steps.filter.outputs.backend }}
+      web: ${{ steps.filter.outputs.web }}
+      mobile: ${{ steps.filter.outputs.mobile }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared:
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+            backend:
+              - 'backend/**'
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            web:
+              - 'web/**'
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            mobile:
+              - 'mobile/**'
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+
+  # Build shared package trước (dependency của các package khác)
+  build-shared:
+    name: Build Shared Package
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.shared == 'true' || needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.web == 'true' || needs.detect-changes.outputs.mobile == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
+
+      - name: Cache shared build
+        uses: actions/cache/save@v4
+        with:
+          path: shared/dist
+          key: shared-build-${{ github.sha }}
+
+  # Backend CI
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-shared]
+    if: needs.detect-changes.outputs.backend == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore shared build
+        uses: actions/cache/restore@v4
+        with:
+          path: shared/dist
+          key: shared-build-${{ github.sha }}
+
+      - name: Lint backend
+        run: pnpm lint:backend
+
+      - name: Test backend
+        run: pnpm test:backend
+
+      - name: Build backend
+        run: pnpm build:backend
+
+  # Web CI
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-shared]
+    if: needs.detect-changes.outputs.web == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore shared build
+        uses: actions/cache/restore@v4
+        with:
+          path: shared/dist
+          key: shared-build-${{ github.sha }}
+
+      - name: Lint web
+        run: pnpm lint:web
+
+      - name: Build web
+        run: pnpm build:web
+
+  # Mobile CI
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-shared]
+    if: needs.detect-changes.outputs.mobile == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore shared build
+        uses: actions/cache/restore@v4
+        with:
+          path: shared/dist
+          key: shared-build-${{ github.sha }}
+
+      - name: Lint mobile
+        run: pnpm lint:mobile
