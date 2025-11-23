@@ -9,6 +9,8 @@ import { UserModule } from './modules/user/user.module';
 import { StationsModule } from './modules/stations/stations.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { PersistenceModule } from './modules/persistence/persistence.module';
+import { AirQualityModule } from './modules/air-quality/air-quality.module';
+import { WeatherModule } from './modules/weather/weather.module';
 import { appConfig, databaseConfig, jwtConfig, orionConfig } from './config';
 
 @Module({
@@ -30,6 +32,8 @@ import { appConfig, databaseConfig, jwtConfig, orionConfig } from './config';
     StationsModule,
     AuthModule,
     UserModule,
+    AirQualityModule,
+    WeatherModule,
   ],
   controllers: [AppController],
   providers: [AppService],
