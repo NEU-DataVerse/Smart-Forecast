@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -25,6 +26,10 @@ import {
   StationQueryDto,
   BatchStationOperationDto,
 } from './dto/station.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@smart-forecast/shared';
 
 /**
  * Station Controller
@@ -32,6 +37,8 @@ import {
  */
 @ApiTags('Stations')
 @Controller('stations')
+// @UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(UserRole.ADMIN, UserRole.MANAGER)
 export class StationController {
   constructor(private readonly stationManager: StationService) {}
 
