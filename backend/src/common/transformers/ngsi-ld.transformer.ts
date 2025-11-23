@@ -751,6 +751,13 @@ export function transformOWMAirPollutionForecastToNGSILD(
       );
     }
 
+    // Calculate US EPA AQI if PM2.5 is available
+    if (components?.pm2_5 !== undefined) {
+      const usAQI = calculateAQI(components.pm2_5);
+      entity.airQualityIndexUS = createProperty(usAQI);
+      entity.airQualityLevelUS = createProperty(getAQICategory(usAQI));
+    }
+
     entities.push(entity);
   }
 
@@ -896,6 +903,19 @@ export function transformOWMDailyForecastToNGSILD(
       if (weather.description) {
         entity.weatherDescription = createProperty(weather.description);
       }
+      if (weather.icon) {
+        entity.weatherIcon = createProperty(weather.icon);
+      }
+    }
+
+    // Sunrise and Sunset
+    if (dailyForecast.sunrise !== undefined) {
+      const sunriseDate = new Date(dailyForecast.sunrise * 1000);
+      entity.sunrise = createProperty(sunriseDate.toISOString());
+    }
+    if (dailyForecast.sunset !== undefined) {
+      const sunsetDate = new Date(dailyForecast.sunset * 1000);
+      entity.sunset = createProperty(sunsetDate.toISOString());
     }
 
     entities.push(entity);
