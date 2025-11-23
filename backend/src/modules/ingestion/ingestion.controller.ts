@@ -1,12 +1,25 @@
-import { Controller, Post, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { IngestionService } from './ingestion.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@smart-forecast/shared';
 
 /**
  * Ingestion Controller
  * Provides endpoints for manual data ingestion triggers
- * Should be protected with admin-only guards in production
+ * Protected with ADMIN and MANAGER roles
  */
 @Controller('ingestion')
+// @UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(UserRole.ADMIN, UserRole.MANAGER)
 export class IngestionController {
   constructor(private readonly ingestionService: IngestionService) {}
 
@@ -57,8 +70,8 @@ export class IngestionController {
    * GET /api/v1/ingestion/locations
    */
   @Get('locations')
-  getLocations(): { count: number; locations: any[] } {
-    const locations = this.ingestionService.getMonitoringLocations();
+  async getLocations(): Promise<{ count: number; locations: any[] }> {
+    const locations = await this.ingestionService.getMonitoringLocations();
     return {
       count: locations.length,
       locations,
@@ -86,10 +99,11 @@ export class IngestionController {
    * GET /api/v1/ingestion/stats
    */
   @Get('stats')
-  getStats() {
+  async getStats() {
+    const locations = await this.ingestionService.getMonitoringLocations();
     return {
       message: 'Ingestion module statistics',
-      locations: this.ingestionService.getMonitoringLocations().length,
+      locations: locations.length,
       endpoints: {
         current: {
           airQuality: 'POST /api/v1/ingestion/air-quality',

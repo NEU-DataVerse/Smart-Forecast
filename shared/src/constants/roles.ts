@@ -8,6 +8,11 @@ export enum UserRole {
   ADMIN = 'ADMIN',
 
   /**
+   * Manager - Can manage stations, trigger ingestion, view environmental data dashboard
+   */
+  MANAGER = 'MANAGER',
+
+  /**
    * Citizen - Can receive alerts, report incidents, view own reports
    */
   CITIZEN = 'CITIZEN',

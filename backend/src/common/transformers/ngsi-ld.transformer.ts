@@ -276,12 +276,16 @@ export function getCurrentTimestamp(): string {
 /**
  * Transform OpenWeather Air Pollution data to NGSI-LD AirQualityObserved entity
  * @param owmAirData Raw data from OpenWeather Air Pollution API
+ * @param stationCode Station code from WeatherStation entity
+ * @param stationId Station ID for relationship (URN format)
  * @param cityName City name for entity identification
  * @param districtName District name (optional)
  * @returns NGSI-LD AirQualityObserved entity
  */
 export function transformOWMAirPollutionToNGSILD(
   owmAirData: any,
+  stationCode: string,
+  stationId: string,
   cityName: string,
   districtName?: string,
 ): any {
@@ -293,10 +297,8 @@ export function transformOWMAirPollutionToNGSILD(
   const measurement = owmAirData.list[0];
   const components = measurement.components;
 
-  const entityId = generateEntityId(
-    'AirQualityObserved',
-    `${cityName}-${owmAirData.coord.lat}-${owmAirData.coord.lon}`,
-  );
+  // Generate entity ID using station code
+  const entityId = generateEntityId('AirQualityObserved', stationCode);
 
   const observedAt = measurement.dt
     ? new Date(measurement.dt * 1000).toISOString()
@@ -311,6 +313,7 @@ export function transformOWMAirPollutionToNGSILD(
     ],
     dateObserved: createProperty(observedAt, observedAt),
     source: createProperty('OpenWeatherMap'),
+    locationId: createRelationship(stationId),
   };
 
   // Add location
@@ -397,12 +400,16 @@ export function transformOWMAirPollutionToNGSILD(
 /**
  * Transform OpenWeatherMap data to NGSI-LD WeatherObserved entity
  * @param owmData Raw data from OpenWeatherMap current weather API
+ * @param stationCode Station code from WeatherStation entity
+ * @param stationId Station ID for relationship (URN format)
  * @param cityName City name for entity identification (optional, will use owmData.name if not provided)
  * @param districtName District name (optional)
  * @returns NGSI-LD WeatherObserved entity
  */
 export function transformOWMToNGSILD(
   owmData: any,
+  stationCode: string,
+  stationId: string,
   cityName?: string,
   districtName?: string,
 ): any {
@@ -411,10 +418,8 @@ export function transformOWMToNGSILD(
   }
 
   const locationName = cityName || owmData.name || 'Unknown';
-  const entityId = generateEntityId(
-    'WeatherObserved',
-    `${locationName}-${owmData.coord.lat}-${owmData.coord.lon}`,
-  );
+  // Generate entity ID using station code
+  const entityId = generateEntityId('WeatherObserved', stationCode);
 
   const observedAt = owmData.dt
     ? new Date(owmData.dt * 1000).toISOString()
@@ -429,6 +434,7 @@ export function transformOWMToNGSILD(
     ],
     dateObserved: createProperty(observedAt, observedAt),
     source: createProperty('OpenWeatherMap'),
+    locationId: createRelationship(stationId),
   };
 
   // Add location (GeoProperty)
@@ -649,12 +655,16 @@ function getOpenWeatherAQICategory(aqi: number): string {
 /**
  * Transform OpenWeather Air Pollution Forecast to NGSI-LD AirQualityForecast entities
  * @param owmForecastData Raw forecast data from OpenWeather Air Pollution Forecast API
+ * @param stationCode Station code from WeatherStation entity
+ * @param stationId Station ID for relationship (URN format)
  * @param cityName City name for entity identification
  * @param districtName District name (optional)
  * @returns Array of NGSI-LD AirQualityForecast entities
  */
 export function transformOWMAirPollutionForecastToNGSILD(
   owmForecastData: any,
+  stationCode: string,
+  stationId: string,
   cityName: string,
   districtName?: string,
 ): any[] {
@@ -668,10 +678,10 @@ export function transformOWMAirPollutionForecastToNGSILD(
     const components = forecast.components;
     const forecastTime = new Date(forecast.dt * 1000).toISOString();
 
-    // Create unique ID with timestamp
+    // Generate entity ID using station code with timestamp
     const entityId = generateEntityId(
       'AirQualityForecast',
-      `${cityName}-${owmForecastData.coord.lat}-${owmForecastData.coord.lon}-${forecast.dt}`,
+      `${stationCode}-${forecast.dt}`,
     );
 
     const entity: any = {
@@ -686,6 +696,7 @@ export function transformOWMAirPollutionForecastToNGSILD(
       validTo: createProperty(
         new Date(forecast.dt * 1000 + 3600000).toISOString(),
       ), // +1 hour
+      locationId: createRelationship(stationId),
     };
 
     // Add location
@@ -740,6 +751,13 @@ export function transformOWMAirPollutionForecastToNGSILD(
       );
     }
 
+    // Calculate US EPA AQI if PM2.5 is available
+    if (components?.pm2_5 !== undefined) {
+      const usAQI = calculateAQI(components.pm2_5);
+      entity.airQualityIndexUS = createProperty(usAQI);
+      entity.airQualityLevelUS = createProperty(getAQICategory(usAQI));
+    }
+
     entities.push(entity);
   }
 
@@ -749,12 +767,16 @@ export function transformOWMAirPollutionForecastToNGSILD(
 /**
  * Transform OpenWeather Daily Forecast to NGSI-LD WeatherForecast entities
  * @param owmDailyData Raw data from OpenWeather Daily Forecast API
+ * @param stationCode Station code from WeatherStation entity
+ * @param stationId Station ID for relationship (URN format)
  * @param cityName City name for entity identification
  * @param districtName District name (optional)
  * @returns Array of NGSI-LD WeatherForecast entities
  */
 export function transformOWMDailyForecastToNGSILD(
   owmDailyData: any,
+  stationCode: string,
+  stationId: string,
   cityName: string,
   districtName?: string,
 ): any[] {
@@ -772,9 +794,10 @@ export function transformOWMDailyForecastToNGSILD(
     const validTo = new Date(forecastDate);
     validTo.setHours(23, 59, 59, 999);
 
+    // Generate entity ID using station code with timestamp
     const entityId = generateEntityId(
       'WeatherForecast',
-      `${cityName}-${coord.lat}-${coord.lon}-${dailyForecast.dt}`,
+      `${stationCode}-${dailyForecast.dt}`,
     );
 
     const entity: any = {
@@ -788,6 +811,7 @@ export function transformOWMDailyForecastToNGSILD(
       dateIssued: createProperty(getCurrentTimestamp()),
       validFrom: createProperty(validFrom.toISOString()),
       validTo: createProperty(validTo.toISOString()),
+      locationId: createRelationship(stationId),
     };
 
     // Location
@@ -879,6 +903,19 @@ export function transformOWMDailyForecastToNGSILD(
       if (weather.description) {
         entity.weatherDescription = createProperty(weather.description);
       }
+      if (weather.icon) {
+        entity.weatherIcon = createProperty(weather.icon);
+      }
+    }
+
+    // Sunrise and Sunset
+    if (dailyForecast.sunrise !== undefined) {
+      const sunriseDate = new Date(dailyForecast.sunrise * 1000);
+      entity.sunrise = createProperty(sunriseDate.toISOString());
+    }
+    if (dailyForecast.sunset !== undefined) {
+      const sunsetDate = new Date(dailyForecast.sunset * 1000);
+      entity.sunset = createProperty(sunsetDate.toISOString());
     }
 
     entities.push(entity);

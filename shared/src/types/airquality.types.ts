@@ -73,3 +73,34 @@ export interface IAirQualityStats {
     end: Date;
   };
 }
+
+/**
+ * Air Quality Forecast data point (OWM compatible format)
+ */
+export interface IAirQualityForecast {
+  dt: number; // Unix timestamp (UTC)
+  main: {
+    aqi: number; // Air Quality Index (1-5)
+  };
+  components: {
+    co?: number; // Carbon monoxide (μg/m³)
+    no?: number; // Nitrogen monoxide (μg/m³)
+    no2?: number; // Nitrogen dioxide (μg/m³)
+    o3?: number; // Ozone (μg/m³)
+    so2?: number; // Sulfur dioxide (μg/m³)
+    pm2_5?: number; // PM2.5 (μg/m³)
+    pm10?: number; // PM10 (μg/m³)
+    nh3?: number; // Ammonia (μg/m³)
+  };
+}
+
+/**
+ * Air Quality Forecast response (OWM compatible format)
+ */
+export interface IAirQualityForecastResponse {
+  coord: {
+    lat: number;
+    lon: number;
+  };
+  list: IAirQualityForecast[];
+}

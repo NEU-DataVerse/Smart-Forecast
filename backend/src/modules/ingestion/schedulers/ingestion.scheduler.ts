@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { IngestionService } from '../ingestion.service';
 
 /**
@@ -16,8 +16,8 @@ export class IngestionScheduler {
    * Scheduled task: Ingest data every 30 minutes
    * Runs at :00 and :30 of every hour
    */
-  @Cron('0,30 * * * *', {
-    name: 'ingest-environmental-data',
+  @Cron(CronExpression.EVERY_HOUR, {
+    name: 'ingest-environmental-data-hourly',
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async handleScheduledIngestion() {
