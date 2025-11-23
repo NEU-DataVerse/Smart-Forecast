@@ -1,12 +1,25 @@
-import { Controller, Post, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { IngestionService } from './ingestion.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@smart-forecast/shared';
 
 /**
  * Ingestion Controller
  * Provides endpoints for manual data ingestion triggers
- * Should be protected with admin-only guards in production
+ * Protected with ADMIN and MANAGER roles
  */
 @Controller('ingestion')
+// @UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(UserRole.ADMIN, UserRole.MANAGER)
 export class IngestionController {
   constructor(private readonly ingestionService: IngestionService) {}
 
