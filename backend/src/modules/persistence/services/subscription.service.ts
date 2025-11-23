@@ -14,7 +14,7 @@ export class SubscriptionService implements OnModuleInit {
   // Backend notification endpoint (Native persistence service)
   // Use host.docker.internal to allow Docker containers to reach host machine
   private readonly notificationEndpoint =
-    'http://host.docker.internal:8000/notify';
+    'http://host.docker.internal:8000/api/v1/notify';
 
   // Entity types to subscribe (only observed data, not forecasts)
   private readonly entityTypes = ['AirQualityObserved', 'WeatherObserved'];
@@ -119,10 +119,16 @@ export class SubscriptionService implements OnModuleInit {
    * Create a single subscription for a specific entity type
    */
   private async createSubscription(entityType: string): Promise<string> {
+    // Use appropriate context based on entity type
+    const contextUrl =
+      entityType === 'AirQualityObserved'
+        ? 'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld'
+        : 'https://raw.githubusercontent.com/smart-data-models/dataModel.Weather/master/context.jsonld';
+
     const subscription = {
       '@context': [
         'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
-        'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
+        contextUrl,
       ],
       type: 'Subscription',
       description: `Persistence subscription for ${entityType} - Auto-created by Smart Forecast`,

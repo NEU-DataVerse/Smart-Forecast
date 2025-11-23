@@ -35,8 +35,15 @@ export class PersistenceService {
     let failed = 0;
     const errors: string[] = [];
 
+    this.logger.debug(
+      `Received ${entities.length} entities to persist at ${notifiedAt}`,
+    );
+
     for (const entity of entities) {
       try {
+        this.logger.debug(
+          `Processing entity: ${entity.id}, type: ${entity.type}`,
+        );
         await this.persistEntity(entity, notifiedAt);
         success++;
       } catch (error) {
@@ -55,6 +62,10 @@ export class PersistenceService {
   private async persistEntity(entity: any, notifiedAt: string): Promise<void> {
     const entityType = this.extractEntityType(entity.type);
 
+    this.logger.debug(
+      `Processing entity ${entity.id} with type: ${entity.type} -> extracted: ${entityType}`,
+    );
+
     switch (entityType) {
       case 'AirQualityObserved':
         await this.persistAirQuality(entity, notifiedAt);
@@ -63,7 +74,9 @@ export class PersistenceService {
         await this.persistWeather(entity, notifiedAt);
         break;
       default:
-        this.logger.warn(`Unknown entity type: ${entity.type}`);
+        this.logger.warn(
+          `Unknown entity type: ${entity.type} (extracted: ${entityType})`,
+        );
     }
   }
 
@@ -80,9 +93,13 @@ export class PersistenceService {
     record.entityType = this.extractEntityType(entity.type);
     record.recvTime = new Date(notifiedAt);
 
+    // Extract locationId from locationId relationship
+    if (entity.locationId) {
+      record.locationId = this.extractValue(entity.locationId.object);
+    }
+
     // Extract location
     if (entity.location) {
-      record.locationId = this.extractValue(entity.location.object);
       record.location = entity.location.value || entity.location;
     }
 
@@ -103,7 +120,14 @@ export class PersistenceService {
     record.pm25 = this.extractNumericValue(entity.pm25);
     record.pm10 = this.extractNumericValue(entity.pm10);
     record.nh3 = this.extractNumericValue(entity.nh3);
-    record.aqi = this.extractNumericValue(entity.aqi);
+
+    // Extract AQI indices
+    record.airQualityIndex = this.extractNumericValue(entity.airQualityIndex);
+    record.airQualityLevel = this.extractValue(entity.airQualityLevel);
+    record.airQualityIndexUS = this.extractNumericValue(
+      entity.airQualityIndexUS,
+    );
+    record.airQualityLevelUS = this.extractValue(entity.airQualityLevelUS);
 
     // Store raw entity
     record.rawEntity = entity;
@@ -122,9 +146,13 @@ export class PersistenceService {
     record.entityType = this.extractEntityType(entity.type);
     record.recvTime = new Date(notifiedAt);
 
+    // Extract locationId from locationId relationship
+    if (entity.locationId) {
+      record.locationId = this.extractValue(entity.locationId.object);
+    }
+
     // Extract location
     if (entity.location) {
-      record.locationId = this.extractValue(entity.location.object);
       record.location = entity.location.value || entity.location;
     }
 
@@ -149,9 +177,30 @@ export class PersistenceService {
     record.windDirection = this.extractNumericValue(entity.windDirection);
     record.precipitation = this.extractNumericValue(entity.precipitation);
     record.visibility = this.extractNumericValue(entity.visibility);
-    record.weatherType = this.extractNumericValue(entity.weatherType);
+    record.weatherType = this.extractValue(entity.weatherType);
     record.weatherDescription = this.extractValue(entity.weatherDescription);
-    record.weatherIcon = this.extractValue(entity.weatherIcon);
+    record.weatherIconCode = this.extractValue(entity.weatherIconCode);
+
+    // Additional weather fields
+    record.cloudiness = this.extractNumericValue(entity.cloudiness);
+    record.temperatureMin = this.extractNumericValue(entity.temperatureMin);
+    record.temperatureMax = this.extractNumericValue(entity.temperatureMax);
+    record.pressureSeaLevel = this.extractNumericValue(entity.pressureSeaLevel);
+    record.pressureGroundLevel = this.extractNumericValue(
+      entity.pressureGroundLevel,
+    );
+    record.windGust = this.extractNumericValue(entity.windGust);
+
+    // Timestamp fields
+    if (entity.sunrise) {
+      const sunriseValue = this.extractValue(entity.sunrise);
+      record.sunrise = sunriseValue ? new Date(sunriseValue) : null;
+    }
+    if (entity.sunset) {
+      const sunsetValue = this.extractValue(entity.sunset);
+      record.sunset = sunsetValue ? new Date(sunsetValue) : null;
+    }
+    record.timezone = this.extractNumericValue(entity.timezone);
 
     // Store raw entity
     record.rawEntity = entity;

@@ -9,6 +9,8 @@ import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
 @Entity('air_quality_observed')
 @Index(['entityId', 'recvTime'])
 @Index(['recvTime'])
+@Index(['locationId', 'dateObserved'])
+@Index(['dateObserved'])
 export class AirQualityObservedEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -60,8 +62,19 @@ export class AirQualityObservedEntity {
   @Column({ type: 'float', nullable: true })
   nh3: number | null;
 
+  // OpenWeather AQI (1-5 scale)
   @Column({ type: 'int', nullable: true })
-  aqi: number | null;
+  airQualityIndex: number | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  airQualityLevel: string | null;
+
+  // US EPA AQI (0-500 scale)
+  @Column({ type: 'int', nullable: true })
+  airQualityIndexUS: number | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  airQualityLevelUS: string | null;
 
   // Store full NGSI-LD entity for reference
   @Column({ type: 'jsonb' })

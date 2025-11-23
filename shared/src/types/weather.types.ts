@@ -40,19 +40,55 @@ export interface IWeatherObserved {
 }
 
 /**
- * Weather forecast data
+ * Weather forecast data (OWM compatible format)
  */
 export interface IWeatherForecast {
-  id: string;
-  location: GeoPoint;
-  forecastTime: Date;
-  temperature?: number;
-  weatherType?: string;
-  weatherDescription?: string;
-  precipitation?: number;
-  humidity?: number;
-  windSpeed?: number;
-  source?: string;
+  dt: number; // Unix timestamp (UTC)
+  temp: {
+    day: number; // Temperature at day time (Celsius)
+    min: number; // Min daily temperature
+    max: number; // Max daily temperature
+    night: number; // Temperature at night
+    eve: number; // Temperature at evening
+    morn: number; // Temperature at morning
+  };
+  feels_like: {
+    day: number;
+    night: number;
+    eve: number;
+    morn: number;
+  };
+  pressure: number; // Atmospheric pressure (hPa)
+  humidity: number; // Humidity (%)
+  weather: Array<{
+    id: number; // Weather condition ID
+    main: string; // Group (Rain, Snow, Clouds, etc.)
+    description: string; // Weather condition description
+    icon: string; // Weather icon ID
+  }>;
+  speed: number; // Wind speed (m/s)
+  deg: number; // Wind direction (degrees)
+  gust?: number; // Wind gust (m/s)
+  clouds: number; // Cloudiness (%)
+  pop: number; // Probability of precipitation (0-1)
+  rain?: number; // Rain volume (mm)
+  snow?: number; // Snow volume (mm)
+}
+
+/**
+ * Weather Forecast response (OWM compatible format)
+ */
+export interface IWeatherForecastResponse {
+  city: {
+    coord: {
+      lat: number;
+      lon: number;
+    };
+    name: string; // City name
+    country: string; // Country code
+    timezone: number; // UTC offset in seconds
+  };
+  list: IWeatherForecast[];
 }
 
 /**
