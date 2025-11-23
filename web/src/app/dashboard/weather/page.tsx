@@ -161,12 +161,27 @@ export default function WeatherDetails() {
     },
   ];
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  type TooltipPayloadEntry = {
+    name?: string;
+    value?: number | string;
+    unit?: string;
+    color?: string;
+  };
+
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: TooltipPayloadEntry[];
+    label?: string | number;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-lg">
           <p className="text-slate-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {entry.value}
               {entry.unit || ''}
