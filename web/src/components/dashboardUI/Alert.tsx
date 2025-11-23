@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { activeAlerts } from '@/services/data';
+import { activeAlerts } from '@/services/data/dashboard.api';
 interface AlertsActiveProps {
   alerts: typeof activeAlerts;
 }

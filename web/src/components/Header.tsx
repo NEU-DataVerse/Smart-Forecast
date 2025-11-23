@@ -1,5 +1,6 @@
 import { Menu, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useUserContext } from '@/context/userContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,12 @@ interface HeaderProps {
 }
 
 export function Header({ sidebarOpen, setSidebarOpen, onNavigate }: HeaderProps) {
+  const { logout, user } = useUserContext();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-50">
       <div className="flex items-center justify-between h-full px-3">
@@ -45,11 +52,19 @@ export function Header({ sidebarOpen, setSidebarOpen, onNavigate }: HeaderProps)
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                 <Avatar className="h-7 w-7">
-                  <AvatarFallback className="bg-blue-500 text-white text-xs">AD</AvatarFallback>
+                  <AvatarFallback className="bg-blue-500 text-white text-xs">
+                    {user?.fullName
+                      ?.split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .toUpperCase() || 'AD'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden lg:block">
-                  <div className="text-slate-900 text-xs">Admin User</div>
-                  <div className="text-slate-500 text-xs">admin@weather.system</div>
+                  <div className="text-slate-900 text-xs">{user?.fullName || 'Admin User'}</div>
+                  <div className="text-slate-500 text-xs">
+                    {user?.email || 'admin@weather.system'}
+                  </div>
                 </div>
               </button>
             </DropdownMenuTrigger>
@@ -65,7 +80,7 @@ export function Header({ sidebarOpen, setSidebarOpen, onNavigate }: HeaderProps)
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>
               </DropdownMenuItem>

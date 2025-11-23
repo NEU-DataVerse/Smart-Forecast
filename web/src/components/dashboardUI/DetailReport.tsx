@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { recentReports } from '@/services/data';
+import { recentReports } from '@/services/data/dashboard.api';
 interface DetailsReportsProps {
   selectedReport: (typeof recentReports)[0] | null;
   setSelectedReport: (report: (typeof recentReports)[0] | null) => void;

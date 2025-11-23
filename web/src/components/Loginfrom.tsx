@@ -164,7 +164,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
                 htmlFor="remember"
                 className="text-sm text-slate-600 cursor-pointer select-none"
               >
-                Remember me for 30 days
+                Remember me for 7 days
               </label>
             </div>
 
