@@ -52,7 +52,6 @@ export default function ReportsPage() {
   };
 
   const handleCreateAlert = () => {
-    console.log('Creating alert:', alertMessage);
     if (selectedReport) {
       handleApprove(selectedReport.id);
     }

@@ -26,7 +26,6 @@ export default function AlertsPage() {
   };
 
   const handleResend = () => {
-    console.log('Resending alert:', resendMessage);
     setShowResendDialog(false);
     setResendMessage('');
     setSelectedAlert(null);

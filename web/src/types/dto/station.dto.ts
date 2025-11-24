@@ -1,0 +1,146 @@
+/**
+ * Station DTOs
+ * Copied from backend/src/modules/stations/dto
+ */
+
+export interface StationLocation {
+  lat: number;
+  lon: number;
+  altitude?: number;
+}
+
+export interface StationAddress {
+  streetAddress?: string;
+  addressLocality: string;
+  addressRegion?: string;
+  addressCountry?: string;
+  postalCode?: string;
+}
+
+export interface StationMetadata {
+  installationDate?: string;
+  operator?: string;
+  contact?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+export enum StationStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  MAINTENANCE = 'maintenance',
+  RETIRED = 'retired',
+}
+
+export enum StationPriority {
+  HIGH = 'high',
+  MEDIUM = 'medium',
+  LOW = 'low',
+}
+
+export interface ObservationStation {
+  id: string;
+  type: string;
+  code: string;
+  name: string;
+  status: StationStatus;
+  city?: string;
+  district: string;
+  ward?: string;
+  location: StationLocation;
+  address: StationAddress;
+  timezone: string;
+  timezoneOffset?: number;
+  priority?: StationPriority;
+  categories?: string[];
+  metadata?: StationMetadata;
+}
+
+export interface StationDataSource {
+  version: string;
+  lastUpdated: string;
+  stations: ObservationStation[];
+}
+
+/**
+ * DTO for creating a new station
+ */
+export interface CreateStationDto {
+  name: string;
+  city?: string;
+  district: string;
+  ward?: string;
+  location: StationLocation;
+  address: StationAddress;
+  timezone?: string;
+  priority?: StationPriority;
+  categories?: string[];
+  metadata?: StationMetadata;
+}
+
+/**
+ * DTO for updating a station
+ */
+export interface UpdateStationDto {
+  name?: string;
+  status?: StationStatus;
+  city?: string;
+  district?: string;
+  ward?: string;
+  location?: StationLocation;
+  address?: StationAddress;
+  timezone?: string;
+  priority?: StationPriority;
+  categories?: string[];
+  metadata?: StationMetadata;
+}
+
+/**
+ * DTO for station query parameters
+ */
+export interface StationQueryParams {
+  city?: string;
+  district?: string;
+  status?: StationStatus;
+  priority?: StationPriority;
+  category?: string;
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * DTO for station response
+ */
+export interface StationResponseDto {
+  id: string;
+  name: string;
+  code?: string;
+  status: StationStatus;
+  city?: string;
+  district: string;
+  location: StationLocation;
+  address: StationAddress;
+  priority?: StationPriority;
+  categories?: string[];
+  lastDataUpdate?: string;
+}
+
+/**
+ * DTO for batch station operations
+ */
+export interface BatchStationOperationDto {
+  stationIds: string[];
+  operation: 'activate' | 'deactivate' | 'delete';
+}
+
+/**
+ * Station statistics response
+ */
+export interface StationStatsResponse {
+  total: number;
+  active: number;
+  inactive: number;
+  maintenance: number;
+  byCity: Record<string, number>;
+  byPriority: Record<string, number>;
+}

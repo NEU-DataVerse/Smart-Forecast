@@ -33,7 +33,7 @@ export default function Disaster() {
   const [alertMessage, setAlertMessage] = useState('');
 
   const handleSendAlert = () => {
-    console.log('Sending alert:', alertMessage);
+    // TODO: Implement actual alert sending
     setShowAlertDialog(false);
     setAlertMessage('');
     setSelectedPoint(null);

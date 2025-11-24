@@ -1,5 +1,5 @@
 'use client';
-import { LoginForm } from '@/components/Loginfrom';
+import { LoginForm } from '@/features/auth/components';
 import { Suspense } from 'react';
 import { Loading } from '@/components/ui/loading';
 export default function Login() {

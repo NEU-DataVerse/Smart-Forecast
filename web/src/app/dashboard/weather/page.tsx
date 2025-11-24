@@ -106,8 +106,7 @@ export default function WeatherDetails() {
   });
 
   const handleSearch = () => {
-    // Mock search - in real app would call weather API
-    console.log('Searching for:', searchQuery);
+    // TODO: Implement actual search with weather API
   };
 
   const weatherMetrics = [
