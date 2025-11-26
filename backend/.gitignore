@@ -1,4 +1,5 @@
 **/.docs/
+firebase-admin-key.json
 
 # compiled output
 /dist
