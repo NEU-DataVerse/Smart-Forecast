@@ -11,6 +11,9 @@ export interface IUser {
   phoneNumber?: string;
   avatarUrl?: string;
   fcmToken?: string; // For push notifications
+  googleId?: string; // Google OAuth ID
+  provider: string; // 'local' | 'google'
+  emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,10 +34,13 @@ export interface IUserProfile {
  */
 export interface ICreateUser {
   email: string;
-  password: string;
+  password?: string;
   fullName: string;
   phoneNumber?: string;
   role?: UserRole;
+  googleId?: string;
+  provider?: string;
+  emailVerified?: boolean;
 }
 
 /**

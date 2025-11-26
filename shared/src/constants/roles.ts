@@ -3,19 +3,14 @@
  */
 export enum UserRole {
   /**
-   * Administrator - Can manage alerts, view all incidents, access dashboard
+   * Administrator - Can manage alerts, stations, ingestion, view all data
    */
   ADMIN = 'ADMIN',
 
   /**
-   * Manager - Can manage stations, trigger ingestion, view environmental data dashboard
+   * User - Can receive alerts, report incidents, view public data
    */
-  MANAGER = 'MANAGER',
-
-  /**
-   * Citizen - Can receive alerts, report incidents, view own reports
-   */
-  CITIZEN = 'CITIZEN',
+  USER = 'USER',
 }
 
 /**
