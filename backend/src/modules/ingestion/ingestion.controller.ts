@@ -6,6 +6,7 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { IngestionService } from './ingestion.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -17,9 +18,11 @@ import { UserRole } from '@smart-forecast/shared';
  * Provides endpoints for manual data ingestion triggers
  * Protected with ADMIN and MANAGER roles
  */
+@ApiTags('Ingestion')
+@ApiBearerAuth()
 @Controller('ingestion')
-// @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(UserRole.ADMIN, UserRole.MANAGER)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
 export class IngestionController {
   constructor(private readonly ingestionService: IngestionService) {}
 
