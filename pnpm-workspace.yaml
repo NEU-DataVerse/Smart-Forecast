@@ -3,3 +3,4 @@ packages:
   - 'web'
   - 'mobile'
   - 'shared'
+  - 'docs-site'
