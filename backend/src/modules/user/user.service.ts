@@ -32,6 +32,16 @@ export class UserService {
     return await this.userRepository.findOne({ where: { email } });
   }
 
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { googleId } });
+  }
+
+  async updateFcmToken(userId: string, fcmToken: string): Promise<User> {
+    const user = await this.findById(userId);
+    user.fcmToken = fcmToken;
+    return this.userRepository.save(user);
+  }
+
   async update(id: string, updateData: Partial<User>): Promise<User> {
     await this.userRepository.update(id, updateData);
     return this.findById(id);
