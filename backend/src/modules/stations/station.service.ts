@@ -132,6 +132,95 @@ export class StationService {
   }
 
   /**
+   * Find nearest station(s) based on GPS coordinates
+   * Uses Haversine formula to calculate distance
+   * @param lat Latitude
+   * @param lon Longitude
+   * @param radius Search radius in kilometers (default: 50km)
+   * @param limit Maximum number of stations to return (default: 1)
+   */
+  async findNearest(
+    lat: number,
+    lon: number,
+    radius: number = 50,
+    limit: number = 1,
+  ): Promise<Array<StationEntity & { distance: number }>> {
+    // Get all active stations
+    const stations = await this.findActive();
+
+    if (stations.length === 0) {
+      return [];
+    }
+
+    // Calculate distance for each station using Haversine formula
+    const stationsWithDistance = stations.map((station) => {
+      const distance = this.calculateDistance(
+        lat,
+        lon,
+        station.location.lat,
+        station.location.lon,
+      );
+      return { ...station, distance };
+    });
+
+    // Filter by radius and sort by distance
+    const nearbyStations = stationsWithDistance
+      .filter((s) => s.distance <= radius)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, limit);
+
+    if (nearbyStations.length === 0) {
+      this.logger.warn(
+        `No stations found within ${radius}km of coordinates (${lat}, ${lon})`,
+      );
+    } else {
+      this.logger.log(
+        `Found ${nearbyStations.length} station(s) within ${radius}km`,
+      );
+    }
+
+    return nearbyStations;
+  }
+
+  /**
+   * Calculate distance between two coordinates using Haversine formula
+   * @param lat1 Latitude of first point
+   * @param lon1 Longitude of first point
+   * @param lat2 Latitude of second point
+   * @param lon2 Longitude of second point
+   * @returns Distance in kilometers
+   */
+  private calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = this.toRadians(lat2 - lat1);
+    const dLon = this.toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRadians(lat1)) *
+        Math.cos(this.toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return Math.round(distance * 100) / 100; // Round to 2 decimal places
+  }
+
+  /**
+   * Convert degrees to radians
+   */
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+
+  /**
    * Create a new station
    */
   async create(createDto: CreateStationDto): Promise<StationEntity> {

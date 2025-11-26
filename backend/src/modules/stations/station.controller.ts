@@ -17,6 +17,7 @@ import {
   ApiResponse,
   ApiQuery,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { StationService } from './station.service';
 import { StationEntity } from './entities/station.entity';
@@ -25,6 +26,7 @@ import {
   UpdateStationDto,
   StationQueryDto,
   BatchStationOperationDto,
+  NearestStationQueryDto,
 } from './dto/station.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -36,9 +38,9 @@ import { UserRole } from '@smart-forecast/shared';
  * REST API endpoints for managing weather stations
  */
 @ApiTags('Stations')
+@ApiBearerAuth()
 @Controller('stations')
-// @UseGuards(JwtAuthGuard, RolesGuard)
-// @Roles(UserRole.ADMIN, UserRole.MANAGER)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class StationController {
   constructor(private readonly stationManager: StationService) {}
 
@@ -46,6 +48,7 @@ export class StationController {
    * Get all stations with optional filtering
    */
   @Get()
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get all stations',
     description:
@@ -105,6 +108,7 @@ export class StationController {
    * Get only active stations
    */
   @Get('active')
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get active stations',
     description:
@@ -126,9 +130,76 @@ export class StationController {
   }
 
   /**
+   * Find nearest station(s) based on GPS coordinates
+   */
+  @Get('nearest')
+  @Roles(UserRole.USER, UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Find nearest stations by GPS coordinates',
+    description:
+      'Find the nearest weather station(s) based on latitude and longitude. Useful for mobile apps with GPS location.',
+  })
+  @ApiQuery({
+    name: 'lat',
+    required: true,
+    description: 'Latitude coordinate',
+    example: 21.028511,
+  })
+  @ApiQuery({
+    name: 'lon',
+    required: true,
+    description: 'Longitude coordinate',
+    example: 105.804817,
+  })
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+    description: 'Search radius in kilometers (default: 50km)',
+    example: 50,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Maximum number of stations to return (default: 1)',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nearest station(s) with distance in kilometers',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid coordinates',
+  })
+  async findNearestStation(@Query() query: NearestStationQueryDto): Promise<{
+    coordinates: { lat: number; lon: number };
+    radius: number;
+    count: number;
+    stations: Array<StationEntity & { distance: number }>;
+  }> {
+    const radius = query.radius || 50;
+    const limit = query.limit || 1;
+
+    const stations = await this.stationManager.findNearest(
+      query.lat,
+      query.lon,
+      radius,
+      limit,
+    );
+
+    return {
+      coordinates: { lat: query.lat, lon: query.lon },
+      radius,
+      count: stations.length,
+      stations,
+    };
+  }
+
+  /**
    * Get station statistics
    */
   @Get('stats')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get station statistics',
     description: 'Get comprehensive statistics about all stations',
@@ -149,6 +220,7 @@ export class StationController {
    * Get data source information
    */
   @Get('info')
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get data source info',
     description: 'Get information about the station data source file',
@@ -165,6 +237,7 @@ export class StationController {
    * Get stations by city
    */
   @Get('city/:city')
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get stations by city',
     description: 'Retrieve all stations in a specific city',
@@ -191,6 +264,7 @@ export class StationController {
    * Get stations by district
    */
   @Get('district/:district')
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get stations by district',
     description: 'Retrieve all stations in a specific district',
@@ -217,6 +291,7 @@ export class StationController {
    * Get station by ID
    */
   @Get(':id')
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get station by ID',
     description: 'Retrieve a specific station by its ID',
@@ -238,6 +313,7 @@ export class StationController {
    * Create a new station
    */
   @Post()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Create a new station',
     description: 'Add a new weather station to the system',
@@ -265,6 +341,7 @@ export class StationController {
    * Update a station
    */
   @Put(':id')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Update a station',
     description: 'Update an existing weather station',
@@ -296,6 +373,7 @@ export class StationController {
    * Delete a station
    */
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a station',
@@ -318,6 +396,7 @@ export class StationController {
    * Activate a station
    */
   @Post(':id/activate')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Activate a station',
     description:
@@ -343,6 +422,7 @@ export class StationController {
    * Deactivate a station
    */
   @Post(':id/deactivate')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Deactivate a station',
     description:
@@ -368,6 +448,7 @@ export class StationController {
    * Batch operations on stations
    */
   @Post('batch')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Batch operations',
     description:
