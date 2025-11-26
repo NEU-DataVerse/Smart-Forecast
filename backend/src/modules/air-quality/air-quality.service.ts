@@ -9,6 +9,7 @@ import {
   AirQualityListResponse,
   CurrentAirQualityResponse,
   ForecastAirQualityResponse,
+  DateRangeQueryDto,
 } from './dto';
 
 /**
@@ -207,6 +208,51 @@ export class AirQualityService {
       );
       throw error;
     }
+  }
+
+  /**
+   * Get AQI averages and components
+   */
+  async getAQIAverages(query: DateRangeQueryDto): Promise<{
+    avgAQI: number;
+    avgPM25: number;
+    avgPM10: number;
+    avgCO: number;
+    avgNO2: number;
+    avgSO2: number;
+    avgO3: number;
+    dataPoints: number;
+  }> {
+    const queryBuilder = this.airQualityRepo
+      .createQueryBuilder('aqi')
+      .select('AVG(aqi.airQualityIndex)', 'avgAQI')
+      .addSelect('AVG(aqi.pm25)', 'avgPM25')
+      .addSelect('AVG(aqi.pm10)', 'avgPM10')
+      .addSelect('AVG(aqi.co)', 'avgCO')
+      .addSelect('AVG(aqi.no2)', 'avgNO2')
+      .addSelect('AVG(aqi.so2)', 'avgSO2')
+      .addSelect('AVG(aqi.o3)', 'avgO3')
+      .addSelect('COUNT(*)', 'dataPoints');
+
+    if (query.startDate && query.endDate) {
+      queryBuilder.where('aqi.dateObserved BETWEEN :startDate AND :endDate', {
+        startDate: new Date(query.startDate),
+        endDate: new Date(query.endDate),
+      });
+    }
+
+    const result = await queryBuilder.getRawOne();
+
+    return {
+      avgAQI: parseFloat(result.avgAQI) || 0,
+      avgPM25: parseFloat(result.avgPM25) || 0,
+      avgPM10: parseFloat(result.avgPM10) || 0,
+      avgCO: parseFloat(result.avgCO) || 0,
+      avgNO2: parseFloat(result.avgNO2) || 0,
+      avgSO2: parseFloat(result.avgSO2) || 0,
+      avgO3: parseFloat(result.avgO3) || 0,
+      dataPoints: parseInt(result.dataPoints) || 0,
+    };
   }
 
   /**
