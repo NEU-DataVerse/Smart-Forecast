@@ -219,41 +219,6 @@
 
 ---
 
-## 7. **📊 analysis** - Phân tích & thống kê
-
-### Chức năng:
-
-- Tính toán AQI (Air Quality Index)
-- Phân tích xu hướng (tăng/giảm theo thời gian)
-- Tương quan giữa thời tiết và chất lượng không khí
-- Tạo báo cáo tổng hợp cho dashboard
-
-### API endpoints:
-
-- `GET /analysis/aqi?location=hanoi&period=7d` - AQI trung bình 7 ngày
-- `GET /analysis/trends?type=pm25&period=30d` - Xu hướng PM2.5
-- `GET /analysis/correlation?param1=temperature&param2=pm25` - Tương quan
-- `GET /analysis/statistics` - Thống kê tổng quan
-
-### Response example:
-
-```json
-{
-  "aqi": {
-    "current": 78,
-    "average_7d": 65,
-    "trend": "increasing"
-  },
-  "pollutants": {
-    "pm25": { "current": 45.2, "avg": 38.5, "max": 78.1 }
-  },
-  "alerts_count": 12,
-  "incidents_count": 8
-}
-```
-
----
-
 ## 8. **🔐 auth** - Xác thực người dùng
 
 ### Chức năng:

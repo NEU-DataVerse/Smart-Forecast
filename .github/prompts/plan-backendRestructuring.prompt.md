@@ -145,20 +145,6 @@ backend/
 │   │   │       ├── incident-status.enum.ts      # PENDING, IN_PROGRESS, RESOLVED
 │   │   │       └── incident-type.enum.ts        # FLOOD, TREE_DOWN, LANDSLIDE
 │   │   │
-│   │   ├── analysis/                    # 📊 Analysis & Statistics - Thống kê & phân tích
-│   │   │   ├── analysis.module.ts
-│   │   │   ├── analysis.controller.ts       # GET /analysis/* endpoints
-│   │   │   ├── analysis.service.ts          # Aggregate data from multiple sources
-│   │   │   ├── processors/                  # Analysis algorithms
-│   │   │   │   ├── aqi-calculator.ts            # Calculate AQI from pollutants
-│   │   │   │   ├── trend-analyzer.ts            # Detect trends (increasing/decreasing)
-│   │   │   │   └── correlation.analyzer.ts      # Weather vs AQ correlation
-│   │   │   ├── dto/                         # Response DTOs
-│   │   │   │   ├── aqi-analysis.dto.ts
-│   │   │   │   ├── trend-analysis.dto.ts
-│   │   │   │   └── statistics.dto.ts
-│   │   │   └── interfaces/
-│   │   │       └── analysis-result.interface.ts
 │   │   │
 │   │   ├── auth/                        # 🔐 Authentication - Xác thực người dùng
 │   │   │   ├── auth.module.ts
