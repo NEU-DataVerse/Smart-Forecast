@@ -378,6 +378,61 @@ export class StationResponseDto {
 }
 
 /**
+ * DTO for finding nearest station by GPS coordinates
+ */
+export class NearestStationQueryDto {
+  @ApiProperty({
+    description: 'Latitude coordinate',
+    example: 21.028511,
+    minimum: -90,
+    maximum: 90,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  lat: number;
+
+  @ApiProperty({
+    description: 'Longitude coordinate',
+    example: 105.804817,
+    minimum: -180,
+    maximum: 180,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  lon: number;
+
+  @ApiPropertyOptional({
+    description: 'Search radius in kilometers',
+    example: 50,
+    minimum: 1,
+    maximum: 500,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(500)
+  @IsOptional()
+  radius?: number;
+
+  @ApiPropertyOptional({
+    description: 'Maximum number of stations to return',
+    example: 1,
+    minimum: 1,
+    maximum: 10,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  @IsOptional()
+  limit?: number;
+}
+
+/**
  * DTO for batch station operations
  */
 export class BatchStationOperationDto {

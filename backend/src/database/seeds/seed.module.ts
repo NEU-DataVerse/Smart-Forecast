@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { StationEntity } from '../../modules/stations/entities/station.entity';
+import { User } from '../../modules/user/entities/user.entity';
 import { SeedService } from './seed.service';
+import { UserSeeder } from './user.seeder';
 import databaseConfig from '../../config/database.config';
 
 /**
@@ -28,9 +30,9 @@ import databaseConfig from '../../config/database.config';
     }),
 
     // Register entities that need to be seeded
-    TypeOrmModule.forFeature([StationEntity]),
+    TypeOrmModule.forFeature([StationEntity, User]),
   ],
-  providers: [SeedService],
+  providers: [SeedService, UserSeeder],
   exports: [SeedService],
 })
 export class SeedModule {}

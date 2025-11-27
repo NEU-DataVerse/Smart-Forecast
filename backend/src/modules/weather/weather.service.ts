@@ -9,6 +9,7 @@ import {
   WeatherListResponse,
   CurrentWeatherResponse,
   ForecastWeatherResponse,
+  DateRangeQueryDto,
 } from './dto';
 
 /**
@@ -198,6 +199,42 @@ export class WeatherService {
       );
       throw error;
     }
+  }
+
+  /**
+   * Get weather trends (temperature, rainfall, humidity averages)
+   */
+  async getWeatherTrends(query: DateRangeQueryDto): Promise<{
+    avgTemperature: number;
+    avgRainfall: number;
+    avgHumidity: number;
+    dataPoints: number;
+  }> {
+    const queryBuilder = this.weatherRepo
+      .createQueryBuilder('weather')
+      .select('AVG(weather.temperature)', 'avgTemperature')
+      .addSelect('AVG(weather.precipitation)', 'avgRainfall')
+      .addSelect('AVG(weather.relativeHumidity)', 'avgHumidity')
+      .addSelect('COUNT(*)', 'dataPoints');
+
+    if (query.startDate && query.endDate) {
+      queryBuilder.where(
+        'weather.dateObserved BETWEEN :startDate AND :endDate',
+        {
+          startDate: new Date(query.startDate),
+          endDate: new Date(query.endDate),
+        },
+      );
+    }
+
+    const result = await queryBuilder.getRawOne();
+
+    return {
+      avgTemperature: parseFloat(result.avgTemperature) || 0,
+      avgRainfall: parseFloat(result.avgRainfall) || 0,
+      avgHumidity: parseFloat(result.avgHumidity) || 0,
+      dataPoints: parseInt(result.dataPoints) || 0,
+    };
   }
 
   /**

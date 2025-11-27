@@ -11,13 +11,33 @@ import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { PersistenceModule } from './modules/persistence/persistence.module';
 import { AirQualityModule } from './modules/air-quality/air-quality.module';
 import { WeatherModule } from './modules/weather/weather.module';
-import { appConfig, databaseConfig, jwtConfig, orionConfig } from './config';
+import { FileModule } from './modules/file/file.module';
+import { IncidentModule } from './modules/incident/incident.module';
+import { AlertModule } from './modules/alert/alert.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import {
+  appConfig,
+  databaseConfig,
+  jwtConfig,
+  orionConfig,
+  minioConfig,
+  firebaseConfig,
+  googleConfig,
+} from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig, orionConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        jwtConfig,
+        orionConfig,
+        minioConfig,
+        firebaseConfig,
+        googleConfig,
+      ],
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
@@ -34,6 +54,10 @@ import { appConfig, databaseConfig, jwtConfig, orionConfig } from './config';
     UserModule,
     AirQualityModule,
     WeatherModule,
+    FileModule,
+    IncidentModule,
+    AlertModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
