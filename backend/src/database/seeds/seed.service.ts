@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StationEntity } from '../../modules/stations/entities/station.entity';
+import { UserSeeder } from './user.seeder';
 import { SEED_DATA } from './seed-data';
 
 /**
@@ -19,6 +20,7 @@ export class SeedService {
   constructor(
     @InjectRepository(StationEntity)
     private readonly stationRepository: Repository<StationEntity>,
+    private readonly userSeeder: UserSeeder,
   ) {}
 
   /**
@@ -33,6 +35,9 @@ export class SeedService {
     this.logger.log('Starting database seeding process...');
 
     try {
+      // Seed users first
+      await this.userSeeder.seed();
+
       // Step 1: Check if data already exists
       const count = await this.stationRepository.count();
 

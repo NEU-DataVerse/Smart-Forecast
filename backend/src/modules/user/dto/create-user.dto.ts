@@ -14,9 +14,9 @@ export class CreateUserDto implements ICreateUser {
   email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(6)
-  password: string;
+  password?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -31,4 +31,15 @@ export class CreateUserDto implements ICreateUser {
   })
   @IsOptional()
   role?: UserRole;
+
+  @IsString()
+  @IsOptional()
+  googleId?: string;
+
+  @IsString()
+  @IsOptional()
+  provider?: string;
+
+  @IsOptional()
+  emailVerified?: boolean;
 }

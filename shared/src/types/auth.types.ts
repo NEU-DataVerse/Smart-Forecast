@@ -54,3 +54,19 @@ export interface IJwtPayload {
 export interface IFcmTokenRequest {
   fcmToken: string;
 }
+
+/**
+ * Google OAuth request payload (from mobile)
+ */
+export interface IGoogleAuthRequest {
+  idToken: string;
+}
+
+/**
+ * Google OAuth response
+ */
+export interface IGoogleAuthResponse {
+  access_token: string;
+  user: IUserProfile;
+  isNewUser: boolean;
+}

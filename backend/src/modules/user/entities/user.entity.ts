@@ -17,13 +17,13 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.CITIZEN as UserRole,
+    default: UserRole.USER as UserRole,
   })
   role: UserRole;
 
@@ -39,6 +39,15 @@ export class User {
   @Column({ nullable: true })
   fcmToken: string;
 
+  @Column({ nullable: true, unique: true })
+  googleId: string;
+
+  @Column({ default: 'local' })
+  provider: string;
+
+  @Column({ default: false })
+  emailVerified: boolean;
+
   @Column({ default: true })
   isActive: boolean;
 
@@ -50,12 +59,13 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
-    if (this.password) {
+    if (this.password && this.provider === 'local') {
       this.password = await bcrypt.hash(this.password, 10);
     }
   }
 
   async validatePassword(password: string): Promise<boolean> {
+    if (!this.password) return false;
     return bcrypt.compare(password, this.password);
   }
 }

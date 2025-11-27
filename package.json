@@ -6,11 +6,13 @@
     "build:shared": "pnpm --filter shared run build",
     "build:backend": "pnpm --filter backend run build",
     "build:web": "pnpm --filter web run build",
+    "build:docs": "pnpm --filter @smart-forecast/docs run build",
     "build:all": "pnpm -r run build",
     "dev:shared": "pnpm --filter shared run watch",
     "dev:backend": "pnpm --filter backend run start:dev",
     "dev:web": "pnpm --filter web run dev",
     "dev:mobile": "pnpm --filter mobile run start",
+    "dev:docs": "pnpm --filter @smart-forecast/docs run start",
     "start:backend": "pnpm --filter backend run start",
     "start:web": "pnpm --filter web run start",
     "lint": "pnpm -r run lint",
@@ -29,6 +31,11 @@
     "clean:cache": "pnpm store prune"
   },
   "devDependencies": {
+    "@types/passport-google-oauth20": "2.0.17",
     "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "google-auth-library": "10.5.0",
+    "passport-google-oauth20": "2.0.0"
   }
 }
