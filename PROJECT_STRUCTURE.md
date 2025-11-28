@@ -200,13 +200,13 @@ Shared library được sử dụng trực tiếp trong monorepo (KHÔNG publish
 
 ```typescript
 // backend/src/auth/auth.service.ts
-import { UserRole, AuthResponse } from "@smart-forecast/shared";
+import { UserRole, AuthResponse } from '@smart-forecast/shared';
 
 // web/src/services/api.ts
-import { ApiResponse, IncidentType } from "@smart-forecast/shared";
+import { ApiResponse, IncidentType } from '@smart-forecast/shared';
 
 // mobile/app/types.ts
-import { WeatherData } from "@smart-forecast/shared";
+import { WeatherData } from '@smart-forecast/shared';
 ```
 
 ---

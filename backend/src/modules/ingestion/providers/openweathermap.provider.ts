@@ -10,17 +10,16 @@ import axios, { AxiosInstance } from 'axios';
 export class OpenWeatherMapProvider {
   private readonly logger = new Logger(OpenWeatherMapProvider.name);
   private readonly httpClient: AxiosInstance;
+  private readonly proClient: AxiosInstance;
   private readonly historyClient: AxiosInstance;
   private readonly apiKey: string;
   private readonly baseUrl = 'https://api.openweathermap.org/data/2.5';
+  private readonly proUrl = 'https://pro.openweathermap.org/data/2.5';
   private readonly historyBaseUrl =
     'https://history.openweathermap.org/data/2.5';
 
   constructor(private configService: ConfigService) {
-    this.apiKey =
-      this.configService.get<string>('OPENWEATHER_API_KEY') ||
-      this.configService.get<string>('OWM_API_KEY') ||
-      '';
+    this.apiKey = this.configService.get<string>('openweathermap.apiKey') || '';
 
     if (!this.apiKey) {
       this.logger.warn(
@@ -38,6 +37,14 @@ export class OpenWeatherMapProvider {
 
     this.historyClient = axios.create({
       baseURL: this.historyBaseUrl,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    this.proClient = axios.create({
+      baseURL: this.proUrl,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -113,6 +120,13 @@ export class OpenWeatherMapProvider {
       );
       throw error;
     }
+  }
+
+  /**
+   * Validate if the provider is properly configured
+   */
+  isConfigured(): boolean {
+    return !!this.apiKey;
   }
 
   /**
@@ -202,13 +216,6 @@ export class OpenWeatherMapProvider {
   }
 
   /**
-   * Validate if the provider is properly configured
-   */
-  isConfigured(): boolean {
-    return !!this.apiKey;
-  }
-
-  /**
    * Fetch hourly weather forecast (96 hours / 4 days)
    * API: GET https://pro.openweathermap.org/data/2.5/forecast/hourly
    * Note: This is a paid API endpoint
@@ -242,10 +249,10 @@ export class OpenWeatherMapProvider {
         params.cnt = cnt;
       }
 
-      const response = await axios.get(
-        'https://pro.openweathermap.org/data/2.5/forecast/hourly',
-        { params, timeout: 10000 },
-      );
+      const response = await this.proClient.get('/forecast/hourly', {
+        params,
+        timeout: 10000,
+      });
 
       this.logger.debug(
         `Successfully fetched hourly forecast for lat=${lat}, lon=${lon}`,
