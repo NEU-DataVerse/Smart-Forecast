@@ -38,6 +38,22 @@ export const airQualityService = {
    * Get latest air quality data by station
    */
   async getByStation(stationId: string): Promise<CurrentAirQualityResponse> {
-    return apiGet<CurrentAirQualityResponse>(`${BASE_PATH}/latest/${stationId}`);
+    return apiGet<CurrentAirQualityResponse>(`${BASE_PATH}/station/${stationId}`);
+  },
+
+  /**
+   * Get air quality averages (admin only)
+   */
+  async getAverages(params: { startDate: string; endDate: string }): Promise<{
+    avgAQI: number;
+    avgPM25: number;
+    avgPM10: number;
+    avgCO: number;
+    avgNO2: number;
+    avgSO2: number;
+    avgO3: number;
+    dataPoints: number;
+  }> {
+    return apiGet(`${BASE_PATH}/stats/averages`, params);
   },
 };

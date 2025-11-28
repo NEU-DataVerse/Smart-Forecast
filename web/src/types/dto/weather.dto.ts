@@ -90,3 +90,21 @@ export interface ForecastWeatherResponse {
   source: 'orion-ld';
   timestamp: string;
 }
+
+/**
+ * Date range query parameters
+ */
+export interface DateRangeQuery {
+  startDate: string;
+  endDate: string;
+}
+
+/**
+ * Weather trends response (admin only)
+ */
+export interface WeatherTrendsResponse {
+  avgTemperature: number;
+  avgRainfall: number;
+  avgHumidity: number;
+  dataPoints: number;
+}

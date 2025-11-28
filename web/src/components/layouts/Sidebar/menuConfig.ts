@@ -1,7 +1,7 @@
 import {
   LayoutDashboard,
   Cloud,
-  BarChart3,
+  Wind,
   Map,
   FileText,
   AlertTriangle,
@@ -13,7 +13,7 @@ import { MenuItem } from './types';
 export const menuItems: MenuItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'weather', label: 'Weather Details', icon: Cloud },
-  { id: 'statistics', label: 'Statistics', icon: BarChart3 },
+  { id: 'air-quality', label: 'Air Quality', icon: Wind },
   { id: 'disastermap', label: 'Disaster Map', icon: Map },
   { id: 'reports', label: 'Reports', icon: FileText },
   { id: 'alerts', label: 'Alerts', icon: AlertTriangle },

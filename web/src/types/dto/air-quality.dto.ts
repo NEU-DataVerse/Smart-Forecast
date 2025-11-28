@@ -80,3 +80,25 @@ export interface ForecastAirQualityResponse {
   source: 'orion-ld';
   timestamp: string;
 }
+
+/**
+ * Date range query parameters
+ */
+export interface DateRangeQuery {
+  startDate: string;
+  endDate: string;
+}
+
+/**
+ * Air quality averages response (admin only)
+ */
+export interface AirQualityAveragesResponse {
+  avgAQI: number;
+  avgPM25: number;
+  avgPM10: number;
+  avgCO: number;
+  avgNO2: number;
+  avgSO2: number;
+  avgO3: number;
+  dataPoints: number;
+}

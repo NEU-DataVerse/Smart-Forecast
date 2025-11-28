@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import { UserProvider } from '@/context/userContext';
+import { QueryProvider } from '@/providers/QueryProvider';
 import { Toaster } from 'sonner';
 
 const geistSans = Geist({
@@ -31,7 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressContentEditableWarning={true}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <UserProvider>{children}</UserProvider>
+        <QueryProvider>
+          <UserProvider>{children}</UserProvider>
+        </QueryProvider>
         <Toaster richColors position="top-center" />
       </body>
     </html>

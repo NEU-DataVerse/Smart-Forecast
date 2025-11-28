@@ -38,6 +38,18 @@ export const weatherService = {
    * Get latest weather data by station
    */
   async getByStation(stationId: string): Promise<CurrentWeatherResponse> {
-    return apiGet<CurrentWeatherResponse>(`${BASE_PATH}/latest/${stationId}`);
+    return apiGet<CurrentWeatherResponse>(`${BASE_PATH}/station/${stationId}`);
+  },
+
+  /**
+   * Get weather trends (admin only)
+   */
+  async getTrends(params: { startDate: string; endDate: string }): Promise<{
+    avgTemperature: number;
+    avgRainfall: number;
+    avgHumidity: number;
+    dataPoints: number;
+  }> {
+    return apiGet(`${BASE_PATH}/stats/trends`, params);
   },
 };

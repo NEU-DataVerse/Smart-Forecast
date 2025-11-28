@@ -20,14 +20,21 @@ export const stationsService = {
    * List all stations with optional filters
    */
   async list(params?: StationQueryParams): Promise<ObservationStation[]> {
-    return apiGet<ObservationStation[]>(BASE_PATH, params);
+    const response = await apiGet<{ count: number; stations: ObservationStation[] }>(
+      BASE_PATH,
+      params,
+    );
+    return response.stations;
   },
 
   /**
    * Get active stations only
    */
   async getActive(): Promise<ObservationStation[]> {
-    return apiGet<ObservationStation[]>(`${BASE_PATH}/active`);
+    const response = await apiGet<{ count: number; stations: ObservationStation[] }>(
+      `${BASE_PATH}/active`,
+    );
+    return response.stations;
   },
 
   /**
@@ -48,14 +55,22 @@ export const stationsService = {
    * Get stations by city
    */
   async getByCity(city: string): Promise<ObservationStation[]> {
-    return apiGet<ObservationStation[]>(`${BASE_PATH}/city/${city}`);
+    const response = await apiGet<{ city: string; count: number; stations: ObservationStation[] }>(
+      `${BASE_PATH}/city/${city}`,
+    );
+    return response.stations;
   },
 
   /**
    * Get stations by district
    */
-  async getByDistrict(city: string, district: string): Promise<ObservationStation[]> {
-    return apiGet<ObservationStation[]>(`${BASE_PATH}/city/${city}/district/${district}`);
+  async getByDistrict(district: string): Promise<ObservationStation[]> {
+    const response = await apiGet<{
+      district: string;
+      count: number;
+      stations: ObservationStation[];
+    }>(`${BASE_PATH}/district/${district}`);
+    return response.stations;
   },
 
   /**
@@ -69,26 +84,28 @@ export const stationsService = {
    * Create a new station
    */
   async create(data: CreateStationDto): Promise<ObservationStation> {
-    return apiPost<ObservationStation>(
+    const response = await apiPost<{ message: string; station: ObservationStation }>(
       BASE_PATH,
       data,
       undefined,
       true,
       'Station created successfully',
     );
+    return response.station;
   },
 
   /**
    * Update a station
    */
   async update(id: string, data: UpdateStationDto): Promise<ObservationStation> {
-    return apiPut<ObservationStation>(
+    const response = await apiPut<{ message: string; station: ObservationStation }>(
       `${BASE_PATH}/${id}`,
       data,
       undefined,
       true,
       'Station updated successfully',
     );
+    return response.station;
   },
 
   /**
@@ -107,26 +124,28 @@ export const stationsService = {
    * Activate a station
    */
   async activate(id: string): Promise<ObservationStation> {
-    return apiPost<ObservationStation>(
+    const response = await apiPost<{ message: string; station: ObservationStation }>(
       `${BASE_PATH}/${id}/activate`,
       undefined,
       undefined,
       true,
       'Station activated successfully',
     );
+    return response.station;
   },
 
   /**
    * Deactivate a station
    */
   async deactivate(id: string): Promise<ObservationStation> {
-    return apiPost<ObservationStation>(
+    const response = await apiPost<{ message: string; station: ObservationStation }>(
       `${BASE_PATH}/${id}/deactivate`,
       undefined,
       undefined,
       true,
       'Station deactivated successfully',
     );
+    return response.station;
   },
 
   /**
@@ -134,13 +153,14 @@ export const stationsService = {
    */
   async batchOperation(
     data: BatchStationOperationDto,
-  ): Promise<{ message: string; results: any[] }> {
-    return apiPost<{ message: string; results: any[] }>(
+  ): Promise<{ success: number; failed: number }> {
+    const response = await apiPost<{ message: string; success: number; failed: number }>(
       `${BASE_PATH}/batch`,
       data,
       undefined,
       true,
       'Batch operation completed successfully',
     );
+    return { success: response.success, failed: response.failed };
   },
 };
