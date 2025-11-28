@@ -2,12 +2,10 @@ import { Navigation } from './Navigation';
 import { menuItems } from './menuConfig';
 
 interface SidebarProps {
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
   isOpen: boolean;
 }
 
-export function Sidebar({ currentPage, setCurrentPage, isOpen }: SidebarProps) {
+export function Sidebar({ isOpen }: SidebarProps) {
   if (!isOpen) return null;
 
   return (
@@ -16,7 +14,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen }: SidebarProps) {
       role="complementary"
       aria-label="Sidebar navigation"
     >
-      <Navigation items={menuItems} currentPage={currentPage} onPageChange={setCurrentPage} />
+      <Navigation items={menuItems} />
     </aside>
   );
 }

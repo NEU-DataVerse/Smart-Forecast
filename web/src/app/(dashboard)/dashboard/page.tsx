@@ -1,4 +1,5 @@
 'use client';
+
 import { recentReports, activeAlerts } from '@/services/data/dashboard.api';
 import { useState } from 'react';
 import SummaryCards from '@/components/dashboardUI/SummaryCard';

@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import Link from 'next/link';
 
 interface Notification {
   id: number;
@@ -19,10 +20,6 @@ interface Notification {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   iconColor: string;
   iconBg: string;
-}
-
-interface NotificationDropdownProps {
-  onViewAll: () => void;
 }
 
 const recentNotifications: Notification[] = [
@@ -83,7 +80,7 @@ const recentNotifications: Notification[] = [
   },
 ];
 
-export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
+export function NotificationDropdown() {
   const [notifications, setNotifications] = useState(recentNotifications);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -133,7 +130,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
           )}
         </div>
 
-        <ScrollArea className="h-[320px]">
+        <ScrollArea className="h-80">
           {displayedNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 px-4">
               <Bell className="h-10 w-10 text-slate-300 mb-2" />
@@ -151,7 +148,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
                     }`}
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className={`${notification.iconBg} p-1.5 rounded-lg flex-shrink-0`}>
+                      <div className={`${notification.iconBg} p-1.5 rounded-lg shrink-0`}>
                         <Icon className={`h-3.5 w-3.5 ${notification.iconColor}`} />
                       </div>
 
@@ -160,7 +157,7 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
                           <h4 className="text-slate-900 text-sm line-clamp-1 flex items-center gap-1.5">
                             {notification.title}
                             {!notification.read && (
-                              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0" />
+                              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />
                             )}
                           </h4>
                         </div>
@@ -203,9 +200,12 @@ export function NotificationDropdown({ onViewAll }: NotificationDropdownProps) {
         </ScrollArea>
 
         <div className="border-t border-slate-200 px-4 py-2.5">
-          <Button variant="outline" size="sm" className="w-full h-8" onClick={onViewAll}>
+          <Link
+            href="/notifications"
+            className="w-full h-8 cursor-pointer flex items-center justify-center text-sm text-blue-600 hover:text-blue-700"
+          >
             View All Notifications
-          </Button>
+          </Link>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

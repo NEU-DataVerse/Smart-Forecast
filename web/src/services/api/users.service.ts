@@ -3,7 +3,7 @@
  */
 
 import { apiGet } from '@/lib/api-client';
-import type { User } from '@/types/dto';
+import type { IUserProfile } from '@smart-forecast/shared';
 
 const BASE_PATH = '/users';
 
@@ -11,14 +11,14 @@ export const usersService = {
   /**
    * List all users
    */
-  async list(): Promise<User[]> {
-    return apiGet<User[]>(BASE_PATH);
+  async list(): Promise<IUserProfile[]> {
+    return apiGet<IUserProfile[]>(BASE_PATH);
   },
 
   /**
    * Get user by ID
    */
-  async getById(id: string): Promise<User> {
-    return apiGet<User>(`${BASE_PATH}/${id}`);
+  async getById(id: string): Promise<IUserProfile> {
+    return apiGet<IUserProfile>(`${BASE_PATH}/${id}`);
   },
 };

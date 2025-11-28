@@ -1,19 +1,17 @@
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { NavigationItem } from './NavigationItem';
 import { MenuItem } from './types';
 
 interface NavigationProps {
   items: MenuItem[];
-  currentPage: string;
-  onPageChange: (page: string) => void;
 }
 
-export function Navigation({ items, currentPage, onPageChange }: NavigationProps) {
+export function Navigation({ items }: NavigationProps) {
+  const currentPage = usePathname();
   const router = useRouter();
 
   const handleItemClick = (item: MenuItem) => {
-    onPageChange(item.id);
-    const path = item.id === 'dashboard' ? '/dashboard' : `/dashboard/${item.id}`;
+    const path = item.id;
     router.push(path);
   };
 
@@ -23,7 +21,7 @@ export function Navigation({ items, currentPage, onPageChange }: NavigationProps
         <NavigationItem
           key={item.id}
           item={item}
-          isActive={currentPage === item.id}
+          isActive={currentPage === `/${item.id}`}
           onClick={() => handleItemClick(item)}
         />
       ))}

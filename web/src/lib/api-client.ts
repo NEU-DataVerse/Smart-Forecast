@@ -3,7 +3,7 @@
  * Wrapper around axios with error handling and toast notifications
  */
 
-import { userAxios } from '@/services/axios';
+import { ApiClient } from '@/services/axios';
 import { toast } from 'sonner';
 import { ApiErrorHandler } from './api-error';
 import { AxiosRequestConfig } from 'axios';
@@ -17,7 +17,7 @@ export async function apiGet<T>(
   config?: AxiosRequestConfig,
 ): Promise<T> {
   try {
-    const response = await userAxios.get<T>(url, {
+    const response = await ApiClient.get<T>(url, {
       params,
       ...config,
     });
@@ -42,7 +42,7 @@ export async function apiPost<T>(
   successMessage = 'Operation completed successfully',
 ): Promise<T> {
   try {
-    const response = await userAxios.post<T>(url, data, config);
+    const response = await ApiClient.post<T>(url, data, config);
     if (showSuccessToast) {
       toast.success(successMessage);
     }
@@ -67,7 +67,7 @@ export async function apiPut<T>(
   successMessage = 'Updated successfully',
 ): Promise<T> {
   try {
-    const response = await userAxios.put<T>(url, data, config);
+    const response = await ApiClient.put<T>(url, data, config);
     if (showSuccessToast) {
       toast.success(successMessage);
     }
@@ -91,7 +91,7 @@ export async function apiDelete<T>(
   successMessage = 'Deleted successfully',
 ): Promise<T> {
   try {
-    const response = await userAxios.delete<T>(url, config);
+    const response = await ApiClient.delete<T>(url, config);
     if (showSuccessToast) {
       toast.success(successMessage);
     }
@@ -116,7 +116,7 @@ export async function apiPatch<T>(
   successMessage = 'Updated successfully',
 ): Promise<T> {
   try {
-    const response = await userAxios.patch<T>(url, data, config);
+    const response = await ApiClient.patch<T>(url, data, config);
     if (showSuccessToast) {
       toast.success(successMessage);
     }

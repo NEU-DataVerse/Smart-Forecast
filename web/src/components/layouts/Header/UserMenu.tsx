@@ -2,19 +2,11 @@ import { useUserContext } from '@/context/userContext';
 import { UserAvatar } from './UserAvatar';
 import { UserMenuDropdown } from './UserMenuDropdown';
 
-interface UserMenuProps {
-  onNavigate: (page: string) => void;
-}
-
-export function UserMenu({ onNavigate }: UserMenuProps) {
-  const { logout, user } = useUserContext();
-
-  const handleLogout = async () => {
-    await logout();
-  };
+export function UserMenu() {
+  const { user } = useUserContext();
 
   return (
-    <UserMenuDropdown onNavigate={onNavigate} onLogout={handleLogout}>
+    <UserMenuDropdown>
       <button className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
         <UserAvatar fullName={user?.fullName} className="h-7 w-7" />
         <div className="text-left hidden lg:block">
