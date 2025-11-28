@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OpenWeatherMapProvider } from './providers/openweathermap.provider';
 import { OrionClientProvider } from './providers/orion-client.provider';
 import { StationService } from '../stations/station.service';
-import { ObservationStation } from '../stations/dto/station.dto';
 import {
   transformOWMAirPollutionToNGSILD,
   transformOWMToNGSILD,

@@ -1,11 +1,20 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { StationEntity } from '../../modules/stations/entities/station.entity';
+
+// Entities
 import { User } from '../../modules/user/entities/user.entity';
-import { SeedService } from './seed.service';
-import { UserSeeder } from './user.seeder';
+import { StationEntity } from '../../modules/stations/entities/station.entity';
+import { WeatherObservedEntity } from '../../modules/persistence/entities/weather-observed.entity';
+import { AirQualityObservedEntity } from '../../modules/persistence/entities/air-quality-observed.entity';
+import { IncidentEntity } from '../../modules/incident/entities/incident.entity';
+import { AlertEntity } from '../../modules/alert/entities/alert.entity';
+
+// Config
 import databaseConfig from '../../config/database.config';
+
+// Service
+import { SeedService } from './seed.service';
 
 /**
  * SeedModule - Module for database seeding
@@ -13,8 +22,16 @@ import databaseConfig from '../../config/database.config';
  * This module:
  * - Imports ConfigModule for environment variables
  * - Imports TypeOrmModule with database configuration
- * - Registers StationEntity for TypeORM repository
+ * - Registers all entities for TypeORM repository
  * - Provides SeedService for seeding operations
+ *
+ * Entities seeded:
+ * - User (users table)
+ * - StationEntity (observation_station table)
+ * - WeatherObservedEntity (weather_observed table)
+ * - AirQualityObservedEntity (air_quality_observed table)
+ * - IncidentEntity (incidents table)
+ * - AlertEntity (alerts table)
  */
 @Module({
   imports: [
@@ -29,10 +46,17 @@ import databaseConfig from '../../config/database.config';
       useFactory: () => databaseConfig(),
     }),
 
-    // Register entities that need to be seeded
-    TypeOrmModule.forFeature([StationEntity, User]),
+    // Register all entities that need to be seeded
+    TypeOrmModule.forFeature([
+      User,
+      StationEntity,
+      WeatherObservedEntity,
+      AirQualityObservedEntity,
+      IncidentEntity,
+      AlertEntity,
+    ]),
   ],
-  providers: [SeedService, UserSeeder],
+  providers: [SeedService],
   exports: [SeedService],
 })
 export class SeedModule {}

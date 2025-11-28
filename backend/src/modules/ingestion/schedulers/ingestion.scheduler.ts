@@ -13,8 +13,8 @@ export class IngestionScheduler {
   constructor(private readonly ingestionService: IngestionService) {}
 
   /**
-   * Scheduled task: Ingest data every 30 minutes
-   * Runs at :00 and :30 of every hour
+   * Scheduled task: Ingest data every 1 hour
+   * Runs at :00 of every hour
    */
   @Cron(CronExpression.EVERY_HOUR, {
     name: 'ingest-environmental-data-hourly',
@@ -48,30 +48,4 @@ export class IngestionScheduler {
       );
     }
   }
-
-  /**
-   * Optional: Run ingestion every hour (alternative schedule)
-   * Uncomment to use hourly schedule instead of 30-minute intervals
-   */
-  // @Cron(CronExpression.EVERY_HOUR, {
-  //   name: 'ingest-environmental-data-hourly',
-  //   timeZone: 'Asia/Ho_Chi_Minh',
-  // })
-  // async handleHourlyIngestion() {
-  //   this.logger.log('🕐 Hourly ingestion started');
-  //   await this.handleScheduledIngestion();
-  // }
-
-  /**
-   * Optional: Run ingestion every 10 minutes (for testing/demo)
-   * Uncomment for more frequent updates during development
-   */
-  // @Cron(CronExpression.EVERY_10_MINUTES, {
-  //   name: 'ingest-environmental-data-frequent',
-  //   timeZone: 'Asia/Ho_Chi_Minh',
-  // })
-  // async handleFrequentIngestion() {
-  //   this.logger.log('🕐 Frequent ingestion started (every 10 min)');
-  //   await this.handleScheduledIngestion();
-  // }
 }
