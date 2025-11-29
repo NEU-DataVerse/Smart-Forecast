@@ -4,7 +4,7 @@ import { IsNumber, IsOptional, IsEnum, Min, Max } from 'class-validator';
 import { NearbyIncludeType } from '@smart-forecast/shared';
 
 /**
- * DTO for finding air quality by GPS coordinates (mobile)
+ * DTO for finding weather by GPS coordinates (mobile)
  * Uses nearest station based on lat/lon
  */
 export class NearbyQueryDto {

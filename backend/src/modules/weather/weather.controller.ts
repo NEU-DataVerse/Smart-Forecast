@@ -1,14 +1,18 @@
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-  Controller,
-  Get,
-  Query,
-  Param,
-  UseGuards,
-  Logger,
-} from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { WeatherService } from './weather.service';
-import { WeatherQueryDto, DateRangeQueryDto } from './dto';
+import {
+  WeatherQueryDto,
+  DateRangeQueryDto,
+  NearbyQueryDto,
+  CompareQueryDto,
+} from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -23,8 +27,6 @@ import { UserRole } from '@smart-forecast/shared';
 @Controller('weather')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class WeatherController {
-  private readonly logger = new Logger(WeatherController.name);
-
   constructor(private readonly weatherService: WeatherService) {}
 
   /**
@@ -33,14 +35,11 @@ export class WeatherController {
    */
   @Get('current')
   @Roles(UserRole.USER, UserRole.ADMIN)
-  async getCurrentWeather(
-    @Query('stationId') stationId?: string,
-    @Query('city') city?: string,
-  ) {
-    this.logger.log(
-      `GET /weather/current - stationId: ${stationId}, city: ${city}`,
-    );
-    return this.weatherService.getCurrentWeather(stationId, city);
+  @ApiOperation({ summary: 'Get current weather data' })
+  @ApiQuery({ name: 'stationId', required: false })
+  @ApiResponse({ status: 200, description: 'Current weather data' })
+  async getCurrentWeather(@Query('stationId') stationId?: string) {
+    return this.weatherService.getCurrentWeather(stationId);
   }
 
   /**
@@ -49,9 +48,43 @@ export class WeatherController {
    */
   @Get('forecast')
   @Roles(UserRole.USER, UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get weather forecast' })
+  @ApiQuery({ name: 'stationId', required: false })
+  @ApiResponse({ status: 200, description: 'Weather forecast data' })
   async getForecastWeather(@Query('stationId') stationId?: string) {
-    this.logger.log(`GET /weather/forecast - stationId: ${stationId}`);
     return this.weatherService.getForecastWeather(stationId);
+  }
+
+  /**
+   * Get weather by GPS coordinates (for mobile)
+   * GET /api/v1/weather/nearby
+   */
+  @Get('nearby')
+  @Roles(UserRole.USER, UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get weather by GPS coordinates (mobile)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Weather data from nearest station',
+  })
+  async getNearbyWeather(@Query() query: NearbyQueryDto) {
+    return this.weatherService.getNearbyWeather(
+      query.lat,
+      query.lon,
+      query.radius,
+      query.include,
+    );
+  }
+
+  /**
+   * Compare weather across multiple stations (admin dashboard)
+   * GET /api/v1/weather/compare
+   */
+  @Get('compare')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Compare weather across multiple stations' })
+  @ApiResponse({ status: 200, description: 'Multi-station weather comparison' })
+  async compareStations(@Query() query: CompareQueryDto) {
+    return this.weatherService.compareStations(query.stationCodes);
   }
 
   /**
@@ -60,20 +93,10 @@ export class WeatherController {
    */
   @Get('history')
   @Roles(UserRole.USER, UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get historical weather data' })
+  @ApiResponse({ status: 200, description: 'Historical weather data' })
   async getHistoricalWeather(@Query() query: WeatherQueryDto) {
-    this.logger.log(`GET /weather/history - query: ${JSON.stringify(query)}`);
     return this.weatherService.getHistoricalWeather(query);
-  }
-
-  /**
-   * Get weather by specific station (current or latest)
-   * GET /api/v1/weather/station/:stationId
-   */
-  @Get('station/:stationId')
-  @Roles(UserRole.USER, UserRole.ADMIN)
-  async getByStation(@Param('stationId') stationId: string) {
-    this.logger.log(`GET /weather/station/${stationId}`);
-    return this.weatherService.getByStation(stationId);
   }
 
   /**
@@ -82,10 +105,9 @@ export class WeatherController {
    */
   @Get('stats/trends')
   @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get weather trends and statistics' })
+  @ApiResponse({ status: 200, description: 'Weather trend statistics' })
   async getWeatherTrends(@Query() query: DateRangeQueryDto) {
-    this.logger.log(
-      `GET /weather/stats/trends - query: ${JSON.stringify(query)}`,
-    );
     return this.weatherService.getWeatherTrends(query);
   }
 }
