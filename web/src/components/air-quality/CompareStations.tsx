@@ -212,10 +212,11 @@ export function CompareStations() {
                       border: '1px solid #e2e8f0',
                       borderRadius: '8px',
                     }}
-                    formatter={(value: number, name: string, props: any) => [
-                      `${value} (${props.payload.level})`,
-                      'AQI',
-                    ]}
+                    formatter={(
+                      value: number,
+                      name: string,
+                      props: { payload?: { level: string } },
+                    ) => [`${value} (${props.payload?.level ?? ''})`, 'AQI']}
                   />
                   <Bar dataKey="aqi" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>

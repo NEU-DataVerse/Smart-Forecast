@@ -20,7 +20,7 @@ export default function StationsPage() {
     priority?: StationPriority;
   }>({});
 
-  const { data: stations, loading, error, lastUpdate, refetch } = useStations({ params: filters });
+  const { stations, loading, error, lastUpdate, refetch } = useStations({ params: filters });
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({

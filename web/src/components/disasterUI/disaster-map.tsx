@@ -4,6 +4,17 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { SearchIcon, DirectionsIcon, CloseIcon } from '@/components/icons';
 
+// Types
+interface PlacePrediction {
+  place_id: string;
+  description: string;
+}
+
+interface MapStyle {
+  name: string;
+  url: string;
+}
+
 // Các hằng số cấu hình
 const API_CONFIG = {
   URL: 'https://rsapi.goong.io',
@@ -27,7 +38,7 @@ const MAP_STYLES = [
 ];
 
 const INIT_VIEW = {
-  center: [105.85242472181584, 21.029579719995272],
+  center: [105.85242472181584, 21.029579719995272] as [number, number],
   zoom: 14,
   radius: 500,
 };
@@ -52,12 +63,12 @@ const drawCircle = (center: Array<number>, radiusInMeters: number) => {
 };
 
 const GoongMap = () => {
-  const mapContainer = useRef(null);
-  const map = useRef(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
 
   // State quản lý UI và dữ liệu
   const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<PlacePrediction[]>([]);
 
   const [showStylePopover, setShowStylePopover] = useState(false);
   const [currentStyleName, setCurrentStyleName] = useState('Normal');
@@ -65,35 +76,19 @@ const GoongMap = () => {
   const [showDirections, setShowDirections] = useState(false);
   const [startPoint, setStartPoint] = useState('');
   const [endPoint, setEndPoint] = useState('');
-  const [startResults, setStartResults] = useState([]);
-  const [endResults, setEndResults] = useState([]);
-
-  // Khởi tạo bản đồ
-  useEffect(() => {
-    if (map.current) return;
-
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: MAP_STYLES[0].url,
-      center: INIT_VIEW.center,
-      zoom: INIT_VIEW.zoom,
-    });
-
-    map.current.on('load', () => {
-      // Vẽ vòng tròn mặc định ban đầu
-      addCircleLayer(INIT_VIEW.center);
-
-      new maplibregl.Marker().setLngLat(INIT_VIEW.center).addTo(map.current);
-    });
-  }, []);
+  const [startResults, setStartResults] = useState<PlacePrediction[]>([]);
+  const [endResults, setEndResults] = useState<PlacePrediction[]>([]);
 
   // Hàm thêm layer vòng tròn vào map
-  const addCircleLayer = (centerCoords) => {
-    const circleData = {
+  const addCircleLayer = (centerCoords: [number, number]) => {
+    if (!map.current) return;
+
+    const circleData: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
+          properties: {},
           geometry: {
             type: 'Polygon',
             coordinates: [drawCircle(centerCoords, INIT_VIEW.radius)],
@@ -102,8 +97,9 @@ const GoongMap = () => {
       ],
     };
 
-    if (map.current.getSource('circle')) {
-      map.current.getSource('circle').setData(circleData);
+    const source = map.current.getSource('circle') as maplibregl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData(circleData);
     } else {
       map.current.addSource('circle', {
         type: 'geojson',
@@ -121,8 +117,33 @@ const GoongMap = () => {
     }
   };
 
+  // Khởi tạo bản đồ
+  useEffect(() => {
+    if (map.current || !mapContainer.current) return;
+
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: MAP_STYLES[0].url,
+      center: INIT_VIEW.center,
+      zoom: INIT_VIEW.zoom,
+    });
+
+    map.current.on('load', () => {
+      // Vẽ vòng tròn mặc định ban đầu
+      addCircleLayer(INIT_VIEW.center);
+
+      if (map.current) {
+        new maplibregl.Marker().setLngLat(INIT_VIEW.center).addTo(map.current);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Xử lý AutoComplete
-  const fetchAutoComplete = async (query, setResultsCallback) => {
+  const fetchAutoComplete = async (
+    query: string,
+    setResultsCallback: React.Dispatch<React.SetStateAction<PlacePrediction[]>>,
+  ) => {
     if (query.length < 2) {
       setResultsCallback([]);
       return;
@@ -139,7 +160,7 @@ const GoongMap = () => {
   };
 
   // Xử lý chọn địa điểm
-  const handleSelectPlace = async (placeId, description, isMainSearch = true) => {
+  const handleSelectPlace = async (placeId: string, description: string, isMainSearch = true) => {
     try {
       // 1. Cập nhật UI input
       if (isMainSearch) {
@@ -152,9 +173,9 @@ const GoongMap = () => {
       const response = await fetch(url);
       const data = await response.json();
 
-      if (data.result) {
+      if (data.result && map.current) {
         const { location } = data.result.geometry;
-        const lngLat = [location.lng, location.lat];
+        const lngLat: [number, number] = [location.lng, location.lat];
 
         // 3. Thêm marker và vẽ vòng tròn
         new maplibregl.Marker().setLngLat(lngLat).addTo(map.current);
@@ -169,7 +190,8 @@ const GoongMap = () => {
   };
 
   // Đổi kiểu bản đồ
-  const changeMapStyle = (style) => {
+  const changeMapStyle = (style: MapStyle) => {
+    if (!map.current) return;
     map.current.setStyle(style.url);
     setCurrentStyleName(style.name);
     setShowStylePopover(false);

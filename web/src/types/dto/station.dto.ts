@@ -22,7 +22,7 @@ export interface StationMetadata {
   operator?: string;
   contact?: string;
   description?: string;
-  [key: string]: any;
+  [key: string]: string | undefined;
 }
 
 export enum StationStatus {

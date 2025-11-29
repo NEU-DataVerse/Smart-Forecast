@@ -3,14 +3,39 @@
  * Centralized error handling with friendly messages
  */
 
+interface AxiosErrorResponse {
+  response?: {
+    status: number;
+    data?: {
+      message?: string | string[];
+    };
+  };
+  request?: unknown;
+  message?: string;
+}
+
+function isAxiosError(error: unknown): error is AxiosErrorResponse {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    ('response' in error || 'request' in error || 'message' in error)
+  );
+}
+
 export interface ApiError {
   message: string;
   statusCode?: number;
-  details?: any;
+  details?: unknown;
 }
 
 export class ApiErrorHandler {
-  static parseError(error: any): ApiError {
+  static parseError(error: unknown): ApiError {
+    if (!isAxiosError(error)) {
+      return {
+        message: 'An unexpected error occurred.',
+      };
+    }
+
     // Handle axios error response
     if (error.response) {
       const { status, data } = error.response;

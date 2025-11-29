@@ -33,8 +33,6 @@ export function StationCard({
         return 'destructive';
       case 'maintenance':
         return 'secondary';
-      case 'retired':
-        return 'outline';
       default:
         return 'outline';
     }

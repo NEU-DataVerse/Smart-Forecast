@@ -11,9 +11,9 @@ import { AxiosRequestConfig } from 'axios';
 /**
  * Generic GET request
  */
-export async function apiGet<T>(
+export async function apiGet<T, P = object>(
   url: string,
-  params?: Record<string, any>,
+  params?: P,
   config?: AxiosRequestConfig,
 ): Promise<T> {
   try {
@@ -36,7 +36,7 @@ export async function apiGet<T>(
  */
 export async function apiPost<T>(
   url: string,
-  data?: any,
+  data?: unknown,
   config?: AxiosRequestConfig,
   showSuccessToast = false,
   successMessage = 'Operation completed successfully',
@@ -61,7 +61,7 @@ export async function apiPost<T>(
  */
 export async function apiPut<T>(
   url: string,
-  data?: any,
+  data?: unknown,
   config?: AxiosRequestConfig,
   showSuccessToast = true,
   successMessage = 'Updated successfully',
@@ -110,7 +110,7 @@ export async function apiDelete<T>(
  */
 export async function apiPatch<T>(
   url: string,
-  data?: any,
+  data?: unknown,
   config?: AxiosRequestConfig,
   showSuccessToast = true,
   successMessage = 'Updated successfully',

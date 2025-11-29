@@ -108,9 +108,9 @@ export interface ForecastWeatherResponse {
 }
 
 /**
- * Date range query parameters
+ * Date range query parameters for weather
  */
-export interface DateRangeQuery {
+export interface WeatherDateRangeQuery {
   startDate?: string;
   endDate?: string;
 }
