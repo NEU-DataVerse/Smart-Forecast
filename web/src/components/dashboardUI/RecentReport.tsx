@@ -6,7 +6,7 @@ interface RecentReportsProps {
   setSelectedReport: (report: (typeof recentReports)[0]) => void;
 }
 
-export default function SummaryCards({ reports, setSelectedReport }: RecentReportsProps) {
+export default function RecentReports({ reports, setSelectedReport }: RecentReportsProps) {
   return (
     <Card>
       <CardHeader className="pb-3">

@@ -1,27 +1,18 @@
 'use client';
 
-import { userAxios } from '@/services/axios';
-import { IUser } from '@/../../shared/src/types/user.types';
+import { authService } from '@/services/api';
+import { IUserProfile } from '@smart-forecast/shared';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import { toast } from 'sonner';
-
-interface LoginCredentials {
-  access_token: string;
-  user: {
-    role: string;
-  };
-}
-
 interface IUserContext {
-  user: IUser | null;
+  user: IUserProfile | null;
   loading: boolean;
   isAuthenticated: boolean;
-  setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
-  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
-  login: (credentials: LoginCredentials) => void;
-  logout: () => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<IUserProfile | null>>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
 }
-
 interface IUserProviderProps {
   children: React.ReactNode;
 }
@@ -29,92 +20,75 @@ interface IUserProviderProps {
 const UserContext = React.createContext<IUserContext | undefined>(undefined);
 
 export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
-  const [user, setUser] = React.useState<IUser | null>(null);
+  const router = useRouter();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const [user, setUser] = React.useState<IUserProfile | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
 
   async function fetchUser() {
     try {
       setLoading(true);
-
-      // Check if token exists
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        setUser(null);
-        setIsAuthenticated(false);
-        setLoading(false);
-        return;
-      }
-
-      // Set token in axios header
-      userAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      const response = await userAxios.get('/auth/me');
-      setUser(response.data);
+      const response = await authService.getCurrentUser();
+      setUser(response);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
       setUser(null);
       setIsAuthenticated(false);
-      // Clear invalid token
-      localStorage.removeItem('access_token');
-      delete userAxios.defaults.headers.common['Authorization'];
     } finally {
       setLoading(false);
     }
   }
 
-  function login(credentials: LoginCredentials) {
-    try {
-      const { access_token, user } = credentials;
-
-      // Store token
-      localStorage.setItem('access_token', access_token);
-
-      // Update axios header
-      userAxios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-
-      // Update user context
-      setUser(user as IUser);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Failed to update user context');
-    }
-  }
-
-  async function logout() {
+  async function login(email: string, password: string) {
     try {
       setLoading(true);
-      // Try to call logout endpoint (optional, don't fail if it errors)
-      await userAxios.post('/auth/logout').catch(() => {});
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Clear all user data
-      setUser(null);
-      setIsAuthenticated(false);
+      // Authenticate user
+      const result = await authService.authenticate({ email, password });
+
+      if (!result.success || !result.data) {
+        toast.error(result.error || 'Failed to login');
+        setLoading(false);
+        return;
+      }
+
+      // Fetch user profile after successful login
+      await fetchUser();
+
+      toast.success('Login successful');
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (error: unknown) {
+      toast.error('An unexpected error occurred');
+      console.error('Login error:', error);
       setLoading(false);
-
-      // Clear all localStorage items
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user_role');
-      localStorage.removeItem('rememberMe');
-      localStorage.removeItem('userEmail');
-
-      // Clear axios authorization header
-      delete userAxios.defaults.headers.common['Authorization'];
-
-      toast.success('Logged out successfully');
-
-      // Redirect to login page
-      window.location.href = '/login';
     }
   }
 
+  function logout() {
+    authService.clearAuthData();
+    setUser(null);
+    setIsAuthenticated(false);
+    router.push('/login');
+  }
+
+  // Fetch user on mount if not on login page
   React.useEffect(() => {
-    fetchUser();
-  }, []);
+    if (pathname !== '/login') {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, [pathname]);
+
+  // Redirect to login only after loading completes
+  React.useEffect(() => {
+    if (!loading && !isAuthenticated && pathname !== '/login') {
+      router.push('/login');
+    }
+  }, [isAuthenticated, loading, pathname, router]);
 
   return (
     <UserContext.Provider
@@ -123,7 +97,6 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
         loading,
         isAuthenticated,
         setUser,
-        setIsAuthenticated,
         login,
         logout,
       }}

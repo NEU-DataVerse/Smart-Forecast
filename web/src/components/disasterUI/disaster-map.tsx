@@ -2,6 +2,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { SearchIcon, DirectionsIcon, CloseIcon } from '@/components/icons';
+
+// Types
+interface PlacePrediction {
+  place_id: string;
+  description: string;
+}
+
+interface MapStyle {
+  name: string;
+  url: string;
+}
 
 // Các hằng số cấu hình
 const API_CONFIG = {
@@ -26,13 +38,13 @@ const MAP_STYLES = [
 ];
 
 const INIT_VIEW = {
-  center: [105.85242472181584, 21.029579719995272],
+  center: [105.85242472181584, 21.029579719995272] as [number, number],
   zoom: 14,
   radius: 500,
 };
 
 // Hàm vẽ hình tròn (Helper function)
-const drawCircle = (center, radiusInMeters) => {
+const drawCircle = (center: Array<number>, radiusInMeters: number) => {
   const points = 64; // Tăng số điểm để tròn mịn hơn
   const coords = { latitude: center[1], longitude: center[0] };
   const km = radiusInMeters / 1000;
@@ -51,12 +63,12 @@ const drawCircle = (center, radiusInMeters) => {
 };
 
 const GoongMap = () => {
-  const mapContainer = useRef(null);
-  const map = useRef(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
 
   // State quản lý UI và dữ liệu
   const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<PlacePrediction[]>([]);
 
   const [showStylePopover, setShowStylePopover] = useState(false);
   const [currentStyleName, setCurrentStyleName] = useState('Normal');
@@ -64,35 +76,19 @@ const GoongMap = () => {
   const [showDirections, setShowDirections] = useState(false);
   const [startPoint, setStartPoint] = useState('');
   const [endPoint, setEndPoint] = useState('');
-  const [startResults, setStartResults] = useState([]);
-  const [endResults, setEndResults] = useState([]);
-
-  // Khởi tạo bản đồ
-  useEffect(() => {
-    if (map.current) return;
-
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: MAP_STYLES[0].url,
-      center: INIT_VIEW.center,
-      zoom: INIT_VIEW.zoom,
-    });
-
-    map.current.on('load', () => {
-      // Vẽ vòng tròn mặc định ban đầu
-      addCircleLayer(INIT_VIEW.center);
-
-      new maplibregl.Marker().setLngLat(INIT_VIEW.center).addTo(map.current);
-    });
-  }, []);
+  const [startResults, setStartResults] = useState<PlacePrediction[]>([]);
+  const [endResults, setEndResults] = useState<PlacePrediction[]>([]);
 
   // Hàm thêm layer vòng tròn vào map
-  const addCircleLayer = (centerCoords) => {
-    const circleData = {
+  const addCircleLayer = (centerCoords: [number, number]) => {
+    if (!map.current) return;
+
+    const circleData: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: [
         {
           type: 'Feature',
+          properties: {},
           geometry: {
             type: 'Polygon',
             coordinates: [drawCircle(centerCoords, INIT_VIEW.radius)],
@@ -101,8 +97,9 @@ const GoongMap = () => {
       ],
     };
 
-    if (map.current.getSource('circle')) {
-      map.current.getSource('circle').setData(circleData);
+    const source = map.current.getSource('circle') as maplibregl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData(circleData);
     } else {
       map.current.addSource('circle', {
         type: 'geojson',
@@ -120,8 +117,33 @@ const GoongMap = () => {
     }
   };
 
+  // Khởi tạo bản đồ
+  useEffect(() => {
+    if (map.current || !mapContainer.current) return;
+
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: MAP_STYLES[0].url,
+      center: INIT_VIEW.center,
+      zoom: INIT_VIEW.zoom,
+    });
+
+    map.current.on('load', () => {
+      // Vẽ vòng tròn mặc định ban đầu
+      addCircleLayer(INIT_VIEW.center);
+
+      if (map.current) {
+        new maplibregl.Marker().setLngLat(INIT_VIEW.center).addTo(map.current);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Xử lý AutoComplete
-  const fetchAutoComplete = async (query, setResultsCallback) => {
+  const fetchAutoComplete = async (
+    query: string,
+    setResultsCallback: React.Dispatch<React.SetStateAction<PlacePrediction[]>>,
+  ) => {
     if (query.length < 2) {
       setResultsCallback([]);
       return;
@@ -138,7 +160,7 @@ const GoongMap = () => {
   };
 
   // Xử lý chọn địa điểm
-  const handleSelectPlace = async (placeId, description, isMainSearch = true) => {
+  const handleSelectPlace = async (placeId: string, description: string, isMainSearch = true) => {
     try {
       // 1. Cập nhật UI input
       if (isMainSearch) {
@@ -151,9 +173,9 @@ const GoongMap = () => {
       const response = await fetch(url);
       const data = await response.json();
 
-      if (data.result) {
+      if (data.result && map.current) {
         const { location } = data.result.geometry;
-        const lngLat = [location.lng, location.lat];
+        const lngLat: [number, number] = [location.lng, location.lat];
 
         // 3. Thêm marker và vẽ vòng tròn
         new maplibregl.Marker().setLngLat(lngLat).addTo(map.current);
@@ -168,7 +190,8 @@ const GoongMap = () => {
   };
 
   // Đổi kiểu bản đồ
-  const changeMapStyle = (style) => {
+  const changeMapStyle = (style: MapStyle) => {
+    if (!map.current) return;
     map.current.setStyle(style.url);
     setCurrentStyleName(style.name);
     setShowStylePopover(false);
@@ -193,15 +216,7 @@ const GoongMap = () => {
           />
 
           <div className="flex items-center justify-center w-[40px] h-[40px] bg-[#fdffff] shadow-sm cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 50 50"
-              className="text-gray-600"
-            >
-              <path d="M 21 3 C 11.621094 3 4 10.621094 4 20 C 4 29.378906 11.621094 37 21 37 C 24.710938 37 28.140625 35.804688 30.9375 33.78125 L 44.09375 46.90625 L 46.90625 44.09375 L 33.90625 31.0625 C 36.460938 28.085938 38 24.222656 38 20 C 38 10.621094 30.378906 3 21 3 Z M 21 5 C 29.296875 5 36 11.703125 36 20 C 36 28.296875 29.296875 35 21 35 C 12.703125 35 6 28.296875 6 20 C 6 11.703125 12.703125 5 21 5 Z" />
-            </svg>
+            <SearchIcon width={20} height={20} className="text-gray-600" />
           </div>
 
           {/* Button mở chế độ dẫn đường */}
@@ -209,22 +224,7 @@ const GoongMap = () => {
             className="flex items-center justify-center w-[40px] h-[40px] bg-[#fdffff] shadow-sm rounded-r-sm border-l border-[#cccece] cursor-pointer hover:bg-gray-100"
             onClick={() => setShowDirections(true)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <polyline points="9 21 3 21 3 15"></polyline>
-              <line x1="21" y1="3" x2="14" y2="10"></line>
-              <line x1="3" y1="21" x2="10" y2="14"></line>
-            </svg>
+            <DirectionsIcon width={24} height={24} />
           </div>
 
           {/* Dropdown kết quả tìm kiếm */}
@@ -335,20 +335,7 @@ const GoongMap = () => {
               className="p-2 hover:bg-gray-200 rounded-full cursor-pointer"
               onClick={() => setShowDirections(false)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <CloseIcon width={20} height={20} />
             </button>
           </div>
         </div>
