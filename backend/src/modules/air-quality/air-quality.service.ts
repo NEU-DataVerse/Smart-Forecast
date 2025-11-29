@@ -3,14 +3,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { AirQualityObservedEntity } from '../persistence/entities/air-quality-observed.entity';
 import { OrionClientProvider } from '../ingestion/providers/orion-client.provider';
+import { StationService } from '../stations/station.service';
 import {
   AirQualityQueryDto,
   AirQualityDataResponse,
   AirQualityListResponse,
   CurrentAirQualityResponse,
   ForecastAirQualityResponse,
+  NearbyAirQualityResponse,
+  CompareAirQualityResponse,
   DateRangeQueryDto,
+  NearbyIncludeType,
 } from './dto';
+
+// Constants
+const NGSI_LD_BASE_URI = 'https://smartdatamodels.org';
+const NGSI_LD_ENV_NAMESPACE = 'dataModel.Environment';
+const AQ_OBSERVED_TYPE = `${NGSI_LD_BASE_URI}/${NGSI_LD_ENV_NAMESPACE}/AirQualityObserved`;
+const AQ_FORECAST_TYPE = `${NGSI_LD_BASE_URI}/${NGSI_LD_ENV_NAMESPACE}/AirQualityForecast`;
+const CACHE_TTL_MINUTES = 10;
 
 /**
  * Air Quality Service
@@ -24,93 +35,61 @@ export class AirQualityService {
     @InjectRepository(AirQualityObservedEntity)
     private readonly airQualityRepo: Repository<AirQualityObservedEntity>,
     private readonly orionClient: OrionClientProvider,
+    private readonly stationService: StationService,
   ) {}
 
   /**
-   * Get current air quality from Orion-LD (all active stations)
+   * Get current air quality from Orion-LD
    */
   async getCurrentAirQuality(
     stationId?: string,
-    city?: string,
   ): Promise<CurrentAirQualityResponse> {
-    try {
-      this.logger.log(
-        `Fetching current air quality from Orion-LD (stationId: ${stationId}, city: ${city})`,
-      );
+    const queryOptions: Record<string, unknown> = {
+      type: AQ_OBSERVED_TYPE,
+      limit: 1000,
+    };
 
-      const queryOptions: any = {
-        type: 'https://smartdatamodels.org/dataModel.Environment/AirQualityObserved',
-        limit: 1000,
-      };
-
-      // Build query filter
-      const qFilters: string[] = [];
-      if (stationId) {
-        qFilters.push(`locationId=="${stationId}"`);
-      }
-      // Note: For city filtering, we'd need to query by address property
-      // This requires more complex NGSI-LD query syntax
-
-      if (qFilters.length > 0) {
-        queryOptions.q = qFilters.join(';');
-      }
-
-      const entities = await this.orionClient.queryEntities(queryOptions);
-
-      const data = entities.map((entity) =>
-        this.transformNGSILDToResponse(entity),
-      );
-
-      return {
-        data,
-        source: 'orion-ld',
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch current air quality from Orion-LD: ${error.message}`,
-      );
-      throw error;
+    if (stationId) {
+      queryOptions.q = `locationId=="${stationId}"`;
     }
+
+    const entities = await this.orionClient.queryEntities(queryOptions);
+    const data = entities.map((entity) =>
+      this.transformNGSILDToResponse(entity),
+    );
+
+    return {
+      data,
+      source: 'orion-ld',
+      timestamp: new Date().toISOString(),
+    };
   }
 
   /**
-   * Get air quality forecast from Orion-LD (4-day hourly forecast)
+   * Get air quality forecast from Orion-LD (4-day hourly)
    */
   async getForecastAirQuality(
     stationId?: string,
   ): Promise<ForecastAirQualityResponse> {
-    try {
-      this.logger.log(
-        `Fetching air quality forecast from Orion-LD (stationId: ${stationId})`,
-      );
+    const queryOptions: Record<string, unknown> = {
+      type: AQ_FORECAST_TYPE,
+      limit: 1000,
+    };
 
-      const queryOptions: any = {
-        type: 'https://smartdatamodels.org/dataModel.Environment/AirQualityForecast',
-        limit: 1000,
-      };
-
-      if (stationId) {
-        queryOptions.q = `locationId=="${stationId}"`;
-      }
-
-      const entities = await this.orionClient.queryEntities(queryOptions);
-
-      const data = entities.map((entity) =>
-        this.transformNGSILDToResponse(entity),
-      );
-
-      return {
-        data,
-        source: 'orion-ld',
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch forecast air quality from Orion-LD: ${error.message}`,
-      );
-      throw error;
+    if (stationId) {
+      queryOptions.q = `locationId=="${stationId}"`;
     }
+
+    const entities = await this.orionClient.queryEntities(queryOptions);
+    const data = entities.map((entity) =>
+      this.transformNGSILDToResponse(entity),
+    );
+
+    return {
+      data,
+      source: 'orion-ld',
+      timestamp: new Date().toISOString(),
+    };
   }
 
   /**
@@ -119,99 +98,138 @@ export class AirQualityService {
   async getHistoricalAirQuality(
     query: AirQualityQueryDto,
   ): Promise<AirQualityListResponse> {
-    try {
-      this.logger.log(
-        `Fetching historical air quality from PostgreSQL: ${JSON.stringify(query)}`,
-      );
+    const page = query.page || 1;
+    const limit = query.limit || 50;
+    const skip = (page - 1) * limit;
 
-      const page = query.page || 1;
-      const limit = query.limit || 50;
-      const skip = (page - 1) * limit;
+    const where: Record<string, unknown> = {};
 
-      // Build where clause
-      const where: any = {};
-
-      if (query.stationId) {
-        where.locationId = query.stationId;
-      }
-
-      if (query.startDate && query.endDate) {
-        where.dateObserved = Between(
-          new Date(query.startDate),
-          new Date(query.endDate),
-        );
-      } else if (query.startDate) {
-        where.dateObserved = MoreThanOrEqual(new Date(query.startDate));
-      } else if (query.endDate) {
-        where.dateObserved = LessThanOrEqual(new Date(query.endDate));
-      }
-
-      // Query with pagination
-      const [entities, total] = await this.airQualityRepo.findAndCount({
-        where,
-        order: { dateObserved: 'DESC' },
-        skip,
-        take: limit,
-      });
-
-      const data = entities.map((entity) =>
-        this.transformEntityToResponse(entity),
-      );
-
-      return {
-        data,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch historical air quality: ${error.message}`,
-      );
-      throw error;
+    if (query.stationId) {
+      where.locationId = query.stationId;
     }
+
+    if (query.startDate && query.endDate) {
+      where.dateObserved = Between(
+        new Date(query.startDate),
+        new Date(query.endDate),
+      );
+    } else if (query.startDate) {
+      where.dateObserved = MoreThanOrEqual(new Date(query.startDate));
+    } else if (query.endDate) {
+      where.dateObserved = LessThanOrEqual(new Date(query.endDate));
+    }
+
+    const [entities, total] = await this.airQualityRepo.findAndCount({
+      where,
+      order: { dateObserved: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    return {
+      data: entities.map((entity) => this.transformEntityToResponse(entity)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   /**
-   * Get air quality by specific station
+   * Get air quality by GPS coordinates (for mobile)
    */
-  async getByStation(stationId: string): Promise<AirQualityDataResponse> {
-    try {
-      this.logger.log(`Fetching air quality for station: ${stationId}`);
+  async getNearbyAirQuality(
+    lat: number,
+    lon: number,
+    radius: number = 50,
+    include: NearbyIncludeType = NearbyIncludeType.CURRENT,
+  ): Promise<NearbyAirQualityResponse> {
+    const nearbyStations = await this.stationService.findNearest(
+      lat,
+      lon,
+      radius,
+      1,
+    );
 
-      // Try Orion-LD first for current data
-      const current = await this.getCurrentAirQuality(stationId);
-
-      if (current.data.length > 0) {
-        return current.data[0];
-      }
-
-      // Fallback to latest from PostgreSQL
-      const entity = await this.airQualityRepo.findOne({
-        where: { locationId: stationId },
-        order: { dateObserved: 'DESC' },
-      });
-
-      if (!entity) {
-        throw new NotFoundException(
-          `No air quality data found for station: ${stationId}`,
-        );
-      }
-
-      return this.transformEntityToResponse(entity);
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch air quality for station ${stationId}: ${error.message}`,
+    if (nearbyStations.length === 0) {
+      throw new NotFoundException(
+        `No stations found within ${radius}km of coordinates (${lat}, ${lon})`,
       );
-      throw error;
     }
+
+    const nearestStation = nearbyStations[0];
+    const stationId = nearestStation.id; // URN format for Orion-LD query
+
+    const response: NearbyAirQualityResponse = {
+      nearestStation: {
+        code: nearestStation.code,
+        name: nearestStation.name,
+        distance: Math.round(nearestStation.distance * 100) / 100,
+      },
+      source: 'orion-ld',
+      timestamp: new Date().toISOString(),
+      validUntil: new Date(
+        Date.now() + CACHE_TTL_MINUTES * 60 * 1000,
+      ).toISOString(),
+    };
+
+    // Fetch current data
+    if (
+      include === NearbyIncludeType.CURRENT ||
+      include === NearbyIncludeType.BOTH
+    ) {
+      const currentData = await this.getCurrentAirQuality(stationId);
+      if (currentData.data.length > 0) {
+        response.current = currentData.data[0];
+      }
+    }
+
+    // Fetch forecast data
+    if (
+      include === NearbyIncludeType.FORECAST ||
+      include === NearbyIncludeType.BOTH
+    ) {
+      const forecastData = await this.getForecastAirQuality(stationId);
+      response.forecast = forecastData.data;
+    }
+
+    return response;
   }
 
   /**
-   * Get AQI averages and components
+   * Compare air quality across multiple stations (for admin dashboard)
+   */
+  async compareStations(
+    stationCodes: string[],
+  ): Promise<CompareAirQualityResponse> {
+    const stationDataPromises = stationCodes.map(async (stationCode) => {
+      const station = await this.stationService
+        .findByCode(stationCode)
+        .catch(() => null);
+
+      if (!station) {
+        return { stationId: stationCode, stationName: undefined, data: null };
+      }
+
+      const result = await this.getCurrentAirQuality(station.id);
+      return {
+        stationId: stationCode,
+        stationName: station.name,
+        data: result.data[0] ?? null,
+      };
+    });
+
+    return {
+      stations: await Promise.all(stationDataPromises),
+      source: 'orion-ld',
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Get AQI averages and pollutant statistics
    */
   async getAQIAverages(query: DateRangeQueryDto): Promise<{
     avgAQI: number;
@@ -223,7 +241,7 @@ export class AirQualityService {
     avgO3: number;
     dataPoints: number;
   }> {
-    const queryBuilder = this.airQualityRepo
+    const qb = this.airQualityRepo
       .createQueryBuilder('aqi')
       .select('AVG(aqi.airQualityIndex)', 'avgAQI')
       .addSelect('AVG(aqi.pm25)', 'avgPM25')
@@ -235,13 +253,13 @@ export class AirQualityService {
       .addSelect('COUNT(*)', 'dataPoints');
 
     if (query.startDate && query.endDate) {
-      queryBuilder.where('aqi.dateObserved BETWEEN :startDate AND :endDate', {
+      qb.where('aqi.dateObserved BETWEEN :startDate AND :endDate', {
         startDate: new Date(query.startDate),
         endDate: new Date(query.endDate),
       });
     }
 
-    const result = await queryBuilder.getRawOne();
+    const result = await qb.getRawOne();
 
     return {
       avgAQI: parseFloat(result.avgAQI) || 0,
@@ -255,47 +273,29 @@ export class AirQualityService {
     };
   }
 
+  // ============ Private Helper Methods ============
+
   /**
    * Transform NGSI-LD entity to response format
    */
   private transformNGSILDToResponse(
-    entity: any,
+    entity: Record<string, unknown>,
   ): AirQualityDataResponse & { validFrom?: string; validTo?: string } {
-    const location = this.extractValue(
-      this.getEntityAttribute(entity, 'location'),
-    );
-    const address = this.extractValue(
-      this.getEntityAttribute(entity, 'address'),
-    );
-
-    // Check if this is a forecast entity (has validFrom/validTo)
+    const location = this.extractValue(this.getAttr(entity, 'location')) as {
+      coordinates?: number[];
+    };
+    const address = this.extractValue(this.getAttr(entity, 'address'));
     const validFrom = this.extractValue(
-      this.getEntityAttribute(entity, 'validFrom'),
-    );
+      this.getAttr(entity, 'validFrom'),
+    ) as string;
     const validTo = this.extractValue(
-      this.getEntityAttribute(entity, 'validTo'),
-    );
+      this.getAttr(entity, 'validTo'),
+    ) as string;
 
-    // Get EPA US AQI values
-    const epaIndex = this.extractValue(
-      this.getEntityAttribute(
-        entity,
-        'airQualityIndexUS',
-        'dataModel.Environment',
-      ),
-    );
-    const epaLevel = this.extractValue(
-      this.getEntityAttribute(
-        entity,
-        'airQualityLevelUS',
-        'dataModel.Environment',
-      ),
-    );
-
-    const response: any = {
-      id: entity.id,
+    return {
+      id: entity.id as string,
       stationId:
-        this.extractValue(this.getEntityAttribute(entity, 'locationId')) ||
+        (this.extractValue(this.getAttr(entity, 'locationId')) as string) ||
         'unknown',
       location: {
         lat: location?.coordinates?.[1] || 0,
@@ -303,64 +303,41 @@ export class AirQualityService {
       },
       address: this.formatAddress(address),
       dateObserved: this.extractValue(
-        this.getEntityAttribute(entity, 'dateObserved'),
-      ),
+        this.getAttr(entity, 'dateObserved'),
+      ) as string,
       pollutants: {
-        co: this.extractValue(
-          this.getEntityAttribute(entity, 'co', 'dataModel.Environment'),
-        ),
-        no: this.extractValue(
-          this.getEntityAttribute(entity, 'no', 'dataModel.Environment'),
-        ),
-        no2: this.extractValue(
-          this.getEntityAttribute(entity, 'no2', 'dataModel.Environment'),
-        ),
-        o3: this.extractValue(
-          this.getEntityAttribute(entity, 'o3', 'dataModel.Environment'),
-        ),
-        so2: this.extractValue(
-          this.getEntityAttribute(entity, 'so2', 'dataModel.Environment'),
-        ),
-        pm25: this.extractValue(
-          this.getEntityAttribute(entity, 'pm25', 'dataModel.Environment'),
-        ),
-        pm10: this.extractValue(
-          this.getEntityAttribute(entity, 'pm10', 'dataModel.Environment'),
-        ),
-        nh3: this.extractValue(this.getEntityAttribute(entity, 'nh3')),
+        co: this.extractValue(this.getAttr(entity, 'co', true)) as number,
+        no: this.extractValue(this.getAttr(entity, 'no', true)) as number,
+        no2: this.extractValue(this.getAttr(entity, 'no2', true)) as number,
+        o3: this.extractValue(this.getAttr(entity, 'o3', true)) as number,
+        so2: this.extractValue(this.getAttr(entity, 'so2', true)) as number,
+        pm25: this.extractValue(this.getAttr(entity, 'pm25', true)) as number,
+        pm10: this.extractValue(this.getAttr(entity, 'pm10', true)) as number,
+        nh3: this.extractValue(this.getAttr(entity, 'nh3')) as number,
       },
       aqi: {
         openWeather: {
           index:
-            this.extractValue(
-              this.getEntityAttribute(
-                entity,
-                'airQualityIndex',
-                'dataModel.Environment',
-              ),
-            ) ?? 0,
+            (this.extractValue(
+              this.getAttr(entity, 'airQualityIndex', true),
+            ) as number) ?? 0,
           level:
-            this.extractValue(
-              this.getEntityAttribute(
-                entity,
-                'airQualityLevel',
-                'dataModel.Environment',
-              ),
-            ) || 'Unknown',
+            (this.extractValue(
+              this.getAttr(entity, 'airQualityLevel', true),
+            ) as string) || 'Unknown',
         },
         epaUS: {
-          // Only include EPA US if data exists, otherwise set defaults
-          index: epaIndex !== null && epaIndex !== undefined ? epaIndex : null,
-          level: epaLevel || null,
+          index: this.extractValue(
+            this.getAttr(entity, 'airQualityIndexUS', true),
+          ) as number,
+          level: this.extractValue(
+            this.getAttr(entity, 'airQualityLevelUS', true),
+          ) as string,
         },
       },
-      // Include validFrom/validTo for forecast entities (will be undefined for current)
-      validFrom:
-        validFrom !== null && validFrom !== undefined ? validFrom : undefined,
-      validTo: validTo !== null && validTo !== undefined ? validTo : undefined,
+      ...(validFrom != null && { validFrom }),
+      ...(validTo != null && { validTo }),
     };
-
-    return response;
   }
 
   /**
@@ -403,96 +380,53 @@ export class AirQualityService {
 
   /**
    * Get entity attribute with fallback for full NGSI-LD URIs
-   * Handles both short names (e.g., 'co') and full URIs (e.g., 'https://smartdatamodels.org/dataModel.Environment/co')
    */
-  private getEntityAttribute(
-    entity: any,
-    attributeName: string,
-    namespace?: string,
-  ): any {
-    // Try short name first (use 'in' to handle falsy values like 0)
-    if (attributeName in entity) {
-      return entity[attributeName];
+  private getAttr(
+    entity: Record<string, unknown>,
+    name: string,
+    useEnvNamespace = false,
+  ): unknown {
+    // Try short name first
+    if (name in entity) return entity[name];
+
+    // Try with Environment namespace
+    if (useEnvNamespace) {
+      const envUri = `${NGSI_LD_BASE_URI}/${NGSI_LD_ENV_NAMESPACE}/${name}`;
+      if (envUri in entity) return entity[envUri];
     }
 
-    // Try with smartdatamodels.org base URI
-    const baseUri = 'https://smartdatamodels.org';
-
-    // Try with namespace if provided (e.g., dataModel.Environment)
-    if (namespace) {
-      const fullUri = `${baseUri}/${namespace}/${attributeName}`;
-      if (fullUri in entity) {
-        return entity[fullUri];
-      }
-    }
-
-    // Try common namespace (dataModel.Environment) if not already tried
-    if (namespace !== 'dataModel.Environment') {
-      const envUri = `${baseUri}/dataModel.Environment/${attributeName}`;
-      if (envUri in entity) {
-        return entity[envUri];
-      }
-    }
-
-    // Try base URI + attributeName (e.g., for validFrom, address)
-    const baseUriWithAttr = `${baseUri}/${attributeName}`;
-    if (baseUriWithAttr in entity) {
-      return entity[baseUriWithAttr];
-    }
+    // Try base URI
+    const baseUri = `${NGSI_LD_BASE_URI}/${name}`;
+    if (baseUri in entity) return entity[baseUri];
 
     return null;
   }
 
   /**
    * Extract value from NGSI-LD Property/Relationship
-   * Properly handles falsy values like 0, false, empty strings
    */
-  private extractValue(attribute: any): any {
-    // Check for null/undefined explicitly
-    if (attribute === null || attribute === undefined) return null;
+  private extractValue(attribute: unknown): unknown {
+    if (attribute == null) return null;
+    if (typeof attribute !== 'object') return attribute;
 
-    // If it's a primitive type, return as-is (including 0, false, '')
-    if (
-      typeof attribute === 'string' ||
-      typeof attribute === 'number' ||
-      typeof attribute === 'boolean'
-    )
-      return attribute;
-
-    // Extract from NGSI-LD structure (check with !== undefined to allow 0, false, '')
-    if (attribute.value !== undefined) return attribute.value;
-    if (attribute.object !== undefined) return attribute.object;
-
-    return attribute;
+    const obj = attribute as Record<string, unknown>;
+    return obj.value ?? obj.object ?? attribute;
   }
 
   /**
-   * Format address to readable string or object
+   * Format address to readable string
    */
-  private formatAddress(address: any): string | undefined {
+  private formatAddress(address: unknown): string | undefined {
     if (!address) return undefined;
 
-    // If it's a string, try to parse as JSON
-    if (typeof address === 'string') {
-      try {
-        const parsed = JSON.parse(address);
-        // Return formatted string from parsed object
-        if (parsed.addressLocality && parsed.addressCountry) {
-          return `${parsed.addressLocality}, ${parsed.addressCountry}`;
-        }
-        return parsed.addressLocality || address;
-      } catch {
-        // Not JSON, return as-is
-        return address;
-      }
-    }
+    if (typeof address === 'string') return address;
 
-    // If it's already an object
     if (typeof address === 'object') {
-      if (address.addressLocality && address.addressCountry) {
-        return `${address.addressLocality}, ${address.addressCountry}`;
+      const addr = address as Record<string, string>;
+      if (addr.addressLocality && addr.addressCountry) {
+        return `${addr.addressLocality}, ${addr.addressCountry}`;
       }
-      return address.addressLocality || undefined;
+      return addr.addressLocality;
     }
 
     return undefined;
