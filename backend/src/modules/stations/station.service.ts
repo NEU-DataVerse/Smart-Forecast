@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { IsNull } from 'typeorm';
 import { StationRepository } from './repositories/station.repository';
 import { StationEntity } from './entities/station.entity';
 import {
@@ -10,193 +11,56 @@ import {
   StationPriority,
 } from './dto/station.dto';
 
+// Constants
+const DEFAULT_TIMEZONE = 'Asia/Ho_Chi_Minh';
+const DEFAULT_TIMEZONE_OFFSET = 25200;
+const EARTH_RADIUS_KM = 6371;
+
 /**
  * Station Service
  * Manages weather stations with PostgreSQL persistence
- * Provides CRUD operations and querying capabilities
  */
 @Injectable()
 export class StationService {
   private readonly logger = new Logger(StationService.name);
 
-  constructor(private readonly stationRepository: StationRepository) {
-    this.logger.log('StationService initialized with PostgreSQL repository');
-  }
+  constructor(private readonly stationRepository: StationRepository) {}
 
-  /**
-   * Generate station code from city + UUID
-   * @param city City name
-   * @returns Station code in format: City-UUID
-   */
+  /** Generate station code from city + UUID */
   private generateStationCode(city?: string): string {
-    const cityPrefix = city ? this.normalizeString(city) : 'Unknown';
-    const uuid = randomUUID().split('-')[0]; // Use first segment of UUID
+    const cityPrefix = city ? this.normalizeString(city) : 'unknown';
+    const uuid = randomUUID().split('-')[0];
     return `${cityPrefix}-${uuid}`;
   }
 
-  /**
-   * Generate station ID from code
-   * @param code Station code
-   * @returns Station ID in URN format
-   */
+  /** Generate station ID in URN format */
   private generateStationId(code: string): string {
     return `urn:ngsi-ld:ObservationStation:${code}`;
   }
 
-  /**
-   * Normalize string (remove Vietnamese diacritics, convert to kebab-case)
-   * @param str Input string
-   * @returns Normalized string
-   */
+  /** Normalize string (remove Vietnamese diacritics, convert to kebab-case) */
   private normalizeString(str: string): string {
     return str
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[\u0300-\u036f]/g, '')
       .replace(/đ/g, 'd')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
   }
 
-  /**
-   * Get all stations with optional filtering
-   */
-  async findAll(query?: StationQueryDto): Promise<StationEntity[]> {
-    if (!query || Object.keys(query).length === 0) {
-      return this.stationRepository.find({
-        where: { deletedAt: undefined },
-        order: { name: 'ASC' },
-      });
-    }
-
-    const [stations] = await this.stationRepository.findWithFilters({
-      city: query.city,
-      district: query.district,
-      status: query.status,
-      priority: query.priority,
-      category: query.category,
-      limit: query.limit,
-      offset: query.offset,
-    });
-
-    return stations;
+  /** Convert degrees to radians */
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
   }
 
-  /**
-   * Get active stations only (for ingestion)
-   */
-  async findActive(): Promise<StationEntity[]> {
-    return this.stationRepository.findActive();
-  }
-
-  /**
-   * Get station by ID
-   */
-  async findById(id: string): Promise<StationEntity> {
-    const station = await this.stationRepository.findOne({
-      where: { id, deletedAt: undefined },
-    });
-
-    if (!station) {
-      throw new NotFoundException(`Station with ID ${id} not found`);
-    }
-
-    return station;
-  }
-
-  /**
-   * Get station by code
-   */
-  async findByCode(code: string): Promise<StationEntity> {
-    const station = await this.stationRepository.findByCode(code);
-
-    if (!station) {
-      throw new NotFoundException(`Station with code ${code} not found`);
-    }
-
-    return station;
-  }
-
-  /**
-   * Get stations by city
-   */
-  async findByCity(city: string): Promise<StationEntity[]> {
-    return this.stationRepository.findByCity(city);
-  }
-
-  /**
-   * Get stations by district
-   */
-  async findByDistrict(district: string): Promise<StationEntity[]> {
-    return this.stationRepository.findByDistrict(district);
-  }
-
-  /**
-   * Find nearest station(s) based on GPS coordinates
-   * Uses Haversine formula to calculate distance
-   * @param lat Latitude
-   * @param lon Longitude
-   * @param radius Search radius in kilometers (default: 50km)
-   * @param limit Maximum number of stations to return (default: 1)
-   */
-  async findNearest(
-    lat: number,
-    lon: number,
-    radius: number = 50,
-    limit: number = 1,
-  ): Promise<Array<StationEntity & { distance: number }>> {
-    // Get all active stations
-    const stations = await this.findActive();
-
-    if (stations.length === 0) {
-      return [];
-    }
-
-    // Calculate distance for each station using Haversine formula
-    const stationsWithDistance = stations.map((station) => {
-      const distance = this.calculateDistance(
-        lat,
-        lon,
-        station.location.lat,
-        station.location.lon,
-      );
-      return { ...station, distance };
-    });
-
-    // Filter by radius and sort by distance
-    const nearbyStations = stationsWithDistance
-      .filter((s) => s.distance <= radius)
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, limit);
-
-    if (nearbyStations.length === 0) {
-      this.logger.warn(
-        `No stations found within ${radius}km of coordinates (${lat}, ${lon})`,
-      );
-    } else {
-      this.logger.log(
-        `Found ${nearbyStations.length} station(s) within ${radius}km`,
-      );
-    }
-
-    return nearbyStations;
-  }
-
-  /**
-   * Calculate distance between two coordinates using Haversine formula
-   * @param lat1 Latitude of first point
-   * @param lon1 Longitude of first point
-   * @param lat2 Latitude of second point
-   * @param lon2 Longitude of second point
-   * @returns Distance in kilometers
-   */
+  /** Calculate distance between two coordinates using Haversine formula */
   private calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
     lon2: number,
   ): number {
-    const R = 6371; // Earth's radius in kilometers
     const dLat = this.toRadians(lat2 - lat1);
     const dLon = this.toRadians(lon2 - lon1);
 
@@ -208,27 +72,96 @@ export class StationService {
         Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
+    return Math.round(EARTH_RADIUS_KM * c * 100) / 100;
+  }
 
-    return Math.round(distance * 100) / 100; // Round to 2 decimal places
+  /** Get all stations with optional status filter and pagination */
+  async findAll(query?: StationQueryDto): Promise<StationEntity[]> {
+    const queryBuilder = this.stationRepository
+      .createQueryBuilder('station')
+      .where('station.deletedAt IS NULL');
+
+    if (query?.status) {
+      queryBuilder.andWhere('station.status = :status', {
+        status: query.status,
+      });
+    }
+
+    if (query?.offset) {
+      queryBuilder.skip(query.offset);
+    }
+
+    if (query?.limit) {
+      queryBuilder.take(query.limit);
+    }
+
+    return queryBuilder
+      .orderBy('station.priority', 'DESC')
+      .addOrderBy('station.name', 'ASC')
+      .getMany();
+  }
+
+  /** Get station by ID */
+  async findById(id: string): Promise<StationEntity> {
+    const station = await this.stationRepository.findOne({
+      where: { id, deletedAt: IsNull() },
+    });
+
+    if (!station) {
+      throw new NotFoundException(`Station with ID ${id} not found`);
+    }
+
+    return station;
+  }
+
+  /** Get station by code */
+  async findByCode(code: string): Promise<StationEntity> {
+    const station = await this.stationRepository.findByCode(code);
+
+    if (!station) {
+      throw new NotFoundException(`Station with code ${code} not found`);
+    }
+
+    return station;
   }
 
   /**
-   * Convert degrees to radians
+   * Find nearest station(s) based on GPS coordinates
+   * @param lat Latitude
+   * @param lon Longitude
+   * @param radius Search radius in kilometers (default: 50km)
+   * @param limit Maximum number of stations to return (default: 1)
    */
-  private toRadians(degrees: number): number {
-    return degrees * (Math.PI / 180);
+  async findNearest(
+    lat: number,
+    lon: number,
+    radius = 50,
+    limit = 1,
+  ): Promise<Array<StationEntity & { distance: number }>> {
+    const stations = await this.findAll({ status: StationStatus.ACTIVE });
+
+    if (stations.length === 0) return [];
+
+    return stations
+      .map((station) => ({
+        ...station,
+        distance: this.calculateDistance(
+          lat,
+          lon,
+          station.location.lat,
+          station.location.lon,
+        ),
+      }))
+      .filter((s) => s.distance <= radius)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, limit);
   }
 
-  /**
-   * Create a new station
-   */
+  /** Create a new station */
   async create(createDto: CreateStationDto): Promise<StationEntity> {
-    // Generate code and ID
     const code = this.generateStationCode(createDto.city);
     const id = this.generateStationId(code);
 
-    // Check for duplicates
     const existing = await this.stationRepository.findByCode(code);
     if (existing) {
       throw new Error(`Station with code ${code} already exists`);
@@ -245,8 +178,8 @@ export class StationService {
       ward: createDto.ward,
       location: createDto.location,
       address: createDto.address,
-      timezone: createDto.timezone || 'Asia/Ho_Chi_Minh',
-      timezoneOffset: 25200,
+      timezone: createDto.timezone || DEFAULT_TIMEZONE,
+      timezoneOffset: DEFAULT_TIMEZONE_OFFSET,
       priority: createDto.priority || StationPriority.MEDIUM,
       categories: createDto.categories || [],
       metadata: {
@@ -256,129 +189,71 @@ export class StationService {
     });
 
     await this.stationRepository.save(newStation);
-
-    this.logger.log(`Created new station: ${newStation.name} (${id})`);
+    this.logger.log(`Created station: ${newStation.name} (${id})`);
     return newStation;
   }
 
-  /**
-   * Update a station
-   */
+  /** Update a station */
   async update(
     id: string,
     updateDto: UpdateStationDto,
   ): Promise<StationEntity> {
     const station = await this.findById(id);
 
-    // Merge updates
     Object.assign(station, {
       ...updateDto,
-      id: station.id, // Preserve ID
-      code: station.code, // Preserve code
+      id: station.id,
+      code: station.code,
     });
 
     await this.stationRepository.save(station);
-
     this.logger.log(`Updated station: ${station.name} (${id})`);
     return station;
   }
 
-  /**
-   * Delete a station
-   */
+  /** Delete a station (soft delete) */
   async delete(id: string): Promise<void> {
     const station = await this.findById(id);
     await this.stationRepository.softDeleteStation(id);
-
     this.logger.log(`Deleted station: ${station.name} (${id})`);
   }
 
-  /**
-   * Activate a station
-   */
+  /** Activate a station */
   async activate(id: string): Promise<StationEntity> {
     return this.update(id, { status: StationStatus.ACTIVE });
   }
 
-  /**
-   * Deactivate a station
-   */
+  /** Deactivate a station */
   async deactivate(id: string): Promise<StationEntity> {
     return this.update(id, { status: StationStatus.INACTIVE });
   }
 
-  /**
-   * Batch activate stations
-   */
-  async batchActivate(
-    ids: string[],
-  ): Promise<{ success: number; failed: number }> {
-    let success = 0;
-    let failed = 0;
-
-    for (const id of ids) {
-      try {
-        await this.activate(id);
-        success++;
-      } catch (error) {
-        failed++;
-        this.logger.error(`Failed to activate station ${id}`, error.message);
-      }
-    }
-
-    return { success, failed };
+  /** Set station to maintenance mode */
+  async setMaintenance(id: string): Promise<StationEntity> {
+    return this.update(id, { status: StationStatus.MAINTENANCE });
   }
 
-  /**
-   * Batch deactivate stations
-   */
-  async batchDeactivate(
-    ids: string[],
-  ): Promise<{ success: number; failed: number }> {
-    let success = 0;
-    let failed = 0;
-
-    for (const id of ids) {
-      try {
-        await this.deactivate(id);
-        success++;
-      } catch (error) {
-        failed++;
-        this.logger.error(`Failed to deactivate station ${id}`, error.message);
-      }
-    }
-
-    return { success, failed };
-  }
-
-  /**
-   * Get station statistics
-   */
+  /** Get station statistics by status */
   async getStatistics(): Promise<{
     total: number;
     active: number;
     inactive: number;
     maintenance: number;
-    retired: number;
-    byCity: Record<string, number>;
-    byPriority: Record<string, number>;
   }> {
-    return this.stationRepository.getStatistics();
-  }
+    const allStations = await this.stationRepository
+      .createQueryBuilder('station')
+      .where('station.deletedAt IS NULL')
+      .getMany();
 
-  /**
-   * Get data source info
-   */
-  async getDataSourceInfo(): Promise<{
-    source: string;
-    lastUpdated: string;
-    stationCount: number;
-  }> {
-    const stats = await this.stationRepository.getStatistics();
     return {
-      source: 'PostgreSQL',
-      lastUpdated: new Date().toISOString(),
-      stationCount: stats.total,
+      total: allStations.length,
+      active: allStations.filter((s) => s.status === StationStatus.ACTIVE)
+        .length,
+      inactive: allStations.filter((s) => s.status === StationStatus.INACTIVE)
+        .length,
+      maintenance: allStations.filter(
+        (s) => s.status === StationStatus.MAINTENANCE,
+      ).length,
     };
   }
 }

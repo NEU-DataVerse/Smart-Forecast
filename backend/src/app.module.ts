@@ -23,6 +23,7 @@ import {
   minioConfig,
   firebaseConfig,
   googleConfig,
+  openweathermapConfig,
 } from './config';
 
 @Module({
@@ -37,6 +38,7 @@ import {
         minioConfig,
         firebaseConfig,
         googleConfig,
+        openweathermapConfig,
       ],
       envFilePath: '.env',
     }),

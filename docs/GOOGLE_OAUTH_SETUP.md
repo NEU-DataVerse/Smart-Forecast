@@ -23,6 +23,7 @@
      # Release keystore (production)
      keytool -list -v -keystore /path/to/your-release-key.keystore -alias your-key-alias
      ```
+
 7. Click **CREATE**
 8. Copy `Client ID`: `867552827752-ro1hcaqr6q6ev475qnhraq9b31b6jvap.apps.googleusercontent.com`
 

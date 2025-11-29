@@ -64,3 +64,39 @@ export interface ForecastAirQualityResponse {
   source: 'orion-ld';
   timestamp: string;
 }
+
+/**
+ * Nearest station info for GPS-based queries
+ */
+export interface NearestStationInfo {
+  code: string;
+  name: string;
+  distance: number; // in kilometers
+}
+
+/**
+ * Nearby air quality response (for mobile GPS)
+ */
+export interface NearbyAirQualityResponse {
+  nearestStation: NearestStationInfo;
+  current?: AirQualityDataResponse;
+  forecast?: Array<
+    AirQualityDataResponse & { validFrom?: string; validTo?: string }
+  >;
+  source: 'orion-ld';
+  timestamp: string;
+  validUntil: string; // ISO timestamp for cache invalidation
+}
+
+/**
+ * Compare air quality response (for admin dashboard)
+ */
+export interface CompareAirQualityResponse {
+  stations: Array<{
+    stationId: string;
+    stationName?: string;
+    data: AirQualityDataResponse | null;
+  }>;
+  source: 'orion-ld';
+  timestamp: string;
+}

@@ -38,7 +38,7 @@ export class StationEntity {
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   @Index()
-  city?: string;
+  city: string;
 
   @Column({ type: 'varchar', length: 100 })
   @Index()

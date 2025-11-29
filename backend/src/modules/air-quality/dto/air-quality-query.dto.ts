@@ -8,20 +8,12 @@ import {
 import { Type } from 'class-transformer';
 
 /**
- * Query DTO for air quality data
+ * Query DTO for air quality historical data
  */
 export class AirQualityQueryDto {
   @IsOptional()
   @IsString()
   stationId?: string;
-
-  @IsOptional()
-  @IsString()
-  city?: string;
-
-  @IsOptional()
-  @IsString()
-  district?: string;
 
   @IsOptional()
   @IsDateString()

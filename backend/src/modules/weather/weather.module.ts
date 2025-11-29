@@ -4,6 +4,7 @@ import { WeatherController } from './weather.controller';
 import { WeatherService } from './weather.service';
 import { WeatherObservedEntity } from '../persistence/entities/weather-observed.entity';
 import { IngestionModule } from '../ingestion/ingestion.module';
+import { StationsModule } from '../stations/stations.module';
 
 /**
  * Weather Module
@@ -13,6 +14,7 @@ import { IngestionModule } from '../ingestion/ingestion.module';
   imports: [
     TypeOrmModule.forFeature([WeatherObservedEntity]),
     IngestionModule, // For OrionClientProvider
+    StationsModule, // For StationService (GPS-based queries)
   ],
   controllers: [WeatherController],
   providers: [WeatherService],
