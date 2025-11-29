@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   BeforeInsert,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from '@smart-forecast/shared';
 
@@ -17,6 +18,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column({ nullable: true })
   password: string;
 
@@ -36,9 +38,11 @@ export class User {
   @Column({ nullable: true })
   avatarUrl: string;
 
+  @Exclude()
   @Column({ nullable: true })
   fcmToken: string;
 
+  @Exclude()
   @Column({ nullable: true, unique: true })
   googleId: string;
 

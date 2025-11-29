@@ -1,32 +1,56 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IncidentEntity } from './entities/incident.entity';
-import { CreateIncidentDto } from './dto/create-incident.dto';
+import { CreateIncidentMultipartDto } from './dto/create-incident-multipart.dto';
 import { UpdateIncidentStatusDto } from './dto/update-incident-status.dto';
 import { IncidentQueryDto } from './dto/incident-query.dto';
+import { FileService } from '../file/file.service';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class IncidentService {
   constructor(
     @InjectRepository(IncidentEntity)
     private readonly incidentRepository: Repository<IncidentEntity>,
+    private readonly fileService: FileService,
   ) {}
 
   /**
-   * Create a new incident report
+   * Create a new incident report with image upload
    */
   async create(
-    createDto: CreateIncidentDto,
+    createDto: CreateIncidentMultipartDto,
     userId: string,
+    files: Express.Multer.File[],
   ): Promise<IncidentEntity> {
+    // Validate at least 1 image is required
+    if (!files || files.length === 0) {
+      throw new BadRequestException('At least one image is required');
+    }
+
+    // Upload images to MinIO
+    const imageUrls = await this.fileService.uploadMultipleImages(files);
+
+    // Build location GeoJSON
+    const location = {
+      type: 'Point' as const,
+      coordinates: [
+        parseFloat(createDto.longitude),
+        parseFloat(createDto.latitude),
+      ] as [number, number],
+    };
+
     const incident = this.incidentRepository.create({
-      ...createDto,
-      reportedBy: userId,
+      type: createDto.type,
+      description: createDto.description,
+      location,
+      imageUrls,
+      reportedBy: { id: userId } as User,
     });
 
     return this.incidentRepository.save(incident);
@@ -54,8 +78,8 @@ export class IncidentService {
 
     const queryBuilder = this.incidentRepository
       .createQueryBuilder('incident')
-      .leftJoinAndSelect('incident.reporter', 'reporter')
-      .leftJoinAndSelect('incident.verifier', 'verifier');
+      .leftJoinAndSelect('incident.reportedBy', 'reporter')
+      .leftJoinAndSelect('incident.verifiedBy', 'verifier');
 
     // Apply filters
     if (status) {
@@ -67,7 +91,7 @@ export class IncidentService {
     }
 
     if (reportedBy) {
-      queryBuilder.andWhere('incident.reportedBy = :reportedBy', {
+      queryBuilder.andWhere('reporter.id = :reportedBy', {
         reportedBy,
       });
     }
@@ -101,7 +125,7 @@ export class IncidentService {
   async findOne(id: string): Promise<IncidentEntity> {
     const incident = await this.incidentRepository.findOne({
       where: { id },
-      relations: ['reporter', 'verifier'],
+      relations: ['reportedBy', 'verifiedBy'],
     });
 
     if (!incident) {
@@ -121,23 +145,55 @@ export class IncidentService {
   ): Promise<IncidentEntity> {
     const incident = await this.findOne(id);
 
-    // Use update() to only modify specific fields
-    await this.incidentRepository.update(id, {
-      status: updateDto.status,
-      verifiedBy: adminId,
-      adminNotes: updateDto.notes || incident.adminNotes,
-    });
+    // Update fields
+    incident.status = updateDto.status;
+    incident.verifiedBy = { id: adminId } as User;
+    incident.adminNotes = updateDto.notes || incident.adminNotes;
+
+    await this.incidentRepository.save(incident);
 
     // Return the updated incident
     return this.findOne(id);
   }
 
   /**
-   * Delete incident (soft delete by setting status to REJECTED)
+   * Delete incident (hard delete with image cleanup)
    */
   async remove(id: string): Promise<void> {
     const incident = await this.findOne(id);
+
+    // Delete images from MinIO
+    if (incident.imageUrls && incident.imageUrls.length > 0) {
+      for (const url of incident.imageUrls) {
+        try {
+          // Extract filename from URL (last part after /)
+          const fileName = url.split('/').pop();
+          if (fileName) {
+            await this.fileService.deleteFile(fileName);
+          }
+        } catch (error) {
+          // Log error but continue with deletion
+          console.error(`Failed to delete image: ${url}`, error);
+        }
+      }
+    }
+
     await this.incidentRepository.remove(incident);
+  }
+
+  /**
+   * Find all incidents by user (for my-reports endpoint)
+   */
+  async findByUser(
+    userId: string,
+    query: IncidentQueryDto,
+  ): Promise<{
+    data: IncidentEntity[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    return this.findAll({ ...query, reportedBy: userId });
   }
 
   /**

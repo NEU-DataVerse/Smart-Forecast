@@ -105,7 +105,7 @@ export class ReportsService {
 
     const data = await this.incidentRepo.find({
       where,
-      relations: ['reporter', 'verifier'],
+      relations: ['reportedBy', 'verifiedBy'],
       order: { createdAt: 'DESC' },
       take: 1000,
     });
@@ -184,8 +184,8 @@ export class ReportsService {
       description: incident.description,
       latitude: incident.location?.coordinates?.[1],
       longitude: incident.location?.coordinates?.[0],
-      reportedBy: incident.reporter?.email || incident.reportedBy,
-      verifiedBy: incident.verifier?.email || incident.verifiedBy,
+      reportedBy: incident.reportedBy?.email || incident.reportedBy,
+      verifiedBy: incident.verifiedBy?.email || incident.verifiedBy,
       createdAt: incident.createdAt,
     }));
 
@@ -399,7 +399,7 @@ export class ReportsService {
           `${index + 1}. [${item.status}] ${item.type} - ${new Date(item.createdAt).toLocaleString()}`,
         );
         doc.text(`   ${item.description.substring(0, 100)}...`);
-        doc.text(`   Reporter: ${item.reporter?.email || item.reportedBy}`);
+        doc.text(`   ReportedBy: ${item.reportedBy.id}`);
         doc.moveDown(0.5);
 
         if (doc.y > 700) {
