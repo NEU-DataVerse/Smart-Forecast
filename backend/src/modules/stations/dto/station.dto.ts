@@ -123,7 +123,6 @@ export enum StationStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   MAINTENANCE = 'maintenance',
-  RETIRED = 'retired',
 }
 
 export enum StationPriority {
@@ -171,7 +170,7 @@ export class CreateStationDto {
   @ApiPropertyOptional({ description: 'City name', example: 'Hanoi' })
   @IsString()
   @IsOptional()
-  city?: string;
+  city: string;
 
   @ApiProperty({ description: 'District name', example: 'Hoan Kiem' })
   @IsString()
@@ -291,24 +290,9 @@ export class UpdateStationDto {
 
 /**
  * DTO for station query parameters
+ * Simplified: only filter by status with pagination
  */
 export class StationQueryDto {
-  @ApiPropertyOptional({
-    description: 'Filter by city name',
-    example: 'Hanoi',
-  })
-  @IsString()
-  @IsOptional()
-  city?: string;
-
-  @ApiPropertyOptional({
-    description: 'Filter by district name',
-    example: 'Hoan Kiem',
-  })
-  @IsString()
-  @IsOptional()
-  district?: string;
-
   @ApiPropertyOptional({
     description: 'Filter by station status',
     enum: StationStatus,
@@ -317,23 +301,6 @@ export class StationQueryDto {
   @IsEnum(StationStatus)
   @IsOptional()
   status?: StationStatus;
-
-  @ApiPropertyOptional({
-    description: 'Filter by priority level',
-    enum: StationPriority,
-    example: StationPriority.HIGH,
-  })
-  @IsEnum(StationPriority)
-  @IsOptional()
-  priority?: StationPriority;
-
-  @ApiPropertyOptional({
-    description: 'Filter by category',
-    example: 'weather',
-  })
-  @IsString()
-  @IsOptional()
-  category?: string;
 
   @ApiPropertyOptional({
     description: 'Maximum number of results',
@@ -430,27 +397,4 @@ export class NearestStationQueryDto {
   @Max(10)
   @IsOptional()
   limit?: number;
-}
-
-/**
- * DTO for batch station operations
- */
-export class BatchStationOperationDto {
-  @ApiProperty({
-    description: 'Array of station IDs',
-    type: [String],
-    example: ['urn:ngsi-ld:ObservationStation:hanoi-abc123'],
-  })
-  @IsArray()
-  @IsString({ each: true })
-  @IsNotEmpty({ each: true })
-  stationIds: string[];
-
-  @ApiProperty({
-    description: 'Operation to perform',
-    enum: ['activate', 'deactivate', 'delete'],
-    example: 'activate',
-  })
-  @IsEnum(['activate', 'deactivate', 'delete'])
-  operation: 'activate' | 'deactivate' | 'delete';
 }

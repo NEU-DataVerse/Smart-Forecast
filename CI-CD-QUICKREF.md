@@ -5,14 +5,13 @@
 ### GitHub Actions Workflows
 
 1. **Main CI/CD Pipeline** (`.github/workflows/ci.yml`)
-
-    - Runs on: Push & Pull Requests
-    - Checks: Linting, Building, Testing
-    - Workspaces: Backend, Web, Mobile
+   - Runs on: Push & Pull Requests
+   - Checks: Linting, Building, Testing
+   - Workspaces: Backend, Web, Mobile
 
 2. **Docker Validation** (`.github/workflows/docker.yml`)
-    - Runs on: Docker file changes
-    - Checks: Docker build, docker-compose validation
+   - Runs on: Docker file changes
+   - Checks: Docker build, docker-compose validation
 
 ### NPM Scripts Added
 
@@ -86,13 +85,13 @@ docker-compose config
 
 ## 📝 Next Steps
 
--   [ ] Add code coverage reporting
--   [ ] Add deployment workflows
--   [ ] Add security scanning
--   [ ] Add automated releases
--   [ ] Add E2E testing
+- [ ] Add code coverage reporting
+- [ ] Add deployment workflows
+- [ ] Add security scanning
+- [ ] Add automated releases
+- [ ] Add E2E testing
 
 ## 📚 Documentation
 
--   Full guide (Vietnamese): `docs/CI-CD-GUIDE.md`
--   Workflow docs (English): `.github/workflows/README.md`
+- Full guide (Vietnamese): `docs/CI-CD-GUIDE.md`
+- Workflow docs (English): `.github/workflows/README.md`

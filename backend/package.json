@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:generate": "ts-node src/database/seeds/generate-seed-data.ts",
     "seed": "ts-node src/database/seeds/seed.ts",
+    "seed:force": "ts-node src/database/seeds/seed.ts force",
     "seed:clear": "ts-node src/database/seeds/seed.ts clear",
     "seed:reseed": "ts-node src/database/seeds/seed.ts reseed"
   },

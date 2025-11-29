@@ -16,14 +16,6 @@ export class WeatherQueryDto {
   stationId?: string;
 
   @IsOptional()
-  @IsString()
-  city?: string;
-
-  @IsOptional()
-  @IsString()
-  district?: string;
-
-  @IsOptional()
   @IsDateString()
   startDate?: string;
 

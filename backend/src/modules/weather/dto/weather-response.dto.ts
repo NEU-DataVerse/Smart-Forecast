@@ -72,3 +72,39 @@ export interface ForecastWeatherResponse {
   source: 'orion-ld';
   timestamp: string;
 }
+
+/**
+ * Nearest station info for nearby response
+ */
+export interface NearestStationInfo {
+  code: string;
+  name: string;
+  distance: number;
+}
+
+/**
+ * Nearby weather response (GPS-based for mobile)
+ */
+export interface NearbyWeatherResponse {
+  nearestStation: NearestStationInfo;
+  current?: WeatherDataResponse;
+  forecast?: Array<
+    WeatherDataResponse & { validFrom: string; validTo: string }
+  >;
+  source: 'orion-ld';
+  timestamp: string;
+  validUntil: string;
+}
+
+/**
+ * Compare weather response (multi-station for admin)
+ */
+export interface CompareWeatherResponse {
+  stations: Array<{
+    stationId: string;
+    stationName?: string;
+    data: WeatherDataResponse | null;
+  }>;
+  source: 'orion-ld';
+  timestamp: string;
+}
