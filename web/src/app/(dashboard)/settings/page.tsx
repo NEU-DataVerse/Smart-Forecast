@@ -29,7 +29,9 @@ export default function Settings() {
     createStation,
     updateStation,
     deleteStation,
-    batchOperation,
+    activateStation,
+    deactivateStation,
+    setMaintenanceMode,
     getStatistics,
   } = useStations({ params: queryParams });
 
@@ -178,7 +180,7 @@ export default function Settings() {
     resetStationForm();
   };
 
-  // Batch operations handlers
+  // Station selection handlers
   const toggleStationSelection = (stationId: string) => {
     setSelectedStations((prev) =>
       prev.includes(stationId) ? prev.filter((id) => id !== stationId) : [...prev, stationId],
@@ -193,14 +195,16 @@ export default function Settings() {
     }
   };
 
+  // Individual station operations (batch operations replaced with individual calls)
   const handleBatchActivate = async () => {
     if (selectedStations.length === 0) return;
     if (confirm(`Activate ${selectedStations.length} stations?`)) {
-      const result = await batchOperation({
-        stationIds: selectedStations,
-        operation: 'activate',
-      });
-      if (result) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await activateStation(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
         setSelectedStations([]);
         const statistics = await getStatistics();
         setStats(statistics);
@@ -211,11 +215,28 @@ export default function Settings() {
   const handleBatchDeactivate = async () => {
     if (selectedStations.length === 0) return;
     if (confirm(`Deactivate ${selectedStations.length} stations?`)) {
-      const result = await batchOperation({
-        stationIds: selectedStations,
-        operation: 'deactivate',
-      });
-      if (result) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await deactivateStation(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
+        setSelectedStations([]);
+        const statistics = await getStatistics();
+        setStats(statistics);
+      }
+    }
+  };
+
+  const handleBatchMaintenance = async () => {
+    if (selectedStations.length === 0) return;
+    if (confirm(`Set ${selectedStations.length} stations to maintenance mode?`)) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await setMaintenanceMode(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
         setSelectedStations([]);
         const statistics = await getStatistics();
         setStats(statistics);
@@ -226,11 +247,12 @@ export default function Settings() {
   const handleBatchDelete = async () => {
     if (selectedStations.length === 0) return;
     if (confirm(`Delete ${selectedStations.length} stations? This action cannot be undone.`)) {
-      const result = await batchOperation({
-        stationIds: selectedStations,
-        operation: 'delete',
-      });
-      if (result) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await deleteStation(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
         setSelectedStations([]);
         const statistics = await getStatistics();
         setStats(statistics);
@@ -279,6 +301,7 @@ export default function Settings() {
         onAdd={() => handleOpenStationDialog()}
         onBatchActivate={handleBatchActivate}
         onBatchDeactivate={handleBatchDeactivate}
+        onBatchMaintenance={handleBatchMaintenance}
         onBatchDelete={handleBatchDelete}
         onNextPage={handleNextPage}
         onPrevPage={handlePrevPage}

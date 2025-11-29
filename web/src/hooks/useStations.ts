@@ -1,6 +1,7 @@
 /**
  * useStations Hook
  * Manages station data with CRUD operations
+ * Synced with backend/src/modules/stations/station.controller.ts
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -10,7 +11,6 @@ import type {
   StationQueryParams,
   CreateStationDto,
   UpdateStationDto,
-  BatchStationOperationDto,
   StationStatsResponse,
 } from '@/types/dto';
 
@@ -18,6 +18,13 @@ interface UseStationsOptions {
   params?: StationQueryParams;
   enabled?: boolean;
   autoFetch?: boolean;
+}
+
+interface NearestStationResult {
+  coordinates: { lat: number; lon: number };
+  radius: number;
+  count: number;
+  stations: Array<ObservationStation & { distance: number }>;
 }
 
 export function useStations(options: UseStationsOptions = {}) {
@@ -82,6 +89,28 @@ export function useStations(options: UseStationsOptions = {}) {
       return null;
     }
   }, []);
+
+  /**
+   * Find nearest stations by GPS coordinates
+   */
+  const findNearest = useCallback(
+    async (
+      lat: number,
+      lon: number,
+      radius?: number,
+      limit?: number,
+    ): Promise<NearestStationResult | null> => {
+      try {
+        setError(null);
+        return await stationsService.findNearest(lat, lon, radius, limit);
+      } catch (err) {
+        setError(err as Error);
+        console.error('Error finding nearest stations:', err);
+        return null;
+      }
+    },
+    [],
+  );
 
   /**
    * Create a new station
@@ -177,24 +206,21 @@ export function useStations(options: UseStationsOptions = {}) {
   }, []);
 
   /**
-   * Batch operations on stations
+   * Set station to maintenance mode
    */
-  const batchOperation = useCallback(
-    async (data: BatchStationOperationDto): Promise<{ success: number; failed: number } | null> => {
-      try {
-        setError(null);
-        const result = await stationsService.batchOperation(data);
-        // Refresh the list
-        await fetchStations();
-        return result;
-      } catch (err) {
-        setError(err as Error);
-        console.error('Error performing batch operation:', err);
-        return null;
-      }
-    },
-    [fetchStations],
-  );
+  const setMaintenanceMode = useCallback(async (id: string): Promise<ObservationStation | null> => {
+    try {
+      setError(null);
+      const updatedStation = await stationsService.setMaintenance(id);
+      // Update local state
+      setStations((prev) => prev.map((station) => (station.id === id ? updatedStation : station)));
+      return updatedStation;
+    } catch (err) {
+      setError(err as Error);
+      console.error('Error setting maintenance mode:', err);
+      return null;
+    }
+  }, []);
 
   /**
    * Get station statistics
@@ -208,36 +234,6 @@ export function useStations(options: UseStationsOptions = {}) {
       setError(err as Error);
       console.error('Error fetching statistics:', err);
       return null;
-    }
-  }, []);
-
-  /**
-   * Get stations by city
-   */
-  const getByCity = useCallback(async (city: string): Promise<ObservationStation[]> => {
-    try {
-      setError(null);
-      const result = await stationsService.getByCity(city);
-      return result;
-    } catch (err) {
-      setError(err as Error);
-      console.error('Error fetching stations by city:', err);
-      return [];
-    }
-  }, []);
-
-  /**
-   * Get stations by district
-   */
-  const getByDistrict = useCallback(async (district: string): Promise<ObservationStation[]> => {
-    try {
-      setError(null);
-      const result = await stationsService.getByDistrict(district);
-      return result;
-    } catch (err) {
-      setError(err as Error);
-      console.error('Error fetching stations by district:', err);
-      return [];
     }
   }, []);
 
@@ -267,8 +263,7 @@ export function useStations(options: UseStationsOptions = {}) {
     fetchStations,
     fetchActiveStations,
     getStation,
-    getByCity,
-    getByDistrict,
+    findNearest,
     getStatistics,
 
     // Mutation operations
@@ -277,6 +272,6 @@ export function useStations(options: UseStationsOptions = {}) {
     deleteStation,
     activateStation,
     deactivateStation,
-    batchOperation,
+    setMaintenanceMode,
   };
 }

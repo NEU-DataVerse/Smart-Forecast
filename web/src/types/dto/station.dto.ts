@@ -29,7 +29,6 @@ export enum StationStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   MAINTENANCE = 'maintenance',
-  RETIRED = 'retired',
 }
 
 export enum StationPriority {
@@ -97,13 +96,10 @@ export interface UpdateStationDto {
 
 /**
  * DTO for station query parameters
+ * Simplified: only filter by status with pagination
  */
 export interface StationQueryParams {
-  city?: string;
-  district?: string;
   status?: StationStatus;
-  priority?: StationPriority;
-  category?: string;
   limit?: number;
   offset?: number;
 }
@@ -126,14 +122,6 @@ export interface StationResponseDto {
 }
 
 /**
- * DTO for batch station operations
- */
-export interface BatchStationOperationDto {
-  stationIds: string[];
-  operation: 'activate' | 'deactivate' | 'delete';
-}
-
-/**
  * Station statistics response
  */
 export interface StationStatsResponse {
@@ -141,6 +129,4 @@ export interface StationStatsResponse {
   active: number;
   inactive: number;
   maintenance: number;
-  byCity: Record<string, number>;
-  byPriority: Record<string, number>;
 }

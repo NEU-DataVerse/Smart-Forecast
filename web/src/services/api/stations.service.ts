@@ -1,5 +1,6 @@
 /**
  * Stations API Service
+ * Synced with backend/src/modules/stations/station.controller.ts
  */
 
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
@@ -8,83 +9,86 @@ import type {
   StationQueryParams,
   CreateStationDto,
   UpdateStationDto,
-  BatchStationOperationDto,
   StationStatsResponse,
-  StationDataSource,
+  StationStatus,
 } from '@/types/dto';
 
 const BASE_PATH = '/stations';
 
+/**
+ * Response types matching backend controller
+ */
+interface StationListResponse {
+  count: number;
+  stations: ObservationStation[];
+}
+
+interface NearestStationResponse {
+  coordinates: { lat: number; lon: number };
+  radius: number;
+  count: number;
+  stations: Array<ObservationStation & { distance: number }>;
+}
+
+interface StationMutationResponse {
+  message: string;
+  station: ObservationStation;
+}
+
 export const stationsService = {
   /**
    * List all stations with optional filters
+   * GET /stations?status=active&limit=10&offset=0
    */
   async list(params?: StationQueryParams): Promise<ObservationStation[]> {
-    const response = await apiGet<{ count: number; stations: ObservationStation[] }>(
-      BASE_PATH,
-      params,
-    );
+    const response = await apiGet<StationListResponse>(BASE_PATH, params);
     return response.stations;
   },
 
   /**
-   * Get active stations only
+   * Get active stations only (convenience method)
+   * Uses list() with status filter
    */
   async getActive(): Promise<ObservationStation[]> {
-    const response = await apiGet<{ count: number; stations: ObservationStation[] }>(
-      `${BASE_PATH}/active`,
-    );
-    return response.stations;
+    return this.list({ status: 'active' as StationStatus });
   },
 
   /**
    * Get station statistics
+   * GET /stations/stats
    */
   async getStats(): Promise<StationStatsResponse> {
     return apiGet<StationStatsResponse>(`${BASE_PATH}/stats`);
   },
 
   /**
-   * Get data source information
+   * Find nearest station(s) by GPS coordinates
+   * GET /stations/nearest?lat=21.028&lon=105.804&radius=50&limit=1
    */
-  async getInfo(): Promise<StationDataSource> {
-    return apiGet<StationDataSource>(`${BASE_PATH}/info`);
-  },
-
-  /**
-   * Get stations by city
-   */
-  async getByCity(city: string): Promise<ObservationStation[]> {
-    const response = await apiGet<{ city: string; count: number; stations: ObservationStation[] }>(
-      `${BASE_PATH}/city/${city}`,
-    );
-    return response.stations;
-  },
-
-  /**
-   * Get stations by district
-   */
-  async getByDistrict(district: string): Promise<ObservationStation[]> {
-    const response = await apiGet<{
-      district: string;
-      count: number;
-      stations: ObservationStation[];
-    }>(`${BASE_PATH}/district/${district}`);
-    return response.stations;
+  async findNearest(
+    lat: number,
+    lon: number,
+    radius?: number,
+    limit?: number,
+  ): Promise<NearestStationResponse> {
+    const params = { lat, lon, ...(radius && { radius }), ...(limit && { limit }) };
+    return apiGet<NearestStationResponse>(`${BASE_PATH}/nearest`, params);
   },
 
   /**
    * Get station by ID
+   * GET /stations/:id
    */
   async getById(id: string): Promise<ObservationStation> {
-    return apiGet<ObservationStation>(`${BASE_PATH}/${id}`);
+    return apiGet<ObservationStation>(`${BASE_PATH}/${encodeURIComponent(id)}`);
   },
 
   /**
    * Create a new station
+   * POST /stations
    */
   async create(data: CreateStationDto): Promise<ObservationStation> {
-    const response = await apiPost<{ message: string; station: ObservationStation }>(
+    const response = await apiPost<StationMutationResponse>(
       BASE_PATH,
       data,
       undefined,
@@ -96,10 +100,11 @@ export const stationsService = {
 
   /**
    * Update a station
+   * PUT /stations/:id
    */
   async update(id: string, data: UpdateStationDto): Promise<ObservationStation> {
-    const response = await apiPut<{ message: string; station: ObservationStation }>(
-      `${BASE_PATH}/${id}`,
+    const response = await apiPut<StationMutationResponse>(
+      `${BASE_PATH}/${encodeURIComponent(id)}`,
       data,
       undefined,
       true,
@@ -110,10 +115,11 @@ export const stationsService = {
 
   /**
    * Delete a station (soft delete)
+   * DELETE /stations/:id
    */
-  async delete(id: string): Promise<{ message: string }> {
-    return apiDelete<{ message: string }>(
-      `${BASE_PATH}/${id}`,
+  async delete(id: string): Promise<void> {
+    await apiDelete<void>(
+      `${BASE_PATH}/${encodeURIComponent(id)}`,
       undefined,
       true,
       'Station deleted successfully',
@@ -122,10 +128,11 @@ export const stationsService = {
 
   /**
    * Activate a station
+   * POST /stations/:id/activate
    */
   async activate(id: string): Promise<ObservationStation> {
-    const response = await apiPost<{ message: string; station: ObservationStation }>(
-      `${BASE_PATH}/${id}/activate`,
+    const response = await apiPost<StationMutationResponse>(
+      `${BASE_PATH}/${encodeURIComponent(id)}/activate`,
       undefined,
       undefined,
       true,
@@ -136,10 +143,11 @@ export const stationsService = {
 
   /**
    * Deactivate a station
+   * POST /stations/:id/deactivate
    */
   async deactivate(id: string): Promise<ObservationStation> {
-    const response = await apiPost<{ message: string; station: ObservationStation }>(
-      `${BASE_PATH}/${id}/deactivate`,
+    const response = await apiPost<StationMutationResponse>(
+      `${BASE_PATH}/${encodeURIComponent(id)}/deactivate`,
       undefined,
       undefined,
       true,
@@ -149,18 +157,17 @@ export const stationsService = {
   },
 
   /**
-   * Batch operations on stations
+   * Set station to maintenance mode
+   * POST /stations/:id/maintenance
    */
-  async batchOperation(
-    data: BatchStationOperationDto,
-  ): Promise<{ success: number; failed: number }> {
-    const response = await apiPost<{ message: string; success: number; failed: number }>(
-      `${BASE_PATH}/batch`,
-      data,
+  async setMaintenance(id: string): Promise<ObservationStation> {
+    const response = await apiPost<StationMutationResponse>(
+      `${BASE_PATH}/${encodeURIComponent(id)}/maintenance`,
+      undefined,
       undefined,
       true,
-      'Batch operation completed successfully',
+      'Station set to maintenance mode',
     );
-    return { success: response.success, failed: response.failed };
+    return response.station;
   },
 };

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Activity, Trash2 } from 'lucide-react';
+import { Plus, Activity, Trash2, Wrench } from 'lucide-react';
 import { StationCard } from './StationCard';
 import type { ObservationStation } from '@/types/dto';
 
@@ -24,6 +24,7 @@ interface StationListProps {
   onAdd: () => void;
   onBatchActivate: () => void;
   onBatchDeactivate: () => void;
+  onBatchMaintenance: () => void;
   onBatchDelete: () => void;
   onNextPage: () => void;
   onPrevPage: () => void;
@@ -42,6 +43,7 @@ export function StationList({
   onAdd,
   onBatchActivate,
   onBatchDeactivate,
+  onBatchMaintenance,
   onBatchDelete,
   onNextPage,
   onPrevPage,
@@ -75,6 +77,15 @@ export function StationList({
                   className="text-orange-600"
                 >
                   Deactivate ({selectedStations.length})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onBatchMaintenance}
+                  className="text-yellow-600"
+                >
+                  <Wrench className="h-4 w-4 mr-1" />
+                  Maintenance ({selectedStations.length})
                 </Button>
                 <Button
                   variant="outline"
