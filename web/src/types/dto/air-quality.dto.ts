@@ -1,15 +1,14 @@
 /**
  * Air Quality DTOs
- * Copied from backend/src/modules/air-quality/dto
+ * Synced with backend/src/modules/air-quality/dto
  */
 
 /**
- * Query parameters for air quality data
+ * Query parameters for air quality historical data
+ * Matches backend AirQualityQueryDto
  */
-export interface AirQualityQueryParams {
+export interface AirQualityHistoryParams {
   stationId?: string;
-  city?: string;
-  district?: string;
   startDate?: string;
   endDate?: string;
   page?: number;
@@ -17,7 +16,25 @@ export interface AirQualityQueryParams {
 }
 
 /**
+ * Query parameters for comparing stations (admin only)
+ * Matches backend CompareQueryDto
+ */
+export interface CompareStationsParams {
+  stationCodes: string[];
+}
+
+/**
+ * Date range query parameters
+ * Matches backend DateRangeQueryDto
+ */
+export interface DateRangeQuery {
+  startDate: string;
+  endDate: string;
+}
+
+/**
  * Air quality data response interface
+ * Matches backend AirQualityDataResponse
  */
 export interface AirQualityDataResponse {
   id: string;
@@ -52,6 +69,7 @@ export interface AirQualityDataResponse {
 
 /**
  * Paginated air quality response
+ * Matches backend AirQualityListResponse
  */
 export interface AirQualityListResponse {
   data: AirQualityDataResponse[];
@@ -65,6 +83,7 @@ export interface AirQualityListResponse {
 
 /**
  * Current air quality response (from Orion-LD)
+ * Matches backend CurrentAirQualityResponse
  */
 export interface CurrentAirQualityResponse {
   data: AirQualityDataResponse[];
@@ -73,20 +92,40 @@ export interface CurrentAirQualityResponse {
 }
 
 /**
+ * Forecast air quality item (with time range)
+ */
+export interface ForecastAirQualityItem extends AirQualityDataResponse {
+  validFrom?: string;
+  validTo?: string;
+}
+
+/**
  * Forecast air quality response (from Orion-LD)
+ * Matches backend ForecastAirQualityResponse
  */
 export interface ForecastAirQualityResponse {
-  data: Array<AirQualityDataResponse & { validFrom?: string; validTo?: string }>;
+  data: ForecastAirQualityItem[];
   source: 'orion-ld';
   timestamp: string;
 }
 
 /**
- * Date range query parameters
+ * Compare station item
  */
-export interface DateRangeQuery {
-  startDate: string;
-  endDate: string;
+export interface CompareStationItem {
+  stationId: string;
+  stationName?: string;
+  data: AirQualityDataResponse | null;
+}
+
+/**
+ * Compare air quality response (for admin dashboard)
+ * Matches backend CompareAirQualityResponse
+ */
+export interface CompareAirQualityResponse {
+  stations: CompareStationItem[];
+  source: 'orion-ld';
+  timestamp: string;
 }
 
 /**

@@ -6,8 +6,8 @@ import SummaryCards from '@/components/dashboardUI/SummaryCard';
 import RecentReports from '@/components/dashboardUI/RecentReport';
 import AlertsActive from '@/components/dashboardUI/Alert';
 import DetailsReport from '@/components/dashboardUI/DetailReport';
-import { useAirQuality } from '@/hooks/useAirQuality';
-import { useWeather } from '@/hooks/useWeather';
+import { useCurrentAirQuality } from '@/hooks/useAirQualityQuery';
+import { useCurrentWeather } from '@/hooks/useWeatherQuery';
 import { CardSkeleton } from '@/components/shared/Skeleton';
 import { Cloud, Wind, RefreshCw } from 'lucide-react';
 import IngestionWidget from '@/components/admin/IngestionWidget';
@@ -15,19 +15,19 @@ import IngestionWidget from '@/components/admin/IngestionWidget';
 export default function Dashboard() {
   const [selectedReport, setSelectedReport] = useState<(typeof recentReports)[0] | null>(null);
 
-  // Fetch real-time data
+  // Fetch real-time data using React Query hooks
   const {
     data: airQualityData,
-    loading: airQualityLoading,
+    isLoading: airQualityLoading,
     error: airQualityError,
-    lastUpdate: airQualityLastUpdate,
-  } = useAirQuality();
+    dataUpdatedAt: airQualityLastUpdate,
+  } = useCurrentAirQuality();
   const {
     data: weatherData,
-    loading: weatherLoading,
+    isLoading: weatherLoading,
     error: weatherError,
-    lastUpdate: weatherLastUpdate,
-  } = useWeather();
+    dataUpdatedAt: weatherLastUpdate,
+  } = useCurrentWeather();
 
   // Calculate summary stats from real data
   const getSummaryCards = () => {

@@ -8,12 +8,28 @@
  */
 export interface WeatherQueryParams {
   stationId?: string;
-  city?: string;
-  district?: string;
   startDate?: string;
   endDate?: string;
   page?: number;
   limit?: number;
+}
+
+/**
+ * Query parameters for history data
+ */
+export interface WeatherHistoryParams {
+  stationId?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+/**
+ * Compare stations query params
+ */
+export interface CompareWeatherParams {
+  stationCodes: string[];
 }
 
 /**
@@ -95,8 +111,8 @@ export interface ForecastWeatherResponse {
  * Date range query parameters
  */
 export interface DateRangeQuery {
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 /**
@@ -107,4 +123,51 @@ export interface WeatherTrendsResponse {
   avgRainfall: number;
   avgHumidity: number;
   dataPoints: number;
+}
+
+/**
+ * Nearest station info for nearby response
+ */
+export interface NearestStationInfo {
+  code: string;
+  name: string;
+  distance: number;
+}
+
+/**
+ * Nearby weather response (GPS-based for mobile)
+ */
+export interface NearbyWeatherResponse {
+  nearestStation: NearestStationInfo;
+  current?: WeatherDataResponse;
+  forecast?: ForecastWeatherItem[];
+  source: 'orion-ld';
+  timestamp: string;
+  validUntil: string;
+}
+
+/**
+ * Forecast item with valid time range
+ */
+export type ForecastWeatherItem = WeatherDataResponse & {
+  validFrom: string;
+  validTo: string;
+};
+
+/**
+ * Compare weather station item
+ */
+export interface CompareWeatherStationItem {
+  stationId: string;
+  stationName?: string;
+  data: WeatherDataResponse | null;
+}
+
+/**
+ * Compare weather response (multi-station for admin)
+ */
+export interface CompareWeatherResponse {
+  stations: CompareWeatherStationItem[];
+  source: 'orion-ld';
+  timestamp: string;
 }

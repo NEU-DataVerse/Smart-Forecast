@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StationSelector, LoadingState, ErrorState } from '@/components/shared';
 import {
   AQICard,
@@ -11,6 +12,8 @@ import {
   ForecastCharts,
   AirQualityAverages,
   AQIMapView,
+  HistoryChart,
+  CompareStations,
 } from '@/components/air-quality';
 import {
   useCurrentAirQuality,
@@ -42,7 +45,7 @@ export default function AirQualityPage() {
 
   // Fetch forecast for selected station only
   const { data: forecastData, isLoading: forecastLoading } = useForecastAirQuality(
-    selectedStation ? { stationId: selectedStation } : undefined,
+    selectedStation || undefined,
   );
 
   // Fetch averages (admin only)
@@ -70,7 +73,7 @@ export default function AirQualityPage() {
   const forecastChartData = useMemo(() => {
     if (!forecastData?.data) return [];
 
-    return forecastData.data.slice(0, 24).map((item: any) => {
+    return forecastData.data.slice(0, 24).map((item) => {
       const date = new Date(item.dateObserved);
       return {
         time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
@@ -210,11 +213,36 @@ export default function AirQualityPage() {
         </Card>
       )}
 
-      {/* Forecast Charts */}
-      {forecastLoading && <LoadingState message="Loading forecast..." />}
-      {!forecastLoading && forecastChartData.length > 0 && (
-        <ForecastCharts data={forecastChartData} />
-      )}
+      {/* Tabs for Forecast, History, Compare */}
+      <Tabs defaultValue="forecast" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="forecast">Dự báo 24h</TabsTrigger>
+          <TabsTrigger value="history">Lịch sử</TabsTrigger>
+          <TabsTrigger value="compare">So sánh trạm</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="forecast">
+          {forecastLoading && <LoadingState message="Loading forecast..." />}
+          {!forecastLoading && forecastChartData.length > 0 && (
+            <ForecastCharts data={forecastChartData} />
+          )}
+          {!forecastLoading && forecastChartData.length === 0 && (
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <p className="text-slate-500">Không có dữ liệu dự báo cho trạm này</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="history">
+          <HistoryChart stationId={selectedStation || undefined} />
+        </TabsContent>
+
+        <TabsContent value="compare">
+          <CompareStations />
+        </TabsContent>
+      </Tabs>
 
       {/* Admin Averages Panel */}
       <AirQualityAverages

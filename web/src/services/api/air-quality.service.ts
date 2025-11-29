@@ -1,13 +1,17 @@
 /**
  * Air Quality API Service
+ * Synced with backend/src/modules/air-quality/air-quality.controller.ts
  */
 
 import { apiGet } from '@/lib/api-client';
 import type {
-  AirQualityQueryParams,
+  AirQualityHistoryParams,
   CurrentAirQualityResponse,
   ForecastAirQualityResponse,
   AirQualityListResponse,
+  CompareAirQualityResponse,
+  AirQualityAveragesResponse,
+  DateRangeQuery,
 } from '@/types/dto';
 
 const BASE_PATH = '/air-quality';
@@ -15,45 +19,49 @@ const BASE_PATH = '/air-quality';
 export const airQualityService = {
   /**
    * Get current air quality data from Orion-LD
+   * GET /api/v1/air-quality/current
    */
-  async getCurrent(params?: AirQualityQueryParams): Promise<CurrentAirQualityResponse> {
-    return apiGet<CurrentAirQualityResponse>(`${BASE_PATH}/current`, params);
+  async getCurrent(stationId?: string): Promise<CurrentAirQualityResponse> {
+    return apiGet<CurrentAirQualityResponse>(
+      `${BASE_PATH}/current`,
+      stationId ? { stationId } : undefined,
+    );
   },
 
   /**
    * Get air quality forecast data (4-day hourly forecast)
+   * GET /api/v1/air-quality/forecast
    */
-  async getForecast(params?: AirQualityQueryParams): Promise<ForecastAirQualityResponse> {
-    return apiGet<ForecastAirQualityResponse>(`${BASE_PATH}/forecast`, params);
+  async getForecast(stationId?: string): Promise<ForecastAirQualityResponse> {
+    return apiGet<ForecastAirQualityResponse>(
+      `${BASE_PATH}/forecast`,
+      stationId ? { stationId } : undefined,
+    );
   },
 
   /**
    * Get historical air quality data from PostgreSQL
+   * GET /api/v1/air-quality/history
    */
-  async getHistory(params: AirQualityQueryParams): Promise<AirQualityListResponse> {
+  async getHistory(params?: AirQualityHistoryParams): Promise<AirQualityListResponse> {
     return apiGet<AirQualityListResponse>(`${BASE_PATH}/history`, params);
   },
 
   /**
-   * Get latest air quality data by station
+   * Compare air quality across multiple stations (admin only)
+   * GET /api/v1/air-quality/compare
    */
-  async getByStation(stationId: string): Promise<CurrentAirQualityResponse> {
-    return apiGet<CurrentAirQualityResponse>(`${BASE_PATH}/station/${stationId}`);
+  async compareStations(stationCodes: string[]): Promise<CompareAirQualityResponse> {
+    return apiGet<CompareAirQualityResponse>(`${BASE_PATH}/compare`, {
+      stationCodes: stationCodes.join(','),
+    });
   },
 
   /**
    * Get air quality averages (admin only)
+   * GET /api/v1/air-quality/stats/averages
    */
-  async getAverages(params: { startDate: string; endDate: string }): Promise<{
-    avgAQI: number;
-    avgPM25: number;
-    avgPM10: number;
-    avgCO: number;
-    avgNO2: number;
-    avgSO2: number;
-    avgO3: number;
-    dataPoints: number;
-  }> {
-    return apiGet(`${BASE_PATH}/stats/averages`, params);
+  async getAverages(params: DateRangeQuery): Promise<AirQualityAveragesResponse> {
+    return apiGet<AirQualityAveragesResponse>(`${BASE_PATH}/stats/averages`, params);
   },
 };
