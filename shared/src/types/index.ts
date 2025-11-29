@@ -10,3 +10,4 @@ export * from './airquality.types';
 export * from './weather.types';
 export * from './station.types';
 export * from './api.types';
+export * from './query.types';
