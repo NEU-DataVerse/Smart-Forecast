@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OpenWeatherMapProvider } from './providers/openweathermap.provider';
 import { OrionClientProvider } from './providers/orion-client.provider';
 import { StationService } from '../stations/station.service';
+import { StationStatus } from '../stations/dto/station.dto';
 import {
   transformOWMAirPollutionToNGSILD,
   transformOWMToNGSILD,
@@ -12,7 +13,6 @@ import {
 /**
  * Ingestion Service
  * Orchestrates data collection from external APIs and pushes to Orion-LD
- * Uses StationManager for dynamic station configuration
  */
 @Injectable()
 export class IngestionService {
@@ -22,13 +22,10 @@ export class IngestionService {
     private readonly owmProvider: OpenWeatherMapProvider,
     private readonly orionClient: OrionClientProvider,
     private readonly stationManager: StationService,
-  ) {
-    this.logger.log('IngestionService initialized with StationManager');
-  }
+  ) {}
 
   /**
-   * Ingest air quality data for all configured locations
-   * Fetches current data + forecast from OpenWeatherMap and pushes to Orion-LD
+   * Ingest air quality data for all active stations
    */
   async ingestAirQualityData(): Promise<{
     success: number;
@@ -37,11 +34,12 @@ export class IngestionService {
     forecastSuccess: number;
     forecastFailed: number;
   }> {
-    // Get active stations from StationManager
-    const locations = await this.stationManager.findActive();
+    const locations = await this.stationManager.findAll({
+      status: StationStatus.ACTIVE,
+    });
 
     this.logger.log(
-      `Starting air quality data ingestion (current + forecast) for ${locations.length} active stations`,
+      `Starting air quality ingestion for ${locations.length} active stations`,
     );
 
     let successCount = 0;
@@ -140,8 +138,7 @@ export class IngestionService {
   }
 
   /**
-   * Ingest weather data for all configured locations
-   * Fetches current data + 7-day forecast from OpenWeatherMap and pushes to Orion-LD
+   * Ingest weather data for all active stations
    */
   async ingestWeatherData(): Promise<{
     success: number;
@@ -150,11 +147,12 @@ export class IngestionService {
     forecastSuccess: number;
     forecastFailed: number;
   }> {
-    // Get active stations from StationManager
-    const locations = await this.stationManager.findActive();
+    const locations = await this.stationManager.findAll({
+      status: StationStatus.ACTIVE,
+    });
 
     this.logger.log(
-      `Starting weather data ingestion (current + 7-day forecast) for ${locations.length} active stations`,
+      `Starting weather ingestion for ${locations.length} active stations`,
     );
 
     let successCount = 0;

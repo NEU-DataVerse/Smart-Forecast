@@ -25,7 +25,6 @@ import {
   CreateStationDto,
   UpdateStationDto,
   StationQueryDto,
-  BatchStationOperationDto,
   NearestStationQueryDto,
 } from './dto/station.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -51,33 +50,12 @@ export class StationController {
   @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get all stations',
-    description:
-      'Retrieve all weather stations with optional filtering by city, district, status, etc.',
-  })
-  @ApiQuery({
-    name: 'city',
-    required: false,
-    description: 'Filter by city name',
-  })
-  @ApiQuery({
-    name: 'district',
-    required: false,
-    description: 'Filter by district name',
+    description: 'Retrieve all weather stations with optional status filter',
   })
   @ApiQuery({
     name: 'status',
     required: false,
     description: 'Filter by station status',
-  })
-  @ApiQuery({
-    name: 'priority',
-    required: false,
-    description: 'Filter by priority level',
-  })
-  @ApiQuery({
-    name: 'category',
-    required: false,
-    description: 'Filter by category',
   })
   @ApiQuery({
     name: 'limit',
@@ -105,31 +83,6 @@ export class StationController {
   }
 
   /**
-   * Get only active stations
-   */
-  @Get('active')
-  @Roles(UserRole.USER, UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Get active stations',
-    description:
-      'Retrieve only active weather stations (used for data ingestion)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of active weather stations',
-  })
-  async getActiveStations(): Promise<{
-    count: number;
-    stations: StationEntity[];
-  }> {
-    const stations = await this.stationManager.findActive();
-    return {
-      count: stations.length,
-      stations,
-    };
-  }
-
-  /**
    * Find nearest station(s) based on GPS coordinates
    */
   @Get('nearest')
@@ -137,40 +90,25 @@ export class StationController {
   @ApiOperation({
     summary: 'Find nearest stations by GPS coordinates',
     description:
-      'Find the nearest weather station(s) based on latitude and longitude. Useful for mobile apps with GPS location.',
+      'Find the nearest weather station(s) based on latitude and longitude',
   })
-  @ApiQuery({
-    name: 'lat',
-    required: true,
-    description: 'Latitude coordinate',
-    example: 21.028511,
-  })
+  @ApiQuery({ name: 'lat', required: true, description: 'Latitude coordinate' })
   @ApiQuery({
     name: 'lon',
     required: true,
     description: 'Longitude coordinate',
-    example: 105.804817,
   })
   @ApiQuery({
     name: 'radius',
     required: false,
-    description: 'Search radius in kilometers (default: 50km)',
-    example: 50,
+    description: 'Search radius in km (default: 50)',
   })
   @ApiQuery({
     name: 'limit',
     required: false,
-    description: 'Maximum number of stations to return (default: 1)',
-    example: 1,
+    description: 'Max stations to return (default: 1)',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Nearest station(s) with distance in kilometers',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid coordinates',
-  })
+  @ApiResponse({ status: 200, description: 'Nearest station(s) with distance' })
   async findNearestStation(@Query() query: NearestStationQueryDto): Promise<{
     coordinates: { lat: number; lon: number };
     radius: number;
@@ -179,7 +117,6 @@ export class StationController {
   }> {
     const radius = query.radius || 50;
     const limit = query.limit || 1;
-
     const stations = await this.stationManager.findNearest(
       query.lat,
       query.lon,
@@ -199,92 +136,20 @@ export class StationController {
    * Get station statistics
    */
   @Get('stats')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.USER, UserRole.ADMIN)
   @ApiOperation({
     summary: 'Get station statistics',
-    description: 'Get comprehensive statistics about all stations',
+    description:
+      'Get count of stations by status (total, active, inactive, maintenance)',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Station statistics',
-  })
-  async getStatistics() {
-    const stats = await this.stationManager.getStatistics();
-    return {
-      message: 'Station statistics',
-      ...stats,
-    };
-  }
-
-  /**
-   * Get data source information
-   */
-  @Get('info')
-  @Roles(UserRole.USER, UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Get data source info',
-    description: 'Get information about the station data source file',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Data source information',
-  })
-  async getDataSourceInfo() {
-    return this.stationManager.getDataSourceInfo();
-  }
-
-  /**
-   * Get stations by city
-   */
-  @Get('city/:city')
-  @Roles(UserRole.USER, UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Get stations by city',
-    description: 'Retrieve all stations in a specific city',
-  })
-  @ApiParam({ name: 'city', description: 'City name' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of stations in the city',
-  })
-  async getStationsByCity(@Param('city') city: string): Promise<{
-    city: string;
-    count: number;
-    stations: StationEntity[];
+  @ApiResponse({ status: 200, description: 'Station statistics' })
+  async getStatistics(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    maintenance: number;
   }> {
-    const stations = await this.stationManager.findByCity(city);
-    return {
-      city,
-      count: stations.length,
-      stations,
-    };
-  }
-
-  /**
-   * Get stations by district
-   */
-  @Get('district/:district')
-  @Roles(UserRole.USER, UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Get stations by district',
-    description: 'Retrieve all stations in a specific district',
-  })
-  @ApiParam({ name: 'district', description: 'District name' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of stations in the district',
-  })
-  async getStationsByDistrict(@Param('district') district: string): Promise<{
-    district: string;
-    count: number;
-    stations: StationEntity[];
-  }> {
-    const stations = await this.stationManager.findByDistrict(district);
-    return {
-      district,
-      count: stations.length,
-      stations,
-    };
+    return await this.stationManager.getStatistics();
   }
 
   /**
@@ -292,19 +157,10 @@ export class StationController {
    */
   @Get(':id')
   @Roles(UserRole.USER, UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Get station by ID',
-    description: 'Retrieve a specific station by its ID',
-  })
+  @ApiOperation({ summary: 'Get station by ID' })
   @ApiParam({ name: 'id', description: 'Station ID (URN format)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Station details',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Station not found',
-  })
+  @ApiResponse({ status: 200, description: 'Station details' })
+  @ApiResponse({ status: 404, description: 'Station not found' })
   async getStationById(@Param('id') id: string): Promise<StationEntity> {
     return this.stationManager.findById(id);
   }
@@ -314,27 +170,14 @@ export class StationController {
    */
   @Post()
   @Roles(UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Create a new station',
-    description: 'Add a new weather station to the system',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Station created successfully',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid input data',
-  })
+  @ApiOperation({ summary: 'Create a new station' })
+  @ApiResponse({ status: 201, description: 'Station created successfully' })
   async createStation(@Body() createDto: CreateStationDto): Promise<{
     message: string;
     station: StationEntity;
   }> {
     const station = await this.stationManager.create(createDto);
-    return {
-      message: 'Station created successfully',
-      station,
-    };
+    return { message: 'Station created successfully', station };
   }
 
   /**
@@ -342,31 +185,15 @@ export class StationController {
    */
   @Put(':id')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Update a station',
-    description: 'Update an existing weather station',
-  })
+  @ApiOperation({ summary: 'Update a station' })
   @ApiParam({ name: 'id', description: 'Station ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Station updated successfully',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Station not found',
-  })
+  @ApiResponse({ status: 200, description: 'Station updated successfully' })
   async updateStation(
     @Param('id') id: string,
     @Body() updateDto: UpdateStationDto,
-  ): Promise<{
-    message: string;
-    station: StationEntity;
-  }> {
+  ): Promise<{ message: string; station: StationEntity }> {
     const station = await this.stationManager.update(id, updateDto);
-    return {
-      message: 'Station updated successfully',
-      station,
-    };
+    return { message: 'Station updated successfully', station };
   }
 
   /**
@@ -375,19 +202,9 @@ export class StationController {
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: 'Delete a station',
-    description: 'Remove a weather station from the system',
-  })
+  @ApiOperation({ summary: 'Delete a station' })
   @ApiParam({ name: 'id', description: 'Station ID' })
-  @ApiResponse({
-    status: 204,
-    description: 'Station deleted successfully',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Station not found',
-  })
+  @ApiResponse({ status: 204, description: 'Station deleted successfully' })
   async deleteStation(@Param('id') id: string): Promise<void> {
     await this.stationManager.delete(id);
   }
@@ -397,25 +214,15 @@ export class StationController {
    */
   @Post(':id/activate')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Activate a station',
-    description:
-      'Set station status to active (will be included in data ingestion)',
-  })
+  @ApiOperation({ summary: 'Activate a station' })
   @ApiParam({ name: 'id', description: 'Station ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Station activated successfully',
-  })
+  @ApiResponse({ status: 200, description: 'Station activated successfully' })
   async activateStation(@Param('id') id: string): Promise<{
     message: string;
     station: StationEntity;
   }> {
     const station = await this.stationManager.activate(id);
-    return {
-      message: 'Station activated successfully',
-      station,
-    };
+    return { message: 'Station activated successfully', station };
   }
 
   /**
@@ -423,73 +230,34 @@ export class StationController {
    */
   @Post(':id/deactivate')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({
-    summary: 'Deactivate a station',
-    description:
-      'Set station status to inactive (will be excluded from data ingestion)',
-  })
+  @ApiOperation({ summary: 'Deactivate a station' })
   @ApiParam({ name: 'id', description: 'Station ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Station deactivated successfully',
-  })
+  @ApiResponse({ status: 200, description: 'Station deactivated successfully' })
   async deactivateStation(@Param('id') id: string): Promise<{
     message: string;
     station: StationEntity;
   }> {
     const station = await this.stationManager.deactivate(id);
-    return {
-      message: 'Station deactivated successfully',
-      station,
-    };
+    return { message: 'Station deactivated successfully', station };
   }
 
   /**
-   * Batch operations on stations
+   * Set station to maintenance mode
    */
-  @Post('batch')
+  @Post(':id/maintenance')
   @Roles(UserRole.ADMIN)
   @ApiOperation({
-    summary: 'Batch operations',
+    summary: 'Set station to maintenance mode',
     description:
-      'Perform batch operations (activate, deactivate, delete) on multiple stations',
+      'Set station status to maintenance (excluded from data ingestion)',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Batch operation completed',
-  })
-  async batchOperation(@Body() batchDto: BatchStationOperationDto): Promise<{
+  @ApiParam({ name: 'id', description: 'Station ID' })
+  @ApiResponse({ status: 200, description: 'Station set to maintenance mode' })
+  async setMaintenanceMode(@Param('id') id: string): Promise<{
     message: string;
-    success: number;
-    failed: number;
+    station: StationEntity;
   }> {
-    let result: { success: number; failed: number };
-
-    switch (batchDto.operation) {
-      case 'activate':
-        result = await this.stationManager.batchActivate(batchDto.stationIds);
-        break;
-      case 'deactivate':
-        result = await this.stationManager.batchDeactivate(batchDto.stationIds);
-        break;
-      case 'delete':
-        result = { success: 0, failed: 0 };
-        for (const id of batchDto.stationIds) {
-          try {
-            await this.stationManager.delete(id);
-            result.success++;
-          } catch {
-            result.failed++;
-          }
-        }
-        break;
-      default:
-        throw new Error(`Unknown operation: ${String(batchDto.operation)}`);
-    }
-
-    return {
-      message: `Batch ${batchDto.operation} completed`,
-      ...result,
-    };
+    const station = await this.stationManager.setMaintenance(id);
+    return { message: 'Station set to maintenance mode', station };
   }
 }
