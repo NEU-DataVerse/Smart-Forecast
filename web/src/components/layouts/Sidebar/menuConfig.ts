@@ -5,8 +5,7 @@ import {
   Map,
   FileText,
   AlertTriangle,
-  Settings,
-  Bell,
+  Satellite,
 } from 'lucide-react';
 import { MenuItem } from './types';
 
@@ -17,6 +16,5 @@ export const menuItems: MenuItem[] = [
   { id: 'disastermap', label: 'Disaster Map', icon: Map },
   { id: 'reports', label: 'Reports', icon: FileText },
   { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'stations', label: 'Stations', icon: Satellite },
 ];

@@ -25,14 +25,14 @@ export default function IngestionWidget() {
 
   if (loading && !health) {
     return (
-      <Card>
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Data Ingestion Service
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           <div className="animate-pulse space-y-3">
             <div className="h-4 bg-slate-200 rounded w-3/4"></div>
             <div className="h-4 bg-slate-200 rounded w-1/2"></div>
@@ -44,14 +44,14 @@ export default function IngestionWidget() {
 
   if (error) {
     return (
-      <Card>
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Data Ingestion Service
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           <div className="flex items-center gap-2 text-red-600">
             <AlertCircle className="h-4 w-4" />
             <span className="text-sm">Failed to load ingestion status</span>
@@ -64,7 +64,7 @@ export default function IngestionWidget() {
   const isHealthy = health?.status === 'healthy';
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-base flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export default function IngestionWidget() {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 flex flex-col justify-between space-y-4">
         {/* Health Status */}
         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
           <div className="flex items-center gap-2">
