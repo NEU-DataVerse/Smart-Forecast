@@ -4,6 +4,19 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NotificationProvider } from '@/context/NotificationContext';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,10 +31,12 @@ const queryClient = new QueryClient({
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerBackTitle: 'Back' }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <NotificationProvider>
+      <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </NotificationProvider>
   );
 }
 
@@ -33,8 +48,10 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="light" />
-        <RootLayoutNav />
+        <SafeAreaProvider>
+          <StatusBar style="light" />
+          <RootLayoutNav />
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );
