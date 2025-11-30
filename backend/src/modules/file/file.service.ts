@@ -26,7 +26,7 @@ export class FileService {
       secretKey: minioConfig.secretKey,
     });
 
-    this.initializeBucket();
+    void this.initializeBucket();
   }
 
   /**
