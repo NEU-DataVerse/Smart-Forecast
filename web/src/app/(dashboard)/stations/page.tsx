@@ -1,250 +1,322 @@
-/**
- * Stations Management Page
- * Admin interface for managing monitoring stations
- */
-
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useStations } from '@/hooks/useStations';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TableSkeleton } from '@/components/shared/Skeleton';
-import { MapPin, Filter, RefreshCw, Plus, Edit, Trash2 } from 'lucide-react';
-import type { StationStatus, StationPriority, ObservationStation } from '@/types/dto';
+import {
+  StationStatistics,
+  StationList,
+  StationDialog,
+  type StationFormData,
+} from '@/components/settings';
+import type {
+  ObservationStation,
+  CreateStationDto,
+  UpdateStationDto,
+  StationStatsResponse,
+  StationQueryParams,
+  StationPriority,
+} from '@/types/dto';
 
-export default function StationsPage() {
-  const [filters, setFilters] = useState<{
-    city?: string;
-    district?: string;
-    status?: StationStatus;
-    priority?: StationPriority;
-  }>({});
+export default function Settings() {
+  const [queryParams, setQueryParams] = useState<StationQueryParams>({
+    limit: 10,
+    offset: 0,
+  });
 
-  const { stations, loading, error, lastUpdate, refetch } = useStations({ params: filters });
+  const {
+    stations,
+    loading,
+    createStation,
+    updateStation,
+    deleteStation,
+    activateStation,
+    deactivateStation,
+    setMaintenanceMode,
+    getStatistics,
+  } = useStations({ params: queryParams });
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters((prev) => ({
+  const [isStationDialogOpen, setIsStationDialogOpen] = useState(false);
+  const [editingStation, setEditingStation] = useState<ObservationStation | null>(null);
+  const [stats, setStats] = useState<StationStatsResponse | null>(null);
+  const [selectedStations, setSelectedStations] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const [stationFormData, setStationFormData] = useState<StationFormData>({
+    name: '',
+    city: '',
+    district: '',
+    ward: '',
+    lat: 21.028511,
+    lng: 105.804817,
+    streetAddress: '',
+    addressLocality: '',
+    addressRegion: '',
+    addressCountry: 'VN',
+    postalCode: '',
+    priority: 'medium' as StationPriority,
+    categories: [] as string[],
+  });
+
+  // Load statistics on mount
+  useEffect(() => {
+    const loadStats = async () => {
+      const statistics = await getStatistics();
+      setStats(statistics);
+    };
+    loadStats();
+  }, [getStatistics]);
+
+  const resetStationForm = () => {
+    setStationFormData({
+      name: '',
+      city: '',
+      district: '',
+      ward: '',
+      lat: 21.028511,
+      lng: 105.804817,
+      streetAddress: '',
+      addressLocality: '',
+      addressRegion: '',
+      addressCountry: 'VN',
+      postalCode: '',
+      priority: 'medium' as StationPriority,
+      categories: [],
+    });
+    setEditingStation(null);
+  };
+
+  const handleOpenStationDialog = (station?: ObservationStation) => {
+    if (station) {
+      setEditingStation(station);
+      setStationFormData({
+        name: station.name,
+        city: station.city || '',
+        district: station.district,
+        ward: station.ward || '',
+        lat: station.location.lat,
+        lng: station.location.lon,
+        streetAddress: station.address.streetAddress || '',
+        addressLocality: station.address.addressLocality,
+        addressRegion: station.address.addressRegion || '',
+        addressCountry: station.address.addressCountry || 'VN',
+        postalCode: station.address.postalCode || '',
+        priority: station.priority || ('medium' as StationPriority),
+        categories: station.categories || [],
+      });
+    } else {
+      resetStationForm();
+    }
+    setIsStationDialogOpen(true);
+  };
+
+  const handleFormChange = (formData: StationFormData) => {
+    setStationFormData(formData);
+  };
+
+  const handleSaveStation = async () => {
+    const stationData = {
+      name: stationFormData.name,
+      city: stationFormData.city,
+      district: stationFormData.district,
+      ward: stationFormData.ward,
+      location: {
+        lat: stationFormData.lat,
+        lon: stationFormData.lng,
+      },
+      address: {
+        streetAddress: stationFormData.streetAddress,
+        addressLocality: stationFormData.addressLocality,
+        addressRegion: stationFormData.addressRegion,
+        addressCountry: stationFormData.addressCountry,
+        postalCode: stationFormData.postalCode,
+      },
+      priority: stationFormData.priority,
+      categories: stationFormData.categories,
+    };
+
+    if (editingStation) {
+      // Update existing station
+      const updated = await updateStation(editingStation.id, stationData as UpdateStationDto);
+      if (updated) {
+        setIsStationDialogOpen(false);
+        resetStationForm();
+      }
+    } else {
+      // Create new station
+      const created = await createStation(stationData as CreateStationDto);
+      if (created) {
+        setIsStationDialogOpen(false);
+        resetStationForm();
+      }
+    }
+
+    // Refresh statistics
+    const statistics = await getStatistics();
+    setStats(statistics);
+  };
+
+  const handleDeleteStation = async (stationId: string) => {
+    if (confirm('Are you sure you want to delete this station?')) {
+      const success = await deleteStation(stationId);
+      if (success) {
+        // Refresh statistics
+        const statistics = await getStatistics();
+        setStats(statistics);
+      }
+    }
+  };
+
+  const handleMapLocationSelect = (lat: number, lng: number) => {
+    setStationFormData((prev) => ({
       ...prev,
-      [key]: value || undefined,
+      lat,
+      lng,
     }));
   };
 
-  const clearFilters = () => {
-    setFilters({});
+  const handleCancelDialog = () => {
+    setIsStationDialogOpen(false);
+    resetStationForm();
   };
 
-  const getStatusBadge = (status: string) => {
-    const colors = {
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-slate-100 text-slate-800',
-      maintenance: 'bg-orange-100 text-orange-800',
-      retired: 'bg-red-100 text-red-800',
-    };
-    return colors[status as keyof typeof colors] || 'bg-slate-100 text-slate-800';
+  // Station selection handlers
+  const toggleStationSelection = (stationId: string) => {
+    setSelectedStations((prev) =>
+      prev.includes(stationId) ? prev.filter((id) => id !== stationId) : [...prev, stationId],
+    );
   };
 
-  const getPriorityBadge = (priority: string) => {
-    const colors = {
-      high: 'bg-red-100 text-red-800',
-      medium: 'bg-orange-100 text-orange-800',
-      low: 'bg-blue-100 text-blue-800',
-    };
-    return colors[priority as keyof typeof colors] || 'bg-slate-100 text-slate-800';
+  const toggleSelectAll = () => {
+    if (selectedStations.length === stations.length) {
+      setSelectedStations([]);
+    } else {
+      setSelectedStations(stations.map((s) => s.id));
+    }
+  };
+
+  // Individual station operations (batch operations replaced with individual calls)
+  const handleBatchActivate = async () => {
+    if (selectedStations.length === 0) return;
+    if (confirm(`Activate ${selectedStations.length} stations?`)) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await activateStation(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
+        setSelectedStations([]);
+        const statistics = await getStatistics();
+        setStats(statistics);
+      }
+    }
+  };
+
+  const handleBatchDeactivate = async () => {
+    if (selectedStations.length === 0) return;
+    if (confirm(`Deactivate ${selectedStations.length} stations?`)) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await deactivateStation(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
+        setSelectedStations([]);
+        const statistics = await getStatistics();
+        setStats(statistics);
+      }
+    }
+  };
+
+  const handleBatchMaintenance = async () => {
+    if (selectedStations.length === 0) return;
+    if (confirm(`Set ${selectedStations.length} stations to maintenance mode?`)) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await setMaintenanceMode(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
+        setSelectedStations([]);
+        const statistics = await getStatistics();
+        setStats(statistics);
+      }
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedStations.length === 0) return;
+    if (confirm(`Delete ${selectedStations.length} stations? This action cannot be undone.`)) {
+      let successCount = 0;
+      for (const id of selectedStations) {
+        const result = await deleteStation(id);
+        if (result) successCount++;
+      }
+      if (successCount > 0) {
+        setSelectedStations([]);
+        const statistics = await getStatistics();
+        setStats(statistics);
+      }
+    }
+  };
+
+  // Pagination handlers
+  const handleNextPage = () => {
+    setCurrentPage((prev) => prev + 1);
+    setQueryParams((prev) => ({
+      ...prev,
+      offset: currentPage * itemsPerPage,
+    }));
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+      setQueryParams((prev) => ({
+        ...prev,
+        offset: (currentPage - 2) * itemsPerPage,
+      }));
+    }
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-slate-900 text-2xl font-bold">Stations Management</h2>
-          <p className="text-slate-500 text-sm">Manage monitoring stations across cities</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {lastUpdate && (
-            <span className="text-xs text-slate-500">
-              Last update: {new Date(lastUpdate).toLocaleTimeString()}
-            </span>
-          )}
-          <button
-            onClick={refetch}
-            className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus className="h-4 w-4" />
-            Add Station
-          </button>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-slate-900">System Settings</h2>
+        <p className="text-slate-500">Configure weather monitoring stations</p>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm text-slate-600 mb-1 block">City</label>
-              <input
-                type="text"
-                placeholder="Filter by city"
-                value={filters.city || ''}
-                onChange={(e) => handleFilterChange('city', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-slate-600 mb-1 block">District</label>
-              <input
-                type="text"
-                placeholder="Filter by district"
-                value={filters.district || ''}
-                onChange={(e) => handleFilterChange('district', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-slate-600 mb-1 block">Status</label>
-              <select
-                value={filters.status || ''}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="retired">Retired</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm text-slate-600 mb-1 block">Priority</label>
-              <select
-                value={filters.priority || ''}
-                onChange={(e) => handleFilterChange('priority', e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All priorities</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </div>
-          </div>
-          {(filters.city || filters.district || filters.status || filters.priority) && (
-            <button
-              onClick={clearFilters}
-              className="mt-3 text-sm text-blue-600 hover:text-blue-700"
-            >
-              Clear all filters
-            </button>
-          )}
-        </CardContent>
-      </Card>
+      <StationStatistics stats={stats} />
 
-      {/* Stations Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Stations List
-            </div>
-            {stations && (
-              <span className="text-sm font-normal text-slate-500">
-                {stations.length} station{stations.length !== 1 ? 's' : ''}
-              </span>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <TableSkeleton rows={5} />
-          ) : error ? (
-            <div className="text-center py-8 text-red-600">
-              <p className="font-medium">Failed to load stations</p>
-              <p className="text-sm mt-1">Please try again later.</p>
-            </div>
-          ) : !stations || stations.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
-              <MapPin className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p className="font-medium">No stations found</p>
-              <p className="text-sm mt-1">Try adjusting your filters or add a new station.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b border-slate-200">
-                  <tr className="text-left text-sm text-slate-600">
-                    <th className="pb-3 font-medium">Station Name</th>
-                    <th className="pb-3 font-medium">Code</th>
-                    <th className="pb-3 font-medium">Location</th>
-                    <th className="pb-3 font-medium">Status</th>
-                    <th className="pb-3 font-medium">Priority</th>
-                    <th className="pb-3 font-medium">Coordinates</th>
-                    <th className="pb-3 font-medium text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {stations.map((station) => (
-                    <tr key={station.id} className="hover:bg-slate-50">
-                      <td className="py-3">
-                        <div>
-                          <p className="font-medium text-slate-900">{station.name}</p>
-                          {station.ward && <p className="text-xs text-slate-500">{station.ward}</p>}
-                        </div>
-                      </td>
-                      <td className="py-3 text-sm text-slate-600">{station.code}</td>
-                      <td className="py-3">
-                        <div className="text-sm">
-                          <p className="text-slate-900">{station.district}</p>
-                          {station.city && <p className="text-xs text-slate-500">{station.city}</p>}
-                        </div>
-                      </td>
-                      <td className="py-3">
-                        <span
-                          className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(station.status)}`}
-                        >
-                          {station.status}
-                        </span>
-                      </td>
-                      <td className="py-3">
-                        {station.priority && (
-                          <span
-                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getPriorityBadge(station.priority)}`}
-                          >
-                            {station.priority}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 text-xs text-slate-600">
-                        {station.location.lat.toFixed(4)}, {station.location.lon.toFixed(4)}
-                      </td>
-                      <td className="py-3">
-                        <div className="flex items-center justify-end gap-2">
-                          <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                            <Edit className="h-4 w-4 text-slate-600" />
-                          </button>
-                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors">
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <StationList
+        stations={stations}
+        loading={loading}
+        selectedStations={selectedStations}
+        currentPage={currentPage}
+        itemsPerPage={itemsPerPage}
+        onToggleSelect={toggleStationSelection}
+        onToggleSelectAll={toggleSelectAll}
+        onEdit={handleOpenStationDialog}
+        onDelete={handleDeleteStation}
+        onAdd={() => handleOpenStationDialog()}
+        onBatchActivate={handleBatchActivate}
+        onBatchDeactivate={handleBatchDeactivate}
+        onBatchMaintenance={handleBatchMaintenance}
+        onBatchDelete={handleBatchDelete}
+        onNextPage={handleNextPage}
+        onPrevPage={handlePrevPage}
+      />
+
+      <StationDialog
+        open={isStationDialogOpen}
+        onOpenChange={setIsStationDialogOpen}
+        editingStation={editingStation}
+        formData={stationFormData}
+        onFormChange={handleFormChange}
+        onMapLocationSelect={handleMapLocationSelect}
+        onSave={handleSaveStation}
+        onCancel={handleCancelDialog}
+      />
     </div>
   );
 }
