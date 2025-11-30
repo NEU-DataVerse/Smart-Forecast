@@ -1,61 +1,95 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Image as ImageIcon } from 'lucide-react';
-import { IIncident } from '@/../../shared/src/types/incident.types';
-import {
-  IncidentStatus,
-  IncidentTypeLabels,
-  IncidentStatusLabels,
-} from '@/../../shared/src/constants';
-import { formatDate, getLocationString } from './report-utils';
+import { IIncident } from '@smart-forecast/shared';
+import { IncidentStatus, IncidentTypeLabels, IncidentStatusLabels } from '@smart-forecast/shared';
+import { formatDate, getLocationString, getReporterName } from './report-utils';
 
 interface ReportCardProps {
   report: IIncident;
   onClick: (report: IIncident) => void;
 }
 
+/**
+ * Get status badge variant based on incident status
+ */
+function getStatusVariant(
+  status: IncidentStatus,
+): 'default' | 'destructive' | 'secondary' | 'outline' {
+  switch (status) {
+    case IncidentStatus.VERIFIED:
+      return 'default';
+    case IncidentStatus.REJECTED:
+      return 'destructive';
+    case IncidentStatus.RESOLVED:
+      return 'outline';
+    default:
+      return 'secondary';
+  }
+}
+
 export function ReportCard({ report, onClick }: ReportCardProps) {
+  const [imageError, setImageError] = useState(false);
+  const hasImages = report.imageUrls && report.imageUrls.length > 0;
+  const thumbnailUrl = hasImages ? report.imageUrls[0] : null;
+
   return (
     <Card
-      className="cursor-pointer hover:border-blue-300 transition-colors"
+      className="cursor-pointer hover:border-blue-300 transition-colors overflow-hidden"
       onClick={() => onClick(report)}
     >
-      <CardContent className="pt-6">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h3 className="text-slate-900">{IncidentTypeLabels[report.type]}</h3>
-            <p className="text-slate-500">Người báo cáo: {report.reportedBy}</p>
-          </div>
-          <Badge
-            variant={
-              report.status === IncidentStatus.VERIFIED
-                ? 'default'
-                : report.status === IncidentStatus.REJECTED
-                  ? 'destructive'
-                  : 'secondary'
-            }
-          >
-            {IncidentStatusLabels[report.status]}
-          </Badge>
+      <div className="flex">
+        {/* Thumbnail Image */}
+        <div className="w-28 h-28 shrink-0 bg-slate-100 relative">
+          {thumbnailUrl && !imageError ? (
+            <Image
+              src={thumbnailUrl}
+              alt={`Incident ${report.id}`}
+              fill
+              className="object-cover"
+              sizes="112px"
+              onError={() => setImageError(true)}
+              unoptimized // MinIO URLs are external
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-slate-400" />
+            </div>
+          )}
+          {hasImages && report.imageUrls.length > 1 && (
+            <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+              +{report.imageUrls.length - 1}
+            </div>
+          )}
         </div>
 
-        <p className="text-slate-600 mb-3 line-clamp-2">{report.description}</p>
-
-        <div className="flex items-center gap-4 text-slate-500 mb-2">
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            <span>{getLocationString(report.location.coordinates)}</span>
+        {/* Content */}
+        <CardContent className="flex-1 p-4">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <h3 className="font-medium text-slate-900">{IncidentTypeLabels[report.type]}</h3>
+              <p className="text-sm text-slate-500">{getReporterName(report.reportedBy)}</p>
+            </div>
+            <Badge variant={getStatusVariant(report.status)}>
+              {IncidentStatusLabels[report.status]}
+            </Badge>
           </div>
-        </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-slate-500">
-            <ImageIcon className="h-4 w-4" />
-            <span>{report.imageUrls.length} ảnh</span>
+          <p className="text-sm text-slate-600 mb-2 line-clamp-2">{report.description}</p>
+
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              <span>{getLocationString(report.location.coordinates)}</span>
+            </div>
+            <span>{formatDate(report.createdAt)}</span>
           </div>
-          <span className="text-slate-400">{formatDate(report.createdAt)}</span>
-        </div>
-      </CardContent>
+        </CardContent>
+      </div>
     </Card>
   );
 }
