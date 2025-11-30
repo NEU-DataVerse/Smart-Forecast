@@ -8,8 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/text-area';
 import { AlertTriangle } from 'lucide-react';
-import { IIncident } from '@/../../shared/src/types/incident.types';
-import { IncidentTypeLabels } from '@/../../shared/src/constants';
+import { IIncident, IncidentTypeLabels } from '@smart-forecast/shared';
 
 interface CreateAlertDialogProps {
   report: IIncident | null;
