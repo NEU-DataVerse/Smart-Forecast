@@ -267,6 +267,71 @@ export class AlertService {
   }
 
   /**
+   * Get alert statistics
+   */
+  async getStatistics(): Promise<{
+    total: number;
+    activeCount: number;
+    byLevel: { LOW: number; MEDIUM: number; HIGH: number; CRITICAL: number };
+  }> {
+    // Get total alerts count
+    const total = await this.alertRepository.count();
+
+    // Get active alerts count
+    const activeAlerts = await this.getActiveAlerts();
+    const activeCount = activeAlerts.length;
+
+    // Get alerts by level
+    const byLevelRaw = await this.alertRepository
+      .createQueryBuilder('alert')
+      .select('alert.level', 'level')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('alert.level')
+      .getRawMany();
+
+    const byLevel = {
+      LOW: 0,
+      MEDIUM: 0,
+      HIGH: 0,
+      CRITICAL: 0,
+    };
+
+    byLevelRaw.forEach((item) => {
+      if (item.level in byLevel) {
+        byLevel[item.level as keyof typeof byLevel] = parseInt(item.count, 10);
+      }
+    });
+
+    return {
+      total,
+      activeCount,
+      byLevel,
+    };
+  }
+
+  /**
+   * Get alert trend data for the last 30 days
+   */
+  async getAlertTrend(): Promise<Array<{ date: string; count: number }>> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const rawData = await this.alertRepository
+      .createQueryBuilder('alert')
+      .select('DATE(alert.sentAt)', 'date')
+      .addSelect('COUNT(*)', 'count')
+      .where('alert.sentAt >= :thirtyDaysAgo', { thirtyDaysAgo })
+      .groupBy('DATE(alert.sentAt)')
+      .orderBy('date', 'ASC')
+      .getRawMany();
+
+    return rawData.map((item) => ({
+      date: item.date,
+      count: parseInt(item.count, 10),
+    }));
+  }
+
+  /**
    * Cleanup failed FCM tokens
    */
   private async cleanupFailedTokens(failedTokens: string[]): Promise<void> {

@@ -82,6 +82,30 @@ export class AlertController {
     return this.alertService.getActiveAlerts();
   }
 
+  @Get('stats')
+  @ApiOperation({ summary: 'Get alert statistics by level' })
+  @ApiResponse({
+    status: 200,
+    description: 'Alert statistics retrieved successfully',
+  })
+  async getStats(): Promise<{
+    total: number;
+    activeCount: number;
+    byLevel: { LOW: number; MEDIUM: number; HIGH: number; CRITICAL: number };
+  }> {
+    return this.alertService.getStatistics();
+  }
+
+  @Get('stats/trend')
+  @ApiOperation({ summary: 'Get daily alert count for the last 30 days' })
+  @ApiResponse({
+    status: 200,
+    description: 'Alert trend data retrieved successfully',
+  })
+  async getAlertTrend(): Promise<Array<{ date: string; count: number }>> {
+    return this.alertService.getAlertTrend();
+  }
+
   @Post('trigger-check')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
