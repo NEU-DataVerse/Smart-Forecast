@@ -2,6 +2,15 @@ import { IncidentType, IncidentStatus } from '../constants';
 import { GeoPoint } from './geojson.types';
 
 /**
+ * User info embedded in incident response
+ */
+export interface IIncidentUser {
+  id: string;
+  fullName?: string;
+  email?: string;
+}
+
+/**
  * Incident report entity
  */
 export interface IIncident {
@@ -11,9 +20,9 @@ export interface IIncident {
   location: GeoPoint;
   imageUrls: string[]; // URLs to images in MinIO
   status: IncidentStatus;
-  reportedBy: string; // User id
-  verifiedBy?: string; // Admin user id
-  adminNotes?: string; // Admin notes when verifying/rejecting
+  reportedBy: IIncidentUser; // User object from relation
+  verifiedBy?: IIncidentUser | null; // Admin user object
+  adminNotes?: string | null; // Admin notes when verifying/rejecting
   createdAt: Date;
   updatedAt: Date;
 }
