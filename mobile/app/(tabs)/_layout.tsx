@@ -4,12 +4,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function ReportButton() {
   const router = useRouter();
   const pathname = usePathname();
   const isActive = pathname === '/report';
-
   return (
     <TouchableOpacity
       style={styles.reportButton}
@@ -26,6 +26,7 @@ function ReportButton() {
 export default function TabLayout() {
   const alerts = useAppStore((state) => state.alerts);
   const unreadCount = alerts.filter((a) => !a.read).length;
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -55,7 +56,15 @@ export default function TabLayout() {
 
         return (
           <View style={styles.tabBarContainer}>
-            <View style={styles.tabBar}>
+            <View
+              style={[
+                styles.tabBar,
+                {
+                  paddingBottom: 12 + insets.bottom,
+                  height: 72 + insets.bottom,
+                },
+              ]}
+            >
               {state.routes.map((route, index) => {
                 const { options } = descriptors[route.key];
                 const isFocused = state.index === index;
