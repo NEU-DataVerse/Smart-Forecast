@@ -1,7 +1,12 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { alertService, AlertListResponse } from '@/services/api/alert.service';
+import {
+  alertService,
+  AlertListResponse,
+  AlertStatsResponse,
+  AlertTrendItem,
+} from '@/services/api/alert.service';
 import type {
   IAlert,
   IAlertQueryParams,
@@ -17,6 +22,8 @@ export const alertKeys = {
   lists: () => [...alertKeys.all, 'list'] as const,
   list: (params?: IAlertQueryParams) => [...alertKeys.lists(), params] as const,
   active: () => [...alertKeys.all, 'active'] as const,
+  stats: () => [...alertKeys.all, 'stats'] as const,
+  trend: () => [...alertKeys.all, 'trend'] as const,
   thresholds: () => [...alertKeys.all, 'thresholds'] as const,
   activeThresholds: () => [...alertKeys.thresholds(), 'active'] as const,
   threshold: (id: string) => [...alertKeys.thresholds(), id] as const,
@@ -44,6 +51,28 @@ export function useActiveAlerts(): UseQueryResult<IAlert[]> {
     queryFn: () => alertService.getActive(),
     refetchInterval: 60_000, // Poll every 1 minute
     staleTime: 30_000,
+  });
+}
+
+/**
+ * Fetch alert statistics (total, active count, by level)
+ */
+export function useAlertStats(): UseQueryResult<AlertStatsResponse> {
+  return useQuery({
+    queryKey: alertKeys.stats(),
+    queryFn: () => alertService.getStats(),
+    staleTime: 60_000, // 1 minute
+  });
+}
+
+/**
+ * Fetch alert trend data (daily count for last 30 days)
+ */
+export function useAlertTrend(): UseQueryResult<AlertTrendItem[]> {
+  return useQuery({
+    queryKey: alertKeys.trend(),
+    queryFn: () => alertService.getTrend(),
+    staleTime: 60_000, // 1 minute
   });
 }
 
