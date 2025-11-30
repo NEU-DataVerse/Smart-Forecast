@@ -1,16 +1,25 @@
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Stack } from 'expo-router';
-import { Bell, AlertTriangle } from 'lucide-react-native';
+import { Bell, AlertTriangle, ChevronRight } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import AlertCard from '@/components/AlertCard';
 import { useNotification } from '@/context/NotificationContext';
+import { useState } from 'react';
 
 export default function AlertsScreen() {
   const { alerts, markAlertAsRead } = useAppStore();
+  const [showAll, setShowAll] = useState(false);
 
   const unreadCount = alerts.filter((a) => !a.read).length;
   const { expoPushToken, notification, error } = useNotification();
+
+  // Sort alerts by date (newest first) and get the ones to display
+  const sortedAlerts = [...alerts].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+  );
+  const displayedAlerts = showAll ? sortedAlerts : sortedAlerts.slice(0, 3);
+  const hasMore = sortedAlerts.length > 3;
 
   if (error) {
     console.error('Notification Error:', error);
@@ -58,9 +67,27 @@ export default function AlertsScreen() {
           </View>
         ) : (
           <>
-            {alerts.map((alert) => (
+            {displayedAlerts.map((alert) => (
               <AlertCard key={alert.id} alert={alert} onPress={() => markAlertAsRead(alert.id)} />
             ))}
+
+            {hasMore && !showAll && (
+              <Pressable style={styles.viewMoreButton} onPress={() => setShowAll(true)}>
+                <Text style={styles.viewMoreText}>Xem thêm {sortedAlerts.length - 3} cảnh báo</Text>
+                <ChevronRight size={20} color={Colors.primary.blue} />
+              </Pressable>
+            )}
+
+            {showAll && hasMore && (
+              <Pressable style={styles.viewLessButton} onPress={() => setShowAll(false)}>
+                <Text style={styles.viewLessText}>Ẩn bớt</Text>
+                <ChevronRight
+                  size={20}
+                  color={Colors.text.secondary}
+                  style={{ transform: [{ rotate: '180deg' }] }}
+                />
+              </Pressable>
+            )}
           </>
         )}
 
@@ -182,5 +209,45 @@ const styles = StyleSheet.create({
     color: Colors.text.secondary,
     marginBottom: 6,
     lineHeight: 20,
+  },
+  viewMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.background.card,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.primary.blue,
+  },
+  viewMoreText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.primary.blue,
+    marginRight: 8,
+  },
+  viewLessButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.background.card,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  viewLessText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.text.secondary,
+    marginRight: 8,
   },
 });
