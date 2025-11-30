@@ -16,6 +16,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AlertService } from './alert.service';
+import { AlertScheduler } from './alert.scheduler';
+import { FcmCleanupScheduler } from './fcm-cleanup.scheduler';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { AlertQueryDto } from './dto/alert-query.dto';
 import { AlertEntity } from './entities/alert.entity';
@@ -29,13 +31,17 @@ import { UserRole } from '@smart-forecast/shared';
 @Controller('alert')
 @UseGuards(JwtAuthGuard)
 export class AlertController {
-  constructor(private readonly alertService: AlertService) {}
+  constructor(
+    private readonly alertService: AlertService,
+    private readonly alertScheduler: AlertScheduler,
+    private readonly fcmCleanupScheduler: FcmCleanupScheduler,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Create and send alert to all users (Admin only)' })
+  @ApiOperation({ summary: 'Create and send alert to users (Admin only)' })
   @ApiResponse({
     status: 201,
     description: 'Alert created and sent successfully',
@@ -74,5 +80,29 @@ export class AlertController {
   })
   async getActive(): Promise<AlertEntity[]> {
     return this.alertService.getActiveAlerts();
+  }
+
+  @Post('trigger-check')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Manually trigger threshold check (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Threshold check triggered successfully',
+  })
+  async triggerThresholdCheck(): Promise<{ message: string }> {
+    return this.alertScheduler.triggerCheck();
+  }
+
+  @Post('cleanup-tokens')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Manually trigger FCM token cleanup (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token cleanup completed',
+  })
+  async cleanupTokens(): Promise<{ message: string; cleanedCount: number }> {
+    return this.fcmCleanupScheduler.triggerCleanup();
   }
 }

@@ -33,6 +33,9 @@ export class AlertEntity {
   @Column('text')
   message: string;
 
+  @Column('text', { nullable: true })
+  advice: string | null;
+
   @Column('jsonb', { nullable: true })
   area: {
     type: 'Polygon';
@@ -48,12 +51,21 @@ export class AlertEntity {
   @Column('int', { default: 0 })
   sentCount: number;
 
-  @Column('uuid')
-  createdBy: string;
+  @Column('boolean', { default: false })
+  isAutomatic: boolean;
 
-  @ManyToOne(() => User, { nullable: false })
+  @Column('jsonb', { nullable: true })
+  sourceData: Record<string, unknown> | null;
+
+  @Column('varchar', { nullable: true })
+  stationId: string | null;
+
+  @Column('uuid', { nullable: true })
+  createdBy: string | null;
+
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'createdBy' })
-  creator: User;
+  creator: User | null;
 
   @CreateDateColumn()
   createdAt: Date;

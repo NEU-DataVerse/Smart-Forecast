@@ -18,11 +18,13 @@ export class FcmService {
    * Send notification to multiple devices
    * @param tokens - Array of FCM tokens
    * @param notification - Notification payload
+   * @param dryRun - If true, validates tokens without actually sending
    * @returns Number of successful sends and failed tokens
    */
   async sendBulkNotification(
     tokens: string[],
     notification: FcmNotification,
+    dryRun: boolean = false,
   ): Promise<{
     successCount: number;
     failureCount: number;
@@ -46,20 +48,24 @@ export class FcmService {
         tokens,
       };
 
-      const response = await messaging.sendEachForMulticast(message);
+      const response = await messaging.sendEachForMulticast(message, dryRun);
 
-      this.logger.log(
-        `FCM batch send: ${response.successCount} successful, ${response.failureCount} failed`,
-      );
+      if (!dryRun) {
+        this.logger.log(
+          `FCM batch send: ${response.successCount} successful, ${response.failureCount} failed`,
+        );
+      }
 
       // Collect failed tokens for cleanup
       if (response.failureCount > 0) {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             failedTokens.push(tokens[idx]);
-            this.logger.warn(
-              `Failed to send to token ${tokens[idx]}: ${resp.error?.message}`,
-            );
+            if (!dryRun) {
+              this.logger.warn(
+                `Failed to send to token ${tokens[idx]}: ${resp.error?.message}`,
+              );
+            }
           }
         });
       }
