@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BeforeInsert,
+  Index,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
@@ -41,6 +42,27 @@ export class User {
   @Exclude()
   @Column({ nullable: true })
   fcmToken: string;
+
+  @Column('timestamp', { nullable: true })
+  fcmTokenUpdatedAt: Date | null;
+
+  /**
+   * User's current location stored as GeoJSON Point
+   * Format: { type: 'Point', coordinates: [longitude, latitude] }
+   */
+  @Index({ spatial: true })
+  @Column('geography', {
+    spatialFeatureType: 'Point',
+    srid: 4326,
+    nullable: true,
+  })
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  } | null;
+
+  @Column('timestamp', { nullable: true })
+  locationUpdatedAt: Date | null;
 
   @Exclude()
   @Column({ nullable: true, unique: true })
