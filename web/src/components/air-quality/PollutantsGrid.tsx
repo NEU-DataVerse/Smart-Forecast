@@ -25,8 +25,8 @@ export function PollutantsGrid({ pollutants }: PollutantsGridProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pollutants Breakdown</CardTitle>
-        <CardDescription>Current levels vs. safe limits</CardDescription>
+        <CardTitle>Phân tích chất ô nhiễm</CardTitle>
+        <CardDescription>Mức hiện tại so với giới hạn an toàn</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

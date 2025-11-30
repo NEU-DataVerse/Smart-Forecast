@@ -14,10 +14,10 @@ const LEVEL_COLORS = {
 };
 
 const LEVEL_LABELS = {
-  LOW: 'Low',
-  MEDIUM: 'Medium',
-  HIGH: 'High',
-  CRITICAL: 'Critical',
+  LOW: 'Thấp',
+  MEDIUM: 'Trung bình',
+  HIGH: 'Cao',
+  CRITICAL: 'Nghiêm trọng',
 };
 
 export default function AlertsByLevelChart() {
@@ -42,8 +42,8 @@ export default function AlertsByLevelChart() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Alerts by Level</CardTitle>
-            <CardDescription className="text-xs">Distribution of alert severity</CardDescription>
+            <CardTitle className="text-base">Cảnh báo theo mức độ</CardTitle>
+            <CardDescription className="text-xs">Phân bố mức độ nghiêm trọng</CardDescription>
           </div>
           <Shield className="h-5 w-5 text-slate-400" />
         </div>
@@ -51,15 +51,15 @@ export default function AlertsByLevelChart() {
       <CardContent>
         {isLoading ? (
           <div className="h-[200px] flex items-center justify-center">
-            <div className="animate-pulse text-slate-400">Loading chart...</div>
+            <div className="animate-pulse text-slate-400">Đang tải biểu đồ...</div>
           </div>
         ) : error ? (
           <div className="h-[200px] flex items-center justify-center text-red-500 text-sm">
-            Failed to load alert statistics
+            Không thể tải thống kê cảnh báo
           </div>
         ) : chartData.length === 0 ? (
           <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">
-            No alerts to display
+            Không có cảnh báo để hiển thị
           </div>
         ) : (
           <div className="relative">
@@ -85,7 +85,7 @@ export default function AlertsByLevelChart() {
                     borderRadius: '8px',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                   }}
-                  formatter={(value: number, name: string) => [`${value} alerts`, name]}
+                  formatter={(value: number, name: string) => [`${value} cảnh báo`, name]}
                 />
                 <Legend
                   verticalAlign="bottom"
@@ -98,7 +98,7 @@ export default function AlertsByLevelChart() {
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center -mt-8">
                 <p className="text-2xl font-bold text-slate-800">{totalAlerts}</p>
-                <p className="text-xs text-slate-500">Total</p>
+                <p className="text-xs text-slate-500">Tổng cộng</p>
               </div>
             </div>
           </div>

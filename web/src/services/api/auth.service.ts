@@ -21,7 +21,7 @@ export const authService = {
       if (!access_token || !user || user.role !== UserRole.ADMIN) {
         return {
           success: false,
-          error: 'Invalid response from server',
+          error: 'Phản hồi không hợp lệ từ máy chủ',
         };
       }
 
@@ -40,7 +40,7 @@ export const authService = {
         message?: string;
       };
       const errorMessage =
-        err?.response?.data?.message || err?.message || 'Failed to login. Please try again.';
+        err?.response?.data?.message || err?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
 
       return {
         success: false,

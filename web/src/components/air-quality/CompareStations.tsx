@@ -87,7 +87,7 @@ export function CompareStations() {
       const key = pollutantKeys[idx];
       const entry: Record<string, string | number> = { pollutant: name };
 
-      compareData.stations.forEach((station, stationIdx) => {
+      compareData.stations.forEach((station) => {
         if (station.data) {
           const value = station.data.pollutants[key];
           entry[station.stationName || station.stationId] = value ?? 0;

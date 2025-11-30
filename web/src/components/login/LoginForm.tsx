@@ -10,7 +10,6 @@ import { useUserContext } from '@/context/userContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
 import { validateEmail } from '@/lib/utils';
-import { authService } from '@/services/api';
 
 export function LoginForm({}: React.ComponentProps<'form'>) {
   const { isAuthenticated, login } = useUserContext();
@@ -25,12 +24,12 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
 
     // Validation
     if (!email.trim() || !password.trim()) {
-      toast.error('Please fill in all fields');
+      toast.error('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
     if (!validateEmail(email)) {
-      toast.error('Please enter a valid email address');
+      toast.error('Vui lòng nhập địa chỉ email hợp lệ');
       return;
     }
 
@@ -43,18 +42,18 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
     if (isAuthenticated) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   return (
     <Card className="shadow-xl border-slate-200">
       <CardHeader className="space-y-1">
-        <CardTitle>Welcome Back</CardTitle>
-        <CardDescription>Sign in to your administrator account</CardDescription>
+        <CardTitle>Chào mừng trở lại</CardTitle>
+        <CardDescription>Đăng nhập vào tài khoản quản trị viên của bạn</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">Địa chỉ Email</Label>
             <Input
               id="email"
               type="email"
@@ -68,12 +67,12 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Mật khẩu</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                placeholder="Nhập mật khẩu của bạn"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -83,7 +82,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -94,7 +93,7 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
               onClick={() => router.push('/forgot-password')}
               disabled={loading}
             >
-              Forgot password?
+              Quên mật khẩu?
             </button>
           </div>
 
@@ -102,10 +101,10 @@ export function LoginForm({}: React.ComponentProps<'form'>) {
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Signing In...</span>
+                <span>Đang đăng nhập...</span>
               </div>
             ) : (
-              'Sign In'
+              'Đăng nhập'
             )}
           </Button>
         </form>

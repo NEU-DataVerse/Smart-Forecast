@@ -34,9 +34,9 @@ export default function IncidentTrendChart() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Incident Trend</CardTitle>
+            <CardTitle className="text-base">Xu hướng sự cố</CardTitle>
             <CardDescription className="text-xs">
-              Daily reports over the last 30 days
+              Báo cáo hàng ngày trong 30 ngày gần đây
             </CardDescription>
           </div>
           <TrendingUp className="h-5 w-5 text-slate-400" />
@@ -45,15 +45,15 @@ export default function IncidentTrendChart() {
       <CardContent>
         {isLoading ? (
           <div className="h-[200px] flex items-center justify-center">
-            <div className="animate-pulse text-slate-400">Loading chart...</div>
+            <div className="animate-pulse text-slate-400">Đang tải biểu đồ...</div>
           </div>
         ) : error ? (
           <div className="h-[200px] flex items-center justify-center text-red-500 text-sm">
-            Failed to load trend data
+            Không thể tải dữ liệu xu hướng
           </div>
         ) : chartData.length === 0 ? (
           <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">
-            No incident data available
+            Không có dữ liệu sự cố
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
@@ -86,7 +86,7 @@ export default function IncidentTrendChart() {
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                 }}
                 labelStyle={{ color: '#334155', fontWeight: 500 }}
-                formatter={(value: number) => [`${value} reports`, 'Incidents']}
+                formatter={(value: number) => [`${value} báo cáo`, 'Sự cố']}
               />
               <Area
                 type="monotone"

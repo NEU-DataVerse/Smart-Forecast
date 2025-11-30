@@ -57,38 +57,38 @@ export function DateRangeFilter({ onDateRangeChange }: DateRangeFilterProps) {
         size="sm"
         onClick={() => handlePresetChange('today')}
       >
-        Today
+        Hôm nay
       </Button>
       <Button
         variant={preset === '7days' ? 'default' : 'outline'}
         size="sm"
         onClick={() => handlePresetChange('7days')}
       >
-        Last 7 Days
+        7 ngày qua
       </Button>
       <Button
         variant={preset === '30days' ? 'default' : 'outline'}
         size="sm"
         onClick={() => handlePresetChange('30days')}
       >
-        Last 30 Days
+        30 ngày qua
       </Button>
 
       <Popover>
         <PopoverTrigger asChild>
           <Button variant={preset === 'custom' ? 'default' : 'outline'} size="sm">
             <CalendarIcon className="h-4 w-4 mr-2" />
-            Custom Range
+            Tùy chỉnh
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-4" align="end">
           <div className="space-y-4">
             <div>
-              <p className="text-sm mb-2">Start Date</p>
+              <p className="text-sm mb-2">Ngày bắt đầu</p>
               <Calendar mode="single" selected={customStart} onSelect={setCustomStart} />
             </div>
             <div>
-              <p className="text-sm mb-2">End Date</p>
+              <p className="text-sm mb-2">Ngày kết thúc</p>
               <Calendar mode="single" selected={customEnd} onSelect={setCustomEnd} />
             </div>
             {customStart && customEnd && (
@@ -97,7 +97,7 @@ export function DateRangeFilter({ onDateRangeChange }: DateRangeFilterProps) {
                   {format(customStart, 'MMM dd')} - {format(customEnd, 'MMM dd, yyyy')}
                 </p>
                 <Button size="sm" onClick={handleCustomApply}>
-                  Apply
+                  Áp dụng
                 </Button>
               </div>
             )}

@@ -28,7 +28,7 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
-import { AlertTriangle, CheckCircle, Clock, XCircle, TrendingUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 
 // Colors for incident types
 const TYPE_COLORS: Record<string, string> = {
@@ -92,7 +92,6 @@ export function IncidentStatsDashboard() {
   // Calculate summary from status data
   const pendingCount = byStatusData?.find((s) => s.status === IncidentStatus.PENDING)?.count ?? 0;
   const verifiedCount = byStatusData?.find((s) => s.status === IncidentStatus.VERIFIED)?.count ?? 0;
-  const rejectedCount = byStatusData?.find((s) => s.status === IncidentStatus.REJECTED)?.count ?? 0;
   const resolvedCount = byStatusData?.find((s) => s.status === IncidentStatus.RESOLVED)?.count ?? 0;
   const totalCount = byStatusData?.reduce((sum, s) => sum + s.count, 0) ?? 0;
 

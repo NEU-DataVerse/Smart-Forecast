@@ -205,8 +205,8 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
   if (!data) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
-        <p className="font-medium">Failed to load dashboard data</p>
-        <p className="text-sm mt-1">Please check your connection and try again.</p>
+        <p className="font-medium">Không thể tải dữ liệu bảng điều khiển</p>
+        <p className="text-sm mt-1">Vui lòng kiểm tra kết nối và thử lại.</p>
       </div>
     );
   }
@@ -225,7 +225,7 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Stations Card */}
       <GroupedCard
-        title="Stations"
+        title="Trạm quan trắc"
         icon={<Radio className="h-5 w-5 text-blue-600" />}
         iconBg="bg-blue-100"
         accentColor="bg-gradient-to-r from-blue-500 to-blue-600"
@@ -236,19 +236,19 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
         href="/stations"
         stats={[
           {
-            label: 'Active',
+            label: 'Hoạt động',
             value: stations.active,
             icon: <CheckCircle className="h-4 w-4" />,
             color: 'text-green-600',
           },
           {
-            label: 'Inactive',
+            label: 'Không hoạt động',
             value: stations.inactive,
             icon: <XCircle className="h-4 w-4" />,
             color: 'text-red-500',
           },
           {
-            label: 'Maintenance',
+            label: 'Bảo trì',
             value: stations.maintenance,
             icon: <Wrench className="h-4 w-4" />,
             color: 'text-yellow-600',
@@ -258,7 +258,7 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
 
       {/* Alerts Card */}
       <GroupedCard
-        title="Alerts"
+        title="Cảnh báo"
         icon={<AlertTriangle className="h-5 w-5 text-orange-600" />}
         iconBg="bg-orange-100"
         accentColor="bg-gradient-to-r from-orange-500 to-orange-600"
@@ -269,19 +269,19 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
         href="/alerts"
         stats={[
           {
-            label: 'Active',
+            label: 'Đang hoạt động',
             value: alerts.activeCount,
             icon: <AlertTriangle className="h-4 w-4" />,
             color: 'text-orange-600',
           },
           {
-            label: 'High Priority',
+            label: 'Ưu tiên cao',
             value: alerts.byLevel.HIGH,
             icon: <Shield className="h-4 w-4" />,
-            color: 'text-red-500',
+            color: 'text-red-600',
           },
           {
-            label: 'Critical',
+            label: 'Nghiêm trọng',
             value: alerts.byLevel.CRITICAL,
             icon: <Zap className="h-4 w-4" />,
             color: 'text-purple-600',
@@ -291,7 +291,7 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
 
       {/* Incidents Card */}
       <GroupedCard
-        title="Incidents"
+        title="Sự cố"
         icon={<FileText className="h-5 w-5 text-violet-600" />}
         iconBg="bg-violet-100"
         accentColor="bg-gradient-to-r from-violet-500 to-violet-600"
@@ -302,22 +302,22 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
         href="/reports"
         stats={[
           {
-            label: 'Pending',
+            label: 'Chờ xử lý',
             value: incidents.pending,
             icon: <Clock className="h-4 w-4" />,
             color: 'text-amber-600',
           },
           {
-            label: 'Verified',
+            label: 'Đã xác minh',
             value: incidents.verified,
             icon: <CheckCircle className="h-4 w-4" />,
             color: 'text-green-600',
           },
           {
-            label: 'Resolved',
+            label: 'Đã giải quyết',
             value: incidents.resolved,
             icon: <CheckCircle className="h-4 w-4" />,
-            color: 'text-emerald-600',
+            color: 'text-violet-600',
           },
         ]}
       />

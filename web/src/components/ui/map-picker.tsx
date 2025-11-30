@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -27,7 +27,14 @@ export function MapPicker({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const marker = useRef<maplibregl.Marker | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Memoize the location select handler
+  const handleLocationSelect = useCallback(
+    (lat: number, lng: number) => {
+      onLocationSelect(lat, lng);
+    },
+    [onLocationSelect],
+  );
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -75,7 +82,7 @@ export function MapPicker({
     marker.current.on('dragend', () => {
       if (marker.current) {
         const lngLat = marker.current.getLngLat();
-        onLocationSelect(lngLat.lat, lngLat.lng);
+        handleLocationSelect(lngLat.lat, lngLat.lng);
       }
     });
 
@@ -83,12 +90,8 @@ export function MapPicker({
     map.current.on('click', (e) => {
       if (marker.current) {
         marker.current.setLngLat([e.lngLat.lng, e.lngLat.lat]);
-        onLocationSelect(e.lngLat.lat, e.lngLat.lng);
+        handleLocationSelect(e.lngLat.lat, e.lngLat.lng);
       }
-    });
-
-    map.current.on('load', () => {
-      setIsLoaded(true);
     });
 
     // Cleanup
@@ -100,19 +103,7 @@ export function MapPicker({
         map.current.remove();
       }
     };
-  }, []);
-
-  // Update marker position when initialLat/initialLng changes
-  useEffect(() => {
-    if (map.current && marker.current && isLoaded) {
-      marker.current.setLngLat([initialLng, initialLat]);
-      map.current.flyTo({
-        center: [initialLng, initialLat],
-        zoom: zoom,
-        duration: 1000,
-      });
-    }
-  }, [initialLat, initialLng, isLoaded, zoom]);
+  }, [initialLat, initialLng, zoom, handleLocationSelect]);
 
   return (
     <div className="relative">

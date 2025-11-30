@@ -19,7 +19,7 @@ interface StationSelectorProps {
 export function StationSelector({
   value,
   onChange,
-  placeholder = 'Select station',
+  placeholder = 'Chọn trạm',
 }: StationSelectorProps) {
   const { stations, loading } = useStations({ autoFetch: true });
 
@@ -28,11 +28,11 @@ export function StationSelector({
       <SelectTrigger className="w-full">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4" />
-          <SelectValue placeholder={loading ? 'Loading stations...' : placeholder} />
+          <SelectValue placeholder={loading ? 'Đang tải danh sách trạm...' : placeholder} />
         </div>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All Stations</SelectItem>
+        <SelectItem value="all">Tất cả các trạm</SelectItem>
         {stations.map((station) => (
           <SelectItem key={station.id} value={station.id}>
             {station.name} - {station.district}, {station.city}

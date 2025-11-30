@@ -24,7 +24,7 @@ export const ingestionService = {
       undefined,
       undefined,
       true,
-      'Data ingestion triggered successfully',
+      'Kích hoạt thu thập dữ liệu thành công',
     );
   },
 
@@ -37,7 +37,7 @@ export const ingestionService = {
       undefined,
       undefined,
       true,
-      'Air quality ingestion triggered successfully',
+      'Kích hoạt thu thập chất lượng không khí thành công',
     );
   },
 
@@ -50,7 +50,7 @@ export const ingestionService = {
       undefined,
       undefined,
       true,
-      'Weather ingestion triggered successfully',
+      'Kích hoạt thu thập thời tiết thành công',
     );
   },
 

@@ -26,9 +26,9 @@ const recentNotifications: Notification[] = [
   {
     id: 1,
     type: 'system',
-    title: 'API Key Expiring Soon',
-    message: 'OpenWeatherMap API key expires in 7 days',
-    timestamp: '5m ago',
+    title: 'Khóa API sắp hết hạn',
+    message: 'Khóa API OpenWeatherMap hết hạn trong 7 ngày',
+    timestamp: '5 phút trước',
     read: false,
     icon: Key,
     iconColor: 'text-red-500',
@@ -37,9 +37,9 @@ const recentNotifications: Notification[] = [
   {
     id: 2,
     type: 'weather',
-    title: 'Severe Thunderstorm Warning',
-    message: 'High winds detected in Downtown District',
-    timestamp: '12m ago',
+    title: 'Cảnh báo giông bão nghiêm trọng',
+    message: 'Phát hiện gió mạnh tại khu vực trung tâm',
+    timestamp: '12 phút trước',
     read: false,
     icon: Zap,
     iconColor: 'text-orange-500',
@@ -48,9 +48,9 @@ const recentNotifications: Notification[] = [
   {
     id: 3,
     type: 'reports',
-    title: 'New Disaster Report',
-    message: 'Flooding reported on Main Street',
-    timestamp: '25m ago',
+    title: 'Báo cáo thiên tai mới',
+    message: 'Báo cáo ngập lụt tại đường chính',
+    timestamp: '25 phút trước',
     read: false,
     icon: FileText,
     iconColor: 'text-blue-500',
@@ -59,9 +59,9 @@ const recentNotifications: Notification[] = [
   {
     id: 4,
     type: 'alerts',
-    title: 'Alert Sent Successfully',
-    message: 'Flood advisory sent to 2,150 users',
-    timestamp: '1h ago',
+    title: 'Gửi cảnh báo thành công',
+    message: 'Cảnh báo lũ lụt đã gửi đến 2.150 người dùng',
+    timestamp: '1 giờ trước',
     read: true,
     icon: Bell,
     iconColor: 'text-green-500',
@@ -70,9 +70,9 @@ const recentNotifications: Notification[] = [
   {
     id: 5,
     type: 'system',
-    title: 'Data Fetch Error',
-    message: 'Failed to fetch AQ data from OpenAQ',
-    timestamp: '3h ago',
+    title: 'Lỗi lấy dữ liệu',
+    message: 'Không thể lấy dữ liệu AQ từ OpenAQ',
+    timestamp: '3 giờ trước',
     read: true,
     icon: Database,
     iconColor: 'text-red-500',
@@ -114,8 +114,8 @@ export function NotificationDropdown() {
       <DropdownMenuContent align="end" className="w-[380px] p-0">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200">
           <div>
-            <h3 className="text-slate-900">Notifications</h3>
-            <p className="text-slate-500 text-xs">{unreadCount} unread</p>
+            <h3 className="text-slate-900">Thông báo</h3>
+            <p className="text-slate-500 text-xs">{unreadCount} chưa đọc</p>
           </div>
           {unreadCount > 0 && (
             <Button
@@ -125,7 +125,7 @@ export function NotificationDropdown() {
               className="text-blue-600 hover:text-blue-700 h-7"
             >
               <Check className="h-3 w-3 mr-1" />
-              <span className="text-xs">Mark all</span>
+              <span className="text-xs">Đánh dấu tất cả</span>
             </Button>
           )}
         </div>
@@ -134,7 +134,7 @@ export function NotificationDropdown() {
           {displayedNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 px-4">
               <Bell className="h-10 w-10 text-slate-300 mb-2" />
-              <p className="text-slate-500 text-sm">No notifications</p>
+              <p className="text-slate-500 text-sm">Không có thông báo</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -204,7 +204,7 @@ export function NotificationDropdown() {
             href="/notifications"
             className="w-full h-8 cursor-pointer flex items-center justify-center text-sm text-blue-600 hover:text-blue-700"
           >
-            View All Notifications
+            Xem tất cả thông báo
           </Link>
         </div>
       </DropdownMenuContent>

@@ -27,13 +27,13 @@ function getTemperatureColor(temp: number): string {
 }
 
 function getTemperatureLabel(temp: number): string {
-  if (temp <= 0) return 'Freezing';
-  if (temp <= 10) return 'Cold';
-  if (temp <= 20) return 'Cool';
-  if (temp <= 25) return 'Mild';
-  if (temp <= 30) return 'Warm';
-  if (temp <= 35) return 'Hot';
-  return 'Very Hot';
+  if (temp <= 0) return 'Giá lạnh';
+  if (temp <= 10) return 'Lạnh';
+  if (temp <= 20) return 'Mát';
+  if (temp <= 25) return 'Âm';
+  if (temp <= 30) return 'Ấm';
+  if (temp <= 35) return 'Nóng';
+  return 'Rất nóng';
 }
 
 export default function WeatherPage() {
@@ -114,12 +114,12 @@ export default function WeatherPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900">Weather</h2>
-          <p className="text-slate-500">Real-time weather monitoring and forecasts</p>
+          <h2 className="text-3xl font-bold text-slate-900">Thời tiết</h2>
+          <p className="text-slate-500">Giám sát thời tiết thời gian thực và dự báo</p>
         </div>
         <Button onClick={() => refetchCurrent()} variant="outline" size="sm">
           <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
+          Làm mới
         </Button>
       </div>
 
@@ -127,9 +127,12 @@ export default function WeatherPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Map View - 2/3 width */}
         <div className="lg:col-span-2">
-          {currentLoading && <LoadingState message="Loading weather data..." />}
+          {currentLoading && <LoadingState message="Đang tải dữ liệu thời tiết..." />}
           {currentError && (
-            <ErrorState message="Failed to load weather data" onRetry={() => refetchCurrent()} />
+            <ErrorState
+              message="Không thể tải dữ liệu thời tiết"
+              onRetry={() => refetchCurrent()}
+            />
           )}
           {!currentLoading && !currentError && allCurrentData?.data && (
             <WeatherMapView
@@ -144,7 +147,7 @@ export default function WeatherPage() {
         {/* Station Selector - 1/3 width */}
         <Card>
           <CardHeader>
-            <CardTitle>Select Station</CardTitle>
+            <CardTitle>Chọn trạm</CardTitle>
           </CardHeader>
           <CardContent>
             <StationSelector
@@ -153,9 +156,9 @@ export default function WeatherPage() {
             />
             {selectedStation && currentStationData && (
               <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-                <p className="text-sm font-semibold text-slate-700">Current Selection:</p>
+                <p className="text-sm font-semibold text-slate-700">Lựa chọn hiện tại:</p>
                 <p className="text-xs text-slate-600 mt-1">
-                  {currentStationData.address || 'Unknown Location'}
+                  {currentStationData.address || 'Vị trí không xác định'}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <div
@@ -175,11 +178,11 @@ export default function WeatherPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-slate-600">
                   <div>
-                    <span className="text-slate-400">Humidity:</span>{' '}
+                    <span className="text-slate-400">Độ ẩm:</span>{' '}
                     {currentStationData.atmospheric?.humidity?.toFixed(0)}%
                   </div>
                   <div>
-                    <span className="text-slate-400">Wind:</span>{' '}
+                    <span className="text-slate-400">Gió:</span>{' '}
                     {currentStationData.wind?.speed?.toFixed(1)} m/s
                   </div>
                 </div>
@@ -188,7 +191,7 @@ export default function WeatherPage() {
             {!selectedStation && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-700">
-                  Click on a marker on the map or select from the dropdown
+                  Nhấp vào điểm đánh dấu trên bản đồ hoặc chọn từ danh sách
                 </p>
               </div>
             )}
@@ -201,44 +204,44 @@ export default function WeatherPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <WeatherMetricCard
             icon={Thermometer}
-            title="Temperature"
+            title="Nhiệt độ"
             value={weatherData.temperature.toFixed(1)}
             unit="°C"
-            subValue={`Feels like ${weatherData.feelsLike.toFixed(1)}°C`}
+            subValue={`Cảm giác như ${weatherData.feelsLike.toFixed(1)}°C`}
             color="text-orange-500"
           />
           <WeatherMetricCard
             icon={Droplets}
-            title="Humidity"
+            title="Độ ẩm"
             value={weatherData.humidity.toFixed(0)}
             unit="%"
             color="text-cyan-500"
           />
           <WeatherMetricCard
             icon={Wind}
-            title="Wind Speed"
+            title="Tốc độ gió"
             value={weatherData.windSpeed.toFixed(1)}
             unit="m/s"
-            subValue={`Direction: ${weatherData.windDirection}°`}
+            subValue={`Hướng: ${weatherData.windDirection}°`}
             color="text-blue-500"
           />
           <WeatherMetricCard
             icon={Gauge}
-            title="Pressure"
+            title="Áp suất"
             value={weatherData.pressure.toFixed(0)}
             unit="hPa"
             color="text-green-500"
           />
           <WeatherMetricCard
             icon={CloudRain}
-            title="Rainfall"
+            title="Lượng mưa"
             value={weatherData.rainfall.toFixed(1)}
             unit="mm"
             color="text-blue-600"
           />
           <WeatherMetricCard
             icon={Cloud}
-            title="Cloud Cover"
+            title="Độ che phủ mây"
             value={weatherData.clouds.toFixed(0)}
             unit="%"
             color="text-slate-500"
@@ -250,9 +253,7 @@ export default function WeatherPage() {
       {!selectedStation && !currentLoading && (
         <Card>
           <CardContent className="pt-6 text-center">
-            <p className="text-slate-500">
-              Select a station on the map to view detailed information
-            </p>
+            <p className="text-slate-500">Chọn một trạm trên bản đồ để xem thông tin chi tiết</p>
           </CardContent>
         </Card>
       )}
@@ -266,7 +267,7 @@ export default function WeatherPage() {
         </TabsList>
 
         <TabsContent value="forecast">
-          {forecastLoading && <LoadingState message="Loading forecast..." />}
+          {forecastLoading && <LoadingState message="Đang tải dự báo..." />}
           {!forecastLoading && forecastChartData.length > 0 && (
             <WeatherCharts data={forecastChartData} />
           )}

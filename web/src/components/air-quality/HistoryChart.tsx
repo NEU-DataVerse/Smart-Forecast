@@ -144,7 +144,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
         ) : (
           <Tabs defaultValue="aqi" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="aqi">AQI Trend</TabsTrigger>
+              <TabsTrigger value="aqi">Xu hướng AQI</TabsTrigger>
               <TabsTrigger value="pm">PM2.5 & PM10</TabsTrigger>
               <TabsTrigger value="gases">Khí độc</TabsTrigger>
             </TabsList>

@@ -9,7 +9,6 @@ import { useAlertThresholds, useToggleThreshold, useDeleteThreshold } from '@/ho
 import {
   AlertLevel,
   AlertType,
-  AlertMetric,
   ThresholdOperator,
   AlertLevelLabels,
   AlertLevelColors,

@@ -80,7 +80,7 @@ export function StationCard({
 
               {station.categories && station.categories.length > 0 && (
                 <div className="space-y-1">
-                  <p className="text-slate-500 text-xs">Categories:</p>
+                  <p className="text-slate-500 text-xs">Danh mục:</p>
                   <div className="flex flex-wrap gap-1">
                     {station.categories.map((category) => (
                       <Badge key={category} variant="outline" className="text-xs">

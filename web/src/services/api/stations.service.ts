@@ -93,7 +93,7 @@ export const stationsService = {
       data,
       undefined,
       true,
-      'Station created successfully',
+      'Tạo trạm thành công',
     );
     return response.station;
   },
@@ -108,7 +108,7 @@ export const stationsService = {
       data,
       undefined,
       true,
-      'Station updated successfully',
+      'Cập nhật trạm thành công',
     );
     return response.station;
   },
@@ -122,7 +122,7 @@ export const stationsService = {
       `${BASE_PATH}/${encodeURIComponent(id)}`,
       undefined,
       true,
-      'Station deleted successfully',
+      'Xóa trạm thành công',
     );
   },
 
@@ -136,7 +136,7 @@ export const stationsService = {
       undefined,
       undefined,
       true,
-      'Station activated successfully',
+      'Kích hoạt trạm thành công',
     );
     return response.station;
   },
@@ -151,7 +151,7 @@ export const stationsService = {
       undefined,
       undefined,
       true,
-      'Station deactivated successfully',
+      'Vô hiệu hóa trạm thành công',
     );
     return response.station;
   },
@@ -166,7 +166,7 @@ export const stationsService = {
       undefined,
       undefined,
       true,
-      'Station set to maintenance mode',
+      'Đặt trạm vào chế độ bảo trì thành công',
     );
     return response.station;
   },

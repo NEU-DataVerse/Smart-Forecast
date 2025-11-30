@@ -157,7 +157,7 @@ export default function Settings() {
   };
 
   const handleDeleteStation = async (stationId: string) => {
-    if (confirm('Are you sure you want to delete this station?')) {
+    if (confirm('Bạn có chắc chắn muốn xóa trạm này không?')) {
       const success = await deleteStation(stationId);
       if (success) {
         // Refresh statistics
@@ -198,7 +198,7 @@ export default function Settings() {
   // Individual station operations (batch operations replaced with individual calls)
   const handleBatchActivate = async () => {
     if (selectedStations.length === 0) return;
-    if (confirm(`Activate ${selectedStations.length} stations?`)) {
+    if (confirm(`Kích hoạt ${selectedStations.length} trạm?`)) {
       let successCount = 0;
       for (const id of selectedStations) {
         const result = await activateStation(id);
@@ -214,7 +214,7 @@ export default function Settings() {
 
   const handleBatchDeactivate = async () => {
     if (selectedStations.length === 0) return;
-    if (confirm(`Deactivate ${selectedStations.length} stations?`)) {
+    if (confirm(`Vô hiệu hóa ${selectedStations.length} trạm?`)) {
       let successCount = 0;
       for (const id of selectedStations) {
         const result = await deactivateStation(id);
@@ -230,7 +230,7 @@ export default function Settings() {
 
   const handleBatchMaintenance = async () => {
     if (selectedStations.length === 0) return;
-    if (confirm(`Set ${selectedStations.length} stations to maintenance mode?`)) {
+    if (confirm(`Đặt ${selectedStations.length} trạm vào chế độ bảo trì?`)) {
       let successCount = 0;
       for (const id of selectedStations) {
         const result = await setMaintenanceMode(id);
@@ -246,7 +246,7 @@ export default function Settings() {
 
   const handleBatchDelete = async () => {
     if (selectedStations.length === 0) return;
-    if (confirm(`Delete ${selectedStations.length} stations? This action cannot be undone.`)) {
+    if (confirm(`Xóa ${selectedStations.length} trạm? Hành động này không thể hoàn tác.`)) {
       let successCount = 0;
       for (const id of selectedStations) {
         const result = await deleteStation(id);
@@ -282,8 +282,8 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-slate-900">System Settings</h2>
-        <p className="text-slate-500">Configure weather monitoring stations</p>
+        <h2 className="text-slate-900">Cài đặt hệ thống</h2>
+        <p className="text-slate-500">Cấu hình trạm quan trắc thời tiết</p>
       </div>
 
       <StationStatistics stats={stats} />

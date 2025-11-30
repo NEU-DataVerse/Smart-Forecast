@@ -17,7 +17,7 @@ export function WeatherMetricCard({
   value,
   unit,
   subValue,
-  trend,
+  // trend prop reserved for future use
   color = 'text-blue-500',
 }: WeatherMetricCardProps) {
   return (

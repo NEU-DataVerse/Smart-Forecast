@@ -136,7 +136,6 @@ const GoongMap = () => {
         new maplibregl.Marker().setLngLat(INIT_VIEW.center).addTo(map.current);
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Xử lý AutoComplete

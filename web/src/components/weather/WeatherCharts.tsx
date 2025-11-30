@@ -34,20 +34,20 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Weather Forecast</CardTitle>
-        <CardDescription>7-day weather predictions with detailed metrics</CardDescription>
+        <CardTitle>Dự báo thời tiết</CardTitle>
+        <CardDescription>Dự báo thời tiết 7 ngày với các chỉ số chi tiết</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="temperature" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
-            <TabsTrigger value="temperature">Temperature</TabsTrigger>
-            <TabsTrigger value="humidity">Humidity</TabsTrigger>
-            <TabsTrigger value="wind">Wind</TabsTrigger>
-            <TabsTrigger value="pressure">Pressure</TabsTrigger>
-            <TabsTrigger value="precipitation">Precipitation</TabsTrigger>
-            <TabsTrigger value="clouds">Clouds</TabsTrigger>
-            <TabsTrigger value="uv">UV Index</TabsTrigger>
-            <TabsTrigger value="visibility">Visibility</TabsTrigger>
+            <TabsTrigger value="temperature">Nhiệt độ</TabsTrigger>
+            <TabsTrigger value="humidity">Độ ẩm</TabsTrigger>
+            <TabsTrigger value="wind">Gió</TabsTrigger>
+            <TabsTrigger value="pressure">Áp suất</TabsTrigger>
+            <TabsTrigger value="precipitation">Lượng mưa</TabsTrigger>
+            <TabsTrigger value="clouds">Mây</TabsTrigger>
+            <TabsTrigger value="uv">Chỉ số UV</TabsTrigger>
+            <TabsTrigger value="visibility">Tầm nhìn</TabsTrigger>
           </TabsList>
 
           <TabsContent value="temperature">
@@ -62,14 +62,14 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" />
                 <YAxis stroke="#64748b" unit="°C" />
-                <Tooltip formatter={(value: number) => [`${value}°C`, 'Temperature']} />
+                <Tooltip formatter={(value: number) => [`${value}°C`, 'Nhiệt độ']} />
                 <Area
                   type="monotone"
                   dataKey="temperature"
                   stroke="#f59e0b"
                   fillOpacity={1}
                   fill="url(#colorTemp)"
-                  name="Temperature (°C)"
+                  name="Nhiệt độ (°C)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -81,13 +81,13 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" />
                 <YAxis stroke="#64748b" unit="%" domain={[0, 100]} />
-                <Tooltip formatter={(value: number) => [`${value}%`, 'Humidity']} />
+                <Tooltip formatter={(value: number) => [`${value}%`, 'Độ ẩm']} />
                 <Line
                   type="monotone"
                   dataKey="humidity"
                   stroke="#06b6d4"
                   strokeWidth={2}
-                  name="Humidity (%)"
+                  name="Độ ẩm (%)"
                   dot={{ fill: '#06b6d4', r: 3 }}
                 />
               </LineChart>
@@ -102,7 +102,7 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <YAxis stroke="#64748b" unit=" m/s" />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="windSpeed" fill="#8b5cf6" name="Wind Speed (m/s)" />
+                <Bar dataKey="windSpeed" fill="#8b5cf6" name="Tốc độ gió (m/s)" />
               </BarChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -113,13 +113,13 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" />
                 <YAxis stroke="#64748b" unit=" hPa" domain={['auto', 'auto']} />
-                <Tooltip formatter={(value: number) => [`${value} hPa`, 'Pressure']} />
+                <Tooltip formatter={(value: number) => [`${value} hPa`, 'Áp suất']} />
                 <Line
                   type="monotone"
                   dataKey="pressure"
                   stroke="#10b981"
                   strokeWidth={2}
-                  name="Pressure (hPa)"
+                  name="Áp suất (hPa)"
                   dot={{ fill: '#10b981', r: 3 }}
                 />
               </LineChart>
@@ -132,13 +132,18 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" />
                 <YAxis stroke="#64748b" unit=" mm" />
-                <Tooltip formatter={(value: number) => [`${value} mm`, 'Precipitation']} />
+                <Tooltip formatter={(value: number) => [`${value} mm`, 'Lượng mưa']} />
                 <Legend />
-                <Bar dataKey="rainfall" fill="#3b82f6" name="Rainfall (mm)" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="rainfall"
+                  fill="#3b82f6"
+                  name="Lượng mưa (mm)"
+                  radius={[4, 4, 0, 0]}
+                />
                 <Bar
                   dataKey="precipitation"
                   fill="#0ea5e9"
-                  name="Total Precipitation (mm)"
+                  name="Tổng lượng mưa (mm)"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -157,14 +162,14 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" />
                 <YAxis stroke="#64748b" unit="%" domain={[0, 100]} />
-                <Tooltip formatter={(value: number) => [`${value}%`, 'Cloud Cover']} />
+                <Tooltip formatter={(value: number) => [`${value}%`, 'Độ che phủ mây']} />
                 <Area
                   type="monotone"
                   dataKey="clouds"
                   stroke="#94a3b8"
                   fillOpacity={1}
                   fill="url(#colorClouds)"
-                  name="Cloud Cover (%)"
+                  name="Độ che phủ mây (%)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -180,18 +185,18 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                   formatter={(value: number) => {
                     const level =
                       value <= 2
-                        ? 'Low'
+                        ? 'Thấp'
                         : value <= 5
-                          ? 'Moderate'
+                          ? 'Trung bình'
                           : value <= 7
-                            ? 'High'
+                            ? 'Cao'
                             : value <= 10
-                              ? 'Very High'
-                              : 'Extreme';
-                    return [`${value} (${level})`, 'UV Index'];
+                              ? 'Rất cao'
+                              : 'Cực kỳ cao';
+                    return [`${value} (${level})`, 'Chỉ số UV'];
                   }}
                 />
-                <Bar dataKey="uv" name="UV Index" radius={[4, 4, 0, 0]} fill="#eab308" />
+                <Bar dataKey="uv" name="Chỉ số UV" radius={[4, 4, 0, 0]} fill="#eab308" />
               </BarChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -202,13 +207,13 @@ export function WeatherCharts({ data }: WeatherChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="time" stroke="#64748b" />
                 <YAxis stroke="#64748b" unit=" km" />
-                <Tooltip formatter={(value: number) => [`${value} km`, 'Visibility']} />
+                <Tooltip formatter={(value: number) => [`${value} km`, 'Tầm nhìn']} />
                 <Line
                   type="monotone"
                   dataKey="visibility"
                   stroke="#22c55e"
                   strokeWidth={2}
-                  name="Visibility (km)"
+                  name="Tầm nhìn (km)"
                   dot={{ fill: '#22c55e', r: 3 }}
                 />
               </LineChart>

@@ -21,13 +21,13 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-slate-900">Dashboard Overview</h2>
-          <p className="text-slate-500 text-sm">System statistics and monitoring status</p>
+          <h2 className="text-slate-900">Tổng quan bảng điều khiển</h2>
+          <p className="text-slate-500 text-sm">Thống kê hệ thống và trạng thái giám sát</p>
         </div>
         {summaryLastUpdate > 0 && (
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <RefreshCw className="h-3 w-3" />
-            Last update: {new Date(summaryLastUpdate).toLocaleTimeString()}
+            Cập nhật lúc: {new Date(summaryLastUpdate).toLocaleTimeString()}
           </div>
         )}
       </div>
