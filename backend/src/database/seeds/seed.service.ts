@@ -10,6 +10,7 @@ import { WeatherObservedEntity } from '../../modules/persistence/entities/weathe
 import { AirQualityObservedEntity } from '../../modules/persistence/entities/air-quality-observed.entity';
 import { IncidentEntity } from '../../modules/incident/entities/incident.entity';
 import { AlertEntity } from '../../modules/alert/entities/alert.entity';
+import { AlertThresholdEntity } from '../../modules/alert/entities/alert-threshold.entity';
 
 // Seed Data
 import {
@@ -17,6 +18,7 @@ import {
   STATION_SEED_DATA,
   INCIDENT_SEED_DATA,
   ALERT_SEED_DATA,
+  ALERT_THRESHOLD_SEED_DATA,
   generateWeatherSeedData,
   generateAirQualitySeedData,
 } from './data';
@@ -55,6 +57,8 @@ export class SeedService {
     private readonly incidentRepository: Repository<IncidentEntity>,
     @InjectRepository(AlertEntity)
     private readonly alertRepository: Repository<AlertEntity>,
+    @InjectRepository(AlertThresholdEntity)
+    private readonly alertThresholdRepository: Repository<AlertThresholdEntity>,
   ) {}
 
   /**
@@ -85,6 +89,7 @@ export class SeedService {
       await this.seedWeather();
       await this.seedAirQuality();
       await this.seedIncidents();
+      await this.seedAlertThresholds();
       await this.seedAlerts();
 
       this.logger.log('✅ Seeding completed successfully!');
@@ -110,6 +115,7 @@ export class SeedService {
       // Truncate all tables in reverse order of dependencies
       const tables = [
         'alerts',
+        'alert_thresholds',
         'incidents',
         'air_quality_observed',
         'weather_observed',
@@ -159,6 +165,10 @@ export class SeedService {
         phoneNumber: userData.phoneNumber,
         emailVerified: userData.emailVerified,
         isActive: userData.isActive,
+        fcmToken: userData.fcmToken,
+        fcmTokenUpdatedAt: userData.fcmTokenUpdatedAt,
+        location: userData.location,
+        locationUpdatedAt: userData.locationUpdatedAt,
       });
     }
 
@@ -232,6 +242,22 @@ export class SeedService {
     }
 
     this.logger.log(`  ✓ Seeded ${INCIDENT_SEED_DATA.length} incidents`);
+  }
+
+  /**
+   * Seed Alert Thresholds table
+   */
+  private async seedAlertThresholds(): Promise<void> {
+    this.logger.log('📊 Seeding alert thresholds...');
+
+    for (const data of ALERT_THRESHOLD_SEED_DATA) {
+      const threshold = this.alertThresholdRepository.create(data as any);
+      await this.alertThresholdRepository.save(threshold);
+    }
+
+    this.logger.log(
+      `  ✓ Seeded ${ALERT_THRESHOLD_SEED_DATA.length} alert thresholds`,
+    );
   }
 
   /**
