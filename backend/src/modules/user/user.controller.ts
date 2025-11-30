@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   Put,
+  Patch,
   Body,
   Request,
   UseGuards,
@@ -17,6 +18,7 @@ import {
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { UpdateFcmTokenDto } from './dto/update-fcm-token.dto';
+import { UpdateLocationDto } from './dto/update-location.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -71,5 +73,34 @@ export class UserController {
 
     await this.userService.updateFcmToken(userId, updateDto.fcmToken);
     return { message: 'FCM token updated successfully' };
+  }
+
+  @Patch('location')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.USER, UserRole.ADMIN)
+  @ApiOperation({ summary: 'Update user location (called when app opens)' })
+  @ApiResponse({ status: 200, description: 'Location updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async updateLocation(
+    @Body() updateDto: UpdateLocationDto,
+    @Request() req: any,
+  ): Promise<{
+    message: string;
+    location: { latitude: number; longitude: number };
+  }> {
+    const userId = req?.user?.id;
+
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+
+    await this.userService.updateLocation(userId, updateDto);
+    return {
+      message: 'Location updated successfully',
+      location: {
+        latitude: updateDto.latitude,
+        longitude: updateDto.longitude,
+      },
+    };
   }
 }

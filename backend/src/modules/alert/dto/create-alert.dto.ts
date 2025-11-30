@@ -34,6 +34,14 @@ export class CreateAlertDto {
   message: string;
 
   @ApiPropertyOptional({
+    description: 'Recommendations/advice for users',
+    example: 'Hạn chế ra ngoài, di chuyển đến nơi cao hơn nếu cần thiết.',
+  })
+  @IsString()
+  @IsOptional()
+  advice?: string;
+
+  @ApiPropertyOptional({
     description: 'Affected geographic area (GeoJSON Polygon)',
     example: {
       type: 'Polygon',

@@ -1,15 +1,30 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThan } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import { AlertEntity } from './entities/alert.entity';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { AlertQueryDto } from './dto/alert-query.dto';
 import { FcmService } from './services/fcm.service';
 import { User } from '../user/entities/user.entity';
+import { UserService } from '../user/user.service';
+import { AlertLevel, AlertType } from '@smart-forecast/shared';
+
+interface CreateAutoAlertParams {
+  type: AlertType;
+  level: AlertLevel;
+  title: string;
+  message: string;
+  advice: string;
+  stationId: string;
+  sourceData: Record<string, unknown>;
+  area?: { type: 'Polygon'; coordinates: number[][][] } | null;
+}
 
 @Injectable()
 export class AlertService {
   private readonly logger = new Logger(AlertService.name);
+  private readonly bufferKm: number;
 
   constructor(
     @InjectRepository(AlertEntity)
@@ -17,10 +32,14 @@ export class AlertService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly fcmService: FcmService,
-  ) {}
+    private readonly userService: UserService,
+    private readonly configService: ConfigService,
+  ) {
+    this.bufferKm = this.configService.get<number>('ALERT_BUFFER_KM', 5);
+  }
 
   /**
-   * Create and send alert to all users with FCM tokens
+   * Create and send manual alert to users (Admin action)
    */
   async createAndSend(
     createDto: CreateAlertDto,
@@ -30,21 +49,39 @@ export class AlertService {
     const alert = this.alertRepository.create({
       ...createDto,
       createdBy: adminId,
+      isAutomatic: false,
       sentAt: new Date(),
       expiresAt: createDto.expiresAt ? new Date(createDto.expiresAt) : null,
     });
 
-    // Get all active users with FCM tokens
-    const users = await this.userRepository.find({
-      where: { isActive: true },
-      select: ['fcmToken'],
-    });
+    // Get users to notify (filtered by area if provided)
+    let fcmTokens: string[] = [];
 
-    const fcmTokens = users
-      .map((user) => user.fcmToken)
-      .filter((token) => token && token.length > 0);
+    if (createDto.area) {
+      // Send to users within the affected area
+      const usersInArea = await this.userService.findUsersInAreaWithBuffer(
+        createDto.area,
+        this.bufferKm,
+      );
+      fcmTokens = usersInArea
+        .map((user) => user.fcmToken)
+        .filter((token) => token && token.length > 0);
 
-    this.logger.log(`Found ${fcmTokens.length} FCM tokens to send alert`);
+      this.logger.log(
+        `Found ${fcmTokens.length} users in affected area (+${this.bufferKm}km buffer)`,
+      );
+    } else {
+      // Broadcast to all active users
+      const users = await this.userRepository.find({
+        where: { isActive: true },
+        select: ['id', 'fcmToken'],
+      });
+      fcmTokens = users
+        .map((user) => user.fcmToken)
+        .filter((token) => token && token.length > 0);
+
+      this.logger.log(`Broadcasting to ${fcmTokens.length} users`);
+    }
 
     // Send FCM notifications
     if (fcmTokens.length > 0) {
@@ -55,16 +92,18 @@ export class AlertService {
           alertId: alert.id || '',
           level: createDto.level,
           type: createDto.type,
+          advice: createDto.advice || '',
         },
       });
 
       alert.sentCount = result.successCount;
 
-      // TODO: Remove failed tokens from database (implement cleanup later)
+      // Cleanup failed tokens
       if (result.failedTokens.length > 0) {
         this.logger.warn(
-          `${result.failedTokens.length} tokens failed, should be cleaned up`,
+          `${result.failedTokens.length} tokens failed, cleaning up...`,
         );
+        await this.cleanupFailedTokens(result.failedTokens);
       }
     } else {
       alert.sentCount = 0;
@@ -73,6 +112,99 @@ export class AlertService {
 
     // Save alert to database
     return this.alertRepository.save(alert);
+  }
+
+  /**
+   * Create automatic alert (from scheduler)
+   */
+  async createAutoAlert(params: CreateAutoAlertParams): Promise<AlertEntity> {
+    const { type, level, title, message, advice, stationId, sourceData, area } =
+      params;
+
+    // Create alert entity
+    const alert = this.alertRepository.create({
+      type,
+      level,
+      title,
+      message,
+      advice,
+      stationId,
+      sourceData,
+      area,
+      isAutomatic: true,
+      createdBy: null, // Auto-generated
+      sentAt: new Date(),
+      expiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000), // Expires in 4 hours
+    });
+
+    // Get users to notify
+    let fcmTokens: string[] = [];
+
+    if (area) {
+      const usersInArea = await this.userService.findUsersInAreaWithBuffer(
+        area,
+        this.bufferKm,
+      );
+      fcmTokens = usersInArea
+        .map((user) => user.fcmToken)
+        .filter((token) => token && token.length > 0);
+
+      this.logger.log(
+        `Auto alert: Found ${fcmTokens.length} users in affected area`,
+      );
+    } else {
+      const users = await this.userService.findUsersWithFcmTokens();
+      fcmTokens = users
+        .map((user) => user.fcmToken)
+        .filter((token) => token && token.length > 0);
+    }
+
+    // Send notifications
+    if (fcmTokens.length > 0) {
+      const result = await this.fcmService.sendBulkNotification(fcmTokens, {
+        title,
+        body: message,
+        data: {
+          alertId: alert.id || '',
+          level,
+          type,
+          advice,
+          isAutomatic: 'true',
+        },
+      });
+
+      alert.sentCount = result.successCount;
+
+      if (result.failedTokens.length > 0) {
+        await this.cleanupFailedTokens(result.failedTokens);
+      }
+    }
+
+    return this.alertRepository.save(alert);
+  }
+
+  /**
+   * Check if a duplicate alert exists within the specified hours
+   */
+  async checkDuplicateAlert(
+    type: AlertType,
+    level: AlertLevel,
+    stationId: string,
+    withinHours: number = 2,
+  ): Promise<boolean> {
+    const since = new Date(Date.now() - withinHours * 60 * 60 * 1000);
+
+    const existingAlert = await this.alertRepository.findOne({
+      where: {
+        type,
+        level,
+        stationId,
+        isAutomatic: true,
+        sentAt: MoreThan(since),
+      },
+    });
+
+    return !!existingAlert;
   }
 
   /**
@@ -132,5 +264,30 @@ export class AlertService {
       .orderBy('alert.sentAt', 'DESC')
       .limit(10)
       .getMany();
+  }
+
+  /**
+   * Cleanup failed FCM tokens
+   */
+  private async cleanupFailedTokens(failedTokens: string[]): Promise<void> {
+    if (failedTokens.length === 0) return;
+
+    try {
+      // Find users with these tokens and clear them
+      const users = await this.userRepository
+        .createQueryBuilder('user')
+        .where('user.fcmToken IN (:...tokens)', { tokens: failedTokens })
+        .select(['user.id'])
+        .getMany();
+
+      const userIds = users.map((u) => u.id);
+
+      if (userIds.length > 0) {
+        await this.userService.clearInvalidFcmTokens(userIds);
+        this.logger.log(`Cleaned up ${userIds.length} invalid FCM tokens`);
+      }
+    } catch (error) {
+      this.logger.error('Error cleaning up failed tokens:', error);
+    }
   }
 }

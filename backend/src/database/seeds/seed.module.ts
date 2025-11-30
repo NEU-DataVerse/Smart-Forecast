@@ -9,6 +9,7 @@ import { WeatherObservedEntity } from '../../modules/persistence/entities/weathe
 import { AirQualityObservedEntity } from '../../modules/persistence/entities/air-quality-observed.entity';
 import { IncidentEntity } from '../../modules/incident/entities/incident.entity';
 import { AlertEntity } from '../../modules/alert/entities/alert.entity';
+import { AlertThresholdEntity } from '../../modules/alert/entities/alert-threshold.entity';
 
 // Config
 import databaseConfig from '../../config/database.config';
@@ -32,6 +33,7 @@ import { SeedService } from './seed.service';
  * - AirQualityObservedEntity (air_quality_observed table)
  * - IncidentEntity (incidents table)
  * - AlertEntity (alerts table)
+ * - AlertThresholdEntity (alert_thresholds table)
  */
 @Module({
   imports: [
@@ -54,6 +56,7 @@ import { SeedService } from './seed.service';
       AirQualityObservedEntity,
       IncidentEntity,
       AlertEntity,
+      AlertThresholdEntity,
     ]),
   ],
   providers: [SeedService],

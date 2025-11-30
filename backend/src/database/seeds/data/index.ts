@@ -19,3 +19,6 @@ export * from './incidents.seed';
 
 // Alerts
 export * from './alerts.seed';
+
+// Alert Thresholds
+export * from './alert-thresholds.seed';

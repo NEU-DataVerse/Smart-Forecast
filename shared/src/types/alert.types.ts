@@ -1,5 +1,5 @@
-import { AlertLevel, AlertType } from '../constants';
-import { GeoPolygon } from './geojson.types';
+import { AlertLevel, AlertType, AlertMetric, ThresholdOperator } from '../constants';
+import { GeoPolygon, GeoPoint } from './geojson.types';
 
 /**
  * Alert entity
@@ -10,11 +10,15 @@ export interface IAlert {
   type: AlertType;
   title: string;
   message: string;
+  advice?: string; // Recommendations for users
   area?: GeoPolygon; // Affected geographic area
   sentAt: Date;
   expiresAt?: Date; // Alert expiration time
   sentCount?: number; // Number of users notified
-  createdBy: string; // Admin user id
+  isAutomatic: boolean; // Whether alert was auto-generated
+  sourceData?: Record<string, unknown>; // Raw data that triggered alert
+  stationId?: string; // Related station
+  createdBy?: string; // Admin user id (null for auto alerts)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +31,7 @@ export interface ICreateAlertRequest {
   type: AlertType;
   title: string;
   message: string;
+  advice?: string;
   area?: GeoPolygon;
   expiresAt?: Date;
 }
@@ -39,6 +44,7 @@ export interface IAlertQueryParams {
   limit?: number;
   level?: AlertLevel;
   type?: AlertType;
+  isAutomatic?: boolean;
   startDate?: string;
   endDate?: string;
 }
@@ -52,6 +58,57 @@ export interface IActiveAlert {
   type: AlertType;
   title: string;
   message: string;
+  advice?: string;
   sentAt: Date;
   expiresAt?: Date;
+}
+
+/**
+ * Alert threshold configuration
+ */
+export interface IAlertThreshold {
+  id: string;
+  type: AlertType;
+  metric: AlertMetric;
+  operator: ThresholdOperator;
+  value: number;
+  level: AlertLevel;
+  adviceTemplate: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Create alert threshold request
+ */
+export interface ICreateAlertThresholdRequest {
+  type: AlertType;
+  metric: AlertMetric;
+  operator: ThresholdOperator;
+  value: number;
+  level: AlertLevel;
+  adviceTemplate: string;
+  isActive?: boolean;
+}
+
+/**
+ * Update alert threshold request
+ */
+export interface IUpdateAlertThresholdRequest {
+  type?: AlertType;
+  metric?: AlertMetric;
+  operator?: ThresholdOperator;
+  value?: number;
+  level?: AlertLevel;
+  adviceTemplate?: string;
+  isActive?: boolean;
+}
+
+/**
+ * User location update request
+ */
+export interface IUpdateUserLocationRequest {
+  latitude: number;
+  longitude: number;
 }

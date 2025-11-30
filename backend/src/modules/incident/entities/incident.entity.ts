@@ -40,22 +40,13 @@ export class IncidentEntity {
   })
   status: IncidentStatus;
 
-  @Column('uuid', { nullable: false })
-  reportedBy: string;
-
-  @ManyToOne(() => User, {
-    nullable: false,
-    createForeignKeyConstraints: false,
-  })
+  @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'reportedBy' })
-  reporter: User;
+  reportedBy: User;
 
-  @Column('uuid', { nullable: true })
-  verifiedBy: string | null;
-
-  @ManyToOne(() => User, { nullable: true, createForeignKeyConstraints: false })
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'verifiedBy' })
-  verifier: User | null;
+  verifiedBy: User | null;
 
   @Column('text', { nullable: true })
   adminNotes: string | null;
