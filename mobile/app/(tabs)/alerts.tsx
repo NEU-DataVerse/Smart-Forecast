@@ -4,11 +4,17 @@ import { Bell, AlertTriangle } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import AlertCard from '@/components/AlertCard';
+import { useNotification } from '@/context/NotificationContext';
 
 export default function AlertsScreen() {
   const { alerts, markAlertAsRead } = useAppStore();
 
   const unreadCount = alerts.filter((a) => !a.read).length;
+  const { expoPushToken, notification, error } = useNotification();
+
+  if (error) {
+    console.error('Notification Error:', error);
+  }
 
   return (
     <View style={styles.container}>
@@ -59,6 +65,10 @@ export default function AlertsScreen() {
         )}
 
         <Pressable style={styles.infoCard}>
+          <Text>{expoPushToken}</Text>
+          <Text>{notification?.request.content.title}</Text>
+          {JSON.stringify(notification?.request.content.data, null, 2)}
+
           <Text style={styles.infoTitle}>Về các cảnh báo</Text>
           <Text style={styles.infoText}>Bạn sẽ nhận được cảnh báo tự động khi:</Text>
           <View style={styles.infoList}>
