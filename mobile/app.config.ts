@@ -69,13 +69,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         photosPermission: 'The app accesses your photos to let you share them with your friends.',
       },
     ],
-    [
-      '@maplibre/maplibre-react-native',
-      {
-        StyleURL:
-          'https://tiles.goong.io/assets/goong_map_web.json?api_key=b7nUCVjr5WoudnWAr3mTdAtT28783RTQR4BBMkHP',
-      },
-    ],
   ],
   experiments: {
     typedRoutes: true,
