@@ -73,19 +73,25 @@ export default function AirQualityPage() {
   const forecastChartData = useMemo(() => {
     if (!forecastData?.data) return [];
 
-    return forecastData.data.slice(0, 24).map((item) => {
-      const date = new Date(item.dateObserved);
-      return {
-        time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        aqi: item.aqi.epaUS.index,
-        pm25: item.pollutants.pm25 || 0,
-        pm10: item.pollutants.pm10 || 0,
-        co: item.pollutants.co || 0,
-        no2: item.pollutants.no2 || 0,
-        so2: item.pollutants.so2 || 0,
-        o3: item.pollutants.o3 || 0,
-      };
-    });
+    return forecastData.data
+      .filter((item) => item.validFrom || item.dateObserved) // Filter out items without valid date
+      .slice(0, 24)
+      .map((item) => {
+        // Use validFrom for forecast date (validFrom is the actual forecast time)
+        // dateObserved may be null for forecast data
+        const dateStr = item.validFrom || item.dateObserved;
+        const date = new Date(dateStr!);
+        return {
+          time: date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          aqi: item.aqi.epaUS.index,
+          pm25: item.pollutants.pm25 || 0,
+          pm10: item.pollutants.pm10 || 0,
+          co: item.pollutants.co || 0,
+          no2: item.pollutants.no2 || 0,
+          so2: item.pollutants.so2 || 0,
+          o3: item.pollutants.o3 || 0,
+        };
+      });
   }, [forecastData]);
 
   return (

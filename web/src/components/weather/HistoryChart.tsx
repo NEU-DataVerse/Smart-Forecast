@@ -179,10 +179,6 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
     }));
   }, [historyData, timeRange]);
 
-  console.log('🚀 -------------------------------------------------------------------🚀');
-  console.log('🚀 -> HistoryChart.tsx:182 -> HistoryChart -> chartData:', chartData);
-  console.log('🚀 -------------------------------------------------------------------🚀');
-
   const timeRangeButtons: { value: TimeRange; label: string }[] = [
     { value: '24h', label: '24 giờ' },
     { value: '7d', label: '7 ngày' },
