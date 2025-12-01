@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { MapPin, Users, Send, Clock, Timer, Zap } from 'lucide-react';
+import { MapPin, Users, Send, Clock, Timer, Zap, Map } from 'lucide-react';
 import {
   IAlert,
   AlertLevel,
@@ -17,6 +17,7 @@ import {
   AlertLevelColors,
   AlertTypeLabels,
 } from '@smart-forecast/shared';
+import { AlertAreaPreview } from './alert-area-preview';
 
 interface AlertDetailsDialogProps {
   alert: IAlert | null;
@@ -82,7 +83,7 @@ export function AlertDetailsDialog({ alert, open, onClose, onResend }: AlertDeta
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chi tiết cảnh báo</DialogTitle>
           <DialogDescription>Thông tin đầy đủ về cảnh báo này</DialogDescription>
@@ -166,12 +167,13 @@ export function AlertDetailsDialog({ alert, open, onClose, onResend }: AlertDeta
             </div>
           </div>
 
-          {alert.area && (
+          {alert.area && alert.area.coordinates && alert.area.coordinates.length > 0 && (
             <div>
-              <Label className="text-slate-500">Vùng ảnh hưởng</Label>
-              <p className="text-slate-600 mt-1 text-sm">
-                Đã xác định vùng địa lý cụ thể (xem bản đồ khi gửi lại)
-              </p>
+              <Label className="text-slate-500 flex items-center gap-2 mb-2">
+                <Map className="h-4 w-4" />
+                Vùng ảnh hưởng
+              </Label>
+              <AlertAreaPreview area={alert.area} level={alert.level} height="250px" />
             </div>
           )}
 
