@@ -15,6 +15,11 @@ import {
   WeatherMapView,
 } from '@/components/weather';
 import { useCurrentWeather, useForecastWeather, useWeatherTrends } from '@/hooks/useWeatherQuery';
+import { ExportReportButton } from '@/components/reportsUI/export-report-button';
+import { ExportReportDialog } from '@/components/reportsUI/export-report-dialog';
+import { ReportType } from '@/types/dto/report.dto';
+import { useUserContext } from '@/context/userContext';
+import { UserRole } from '@smart-forecast/shared';
 
 function getTemperatureColor(temp: number): string {
   if (temp <= 0) return '#3b82f6';
@@ -42,6 +47,9 @@ export default function WeatherPage() {
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     endDate: new Date().toISOString(),
   });
+
+  const { user } = useUserContext();
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   // Fetch all current weather data (for map)
   const {
@@ -125,10 +133,36 @@ export default function WeatherPage() {
           <h2 className="text-3xl font-bold text-slate-900">Thời tiết</h2>
           <p className="text-slate-500">Giám sát thời tiết thời gian thực và dự báo</p>
         </div>
-        <Button onClick={() => refetchCurrent()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Làm mới
-        </Button>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <>
+              <ExportReportButton
+                reportType={ReportType.WEATHER}
+                exportParams={{
+                  startDate: dateRange.startDate,
+                  endDate: dateRange.endDate,
+                  stationId: selectedStation || undefined,
+                }}
+              />
+              <ExportReportDialog
+                reportType={ReportType.WEATHER}
+                showDateRange={true}
+                showStationFilter={true}
+                defaultStartDate={dateRange.startDate}
+                defaultEndDate={dateRange.endDate}
+                trigger={
+                  <Button variant="secondary" size="sm">
+                    Xuất nâng cao
+                  </Button>
+                }
+              />
+            </>
+          )}
+          <Button onClick={() => refetchCurrent()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Làm mới
+          </Button>
+        </div>
       </div>
 
       {/* Map + Station Selector Row */}

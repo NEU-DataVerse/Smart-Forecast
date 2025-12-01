@@ -257,7 +257,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <ReportHeader />
+      <ReportHeader startDate={startDate} endDate={endDate} />
 
       {/* View Toggle */}
       <Tabs

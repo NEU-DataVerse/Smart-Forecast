@@ -20,6 +20,11 @@ import {
   useForecastAirQuality,
   useAirQualityAverages,
 } from '@/hooks/useAirQualityQuery';
+import { ExportReportButton } from '@/components/reportsUI/export-report-button';
+import { ExportReportDialog } from '@/components/reportsUI/export-report-dialog';
+import { ReportType } from '@/types/dto/report.dto';
+import { useUserContext } from '@/context/userContext';
+import { UserRole } from '@smart-forecast/shared';
 
 export default function AirQualityPage() {
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
@@ -27,6 +32,9 @@ export default function AirQualityPage() {
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     endDate: new Date().toISOString(),
   });
+
+  const { user } = useUserContext();
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   // Fetch all current air quality data (for map)
   const {
@@ -102,10 +110,36 @@ export default function AirQualityPage() {
           <h2 className="text-3xl font-bold text-slate-900">Chất lượng không khí</h2>
           <p className="text-slate-500">Giám sát chất lượng không khí thời gian thực và dự báo</p>
         </div>
-        <Button onClick={() => refetchCurrent()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Làm mới
-        </Button>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <>
+              <ExportReportButton
+                reportType={ReportType.AIR_QUALITY}
+                exportParams={{
+                  startDate: dateRange.startDate,
+                  endDate: dateRange.endDate,
+                  stationId: selectedStation || undefined,
+                }}
+              />
+              <ExportReportDialog
+                reportType={ReportType.AIR_QUALITY}
+                showDateRange={true}
+                showStationFilter={true}
+                defaultStartDate={dateRange.startDate}
+                defaultEndDate={dateRange.endDate}
+                trigger={
+                  <Button variant="secondary" size="sm">
+                    Xuất nâng cao
+                  </Button>
+                }
+              />
+            </>
+          )}
+          <Button onClick={() => refetchCurrent()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Làm mới
+          </Button>
+        </div>
       </div>
 
       {/* Map + Station Selector Row */}
