@@ -62,6 +62,9 @@ export const useAppStore = create<AppStore>((set) => ({
   environmentData: null,
   setEnvironmentData: (data) => set({ environmentData: data }),
 
+  airQualityData: null,
+  setAirQualityData: (data) => set({ airQualityData: data }),
+
   alerts: [
     {
       id: '1',

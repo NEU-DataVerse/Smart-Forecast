@@ -28,9 +28,17 @@ export default function HomeScreen() {
       if (!location) {
         throw new Error('Location not available');
       }
-      return weatherApi.getEnvironmentData(location.latitude, location.longitude);
+      try {
+        return await weatherApi.getEnvironmentData(location.latitude, location.longitude);
+      } catch (error) {
+        console.error('Failed to fetch from backend, error:', error);
+        // Return mock data or re-throw
+        throw error;
+      }
     },
     enabled: !!location,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   useEffect(() => {

@@ -1,24 +1,66 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Platform, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Stack } from 'expo-router';
-import { MapPin } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
-import MapLibreGL from '@maplibre/maplibre-react-native';
+import { getAQIColor, getStatusColor } from '@/utils/mapLayerOptimization';
+import { weatherApi } from '@/services/api';
+import { useQuery } from '@tanstack/react-query';
+
+// MapLibreGL requires conditional loading based on platform
+let MapLibreGL: any = null;
+
+if (Platform.OS !== 'web') {
+  MapLibreGL = require('@maplibre/maplibre-react-native').default;
+  MapLibreGL.setAccessToken(null); // No token needed for OSM
+}
 
 export default function MapScreen() {
-  const { location, sensors } = useAppStore();
+  const { location, setSensors } = useAppStore();
   const [selectedSensor, setSelectedSensor] = useState<string | null>(null);
+  const [sensors, setSensorsLocal] = useState<any[]>([]);
 
-  const loadMap =
-    'https://tiles.goong.io/assets/goong_map_web.json?api_key=b7nUCVjr5WoudnWAr3mTdAtT28783RTQR4BBMkHP';
-  const [coordinates] = useState([105.83991, 21.028]); // [lng, lat]
-  const camera = useRef(null);
+  const initialCoords = [location?.longitude || 106.6297, location?.latitude || 10.8231];
 
-  const handleOnPress = (event: any) => {
-    // Handle map press events here
-    console.log('Map pressed:', event);
-  };
+  // Fetch nearest sensors from backend
+  const { data: fetchedSensors, isLoading } = useQuery({
+    queryKey: ['sensors', location],
+    queryFn: async () => {
+      if (!location) {
+        throw new Error('Location not available');
+      }
+      try {
+        return await weatherApi.getNearestStations(
+          location.latitude,
+          location.longitude,
+          10, // Get up to 10 nearest stations
+          50, // Within 50km radius
+        );
+      } catch (err) {
+        console.error('Error fetching sensors:', err);
+        throw err;
+      }
+    },
+    enabled: !!location,
+    retry: 2,
+  });
+
+  // Update local sensors and app store
+  useEffect(() => {
+    if (fetchedSensors && fetchedSensors.length > 0) {
+      setSensorsLocal(fetchedSensors);
+      setSensors(fetchedSensors);
+    }
+  }, [fetchedSensors, setSensors]);
 
   return (
     <View style={styles.container}>
@@ -34,35 +76,47 @@ export default function MapScreen() {
 
       {Platform.OS === 'web' ? (
         <View style={styles.webPlaceholder}>
-          <MapPin size={64} color={Colors.text.light} />
           <Text style={styles.placeholderText}>Map view is available on mobile devices</Text>
           <Text style={styles.placeholderSubtext}>
             Scan the QR code to view the map on your phone
           </Text>
         </View>
+      ) : isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary.blue} />
+          <Text style={styles.loadingText}>Loading sensors...</Text>
+        </View>
       ) : (
         <>
           <MapLibreGL.MapView
-            styleURL={loadMap}
-            onPress={handleOnPress}
             style={styles.map}
-            projection="globe"
-            zoomEnabled={true}
+            styleURL="https://demotiles.maplibre.org/style.json"
           >
-            <MapLibreGL.Camera ref={camera} zoomLevel={6} centerCoordinate={coordinates} />
+            <MapLibreGL.Camera zoomLevel={12} centerCoordinate={initialCoords} />
 
-            {sensors?.map((sensor) => (
-              <MapLibreGL.PointAnnotation
-                key={sensor.id}
-                id={sensor.id}
-                coordinate={[sensor.longitude, sensor.latitude]}
-                onSelected={() => setSelectedSensor(sensor.id)}
-              >
-                <View style={styles.markerContainer}>
-                  <MapPin size={32} color={Colors.primary.blue} />
-                </View>
-              </MapLibreGL.PointAnnotation>
-            ))}
+            {sensors.map((sensor) => {
+              const aqi = sensor.lastReading?.aqi || 0;
+              const markerColor = aqi > 0 ? getAQIColor(aqi) : getStatusColor(sensor.status);
+
+              return (
+                <MapLibreGL.PointAnnotation
+                  key={sensor.id}
+                  id={sensor.id}
+                  coordinate={[sensor.longitude, sensor.latitude]}
+                  onSelected={() => setSelectedSensor(sensor.id)}
+                >
+                  <View
+                    style={[
+                      styles.marker,
+                      {
+                        backgroundColor: markerColor,
+                        borderColor: markerColor,
+                      },
+                    ]}
+                  />
+                </MapLibreGL.PointAnnotation>
+              );
+            })}
           </MapLibreGL.MapView>
 
           {selectedSensor && (
@@ -70,48 +124,63 @@ export default function MapScreen() {
               {(() => {
                 const sensor = sensors.find((s) => s.id === selectedSensor);
                 if (!sensor) return null;
+                const aqi = sensor.lastReading.aqi || 0;
                 return (
-                  <ScrollView>
-                    <Text style={styles.infoTitle}>{sensor.name}</Text>
-                    <Text style={styles.infoSubtitle}>
-                      {sensor.type.replace('_', ' ').toUpperCase()}
-                    </Text>
-
-                    <View style={styles.infoGrid}>
-                      {sensor.lastReading.aqi && (
-                        <View style={styles.infoItem}>
-                          <Text style={styles.infoLabel}>AQI</Text>
-                          <Text style={styles.infoValue}>{sensor.lastReading.aqi}</Text>
-                        </View>
-                      )}
-                      {sensor.lastReading.temperature && (
-                        <View style={styles.infoItem}>
-                          <Text style={styles.infoLabel}>Temperature</Text>
-                          <Text style={styles.infoValue}>{sensor.lastReading.temperature}°C</Text>
-                        </View>
-                      )}
-                      {sensor.lastReading.humidity && (
-                        <View style={styles.infoItem}>
-                          <Text style={styles.infoLabel}>Humidity</Text>
-                          <Text style={styles.infoValue}>{sensor.lastReading.humidity}%</Text>
-                        </View>
-                      )}
+                  <>
+                    <View style={styles.infoPanelHeader}>
+                      <View style={styles.infoPanelTitleContainer}>
+                        <Text style={styles.infoTitle}>{sensor.name}</Text>
+                        <Text style={styles.infoSubtitle}>
+                          {sensor.type.replace('_', ' ').toUpperCase()}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => setSelectedSensor(null)}
+                        style={styles.closeButton}
+                      >
+                        <X size={24} color={Colors.text.light} />
+                      </TouchableOpacity>
                     </View>
 
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        {
-                          backgroundColor:
-                            sensor.status === 'active'
-                              ? Colors.status.good
-                              : Colors.status.unhealthy,
-                        },
-                      ]}
-                    >
-                      <Text style={styles.statusText}>{sensor.status.toUpperCase()}</Text>
-                    </View>
-                  </ScrollView>
+                    <ScrollView>
+                      <View style={styles.infoGrid}>
+                        {aqi > 0 && (
+                          <View style={styles.infoItem}>
+                            <Text style={styles.infoLabel}>AQI</Text>
+                            <Text style={[styles.infoValue, { color: getAQIColor(aqi) }]}>
+                              {aqi}
+                            </Text>
+                          </View>
+                        )}
+                        {sensor.lastReading.temperature && (
+                          <View style={styles.infoItem}>
+                            <Text style={styles.infoLabel}>Temperature</Text>
+                            <Text style={styles.infoValue}>{sensor.lastReading.temperature}°C</Text>
+                          </View>
+                        )}
+                        {sensor.lastReading.humidity && (
+                          <View style={styles.infoItem}>
+                            <Text style={styles.infoLabel}>Humidity</Text>
+                            <Text style={styles.infoValue}>{sensor.lastReading.humidity}%</Text>
+                          </View>
+                        )}
+                      </View>
+
+                      <View
+                        style={[
+                          styles.statusBadge,
+                          {
+                            backgroundColor:
+                              sensor.status === 'active'
+                                ? getStatusColor('active')
+                                : getStatusColor('inactive'),
+                          },
+                        ]}
+                      >
+                        <Text style={styles.statusText}>{sensor.status.toUpperCase()}</Text>
+                      </View>
+                    </ScrollView>
+                  </>
                 );
               })()}
             </View>
@@ -129,15 +198,22 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  markerContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'white',
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.background.primary,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: Colors.text.secondary,
+  },
+  marker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 2,
-    borderColor: Colors.primary.blue,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -180,6 +256,21 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
+  infoPanelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  infoPanelTitleContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  closeButton: {
+    padding: 8,
+    marginRight: -8,
+    marginTop: -8,
+  },
   infoTitle: {
     fontSize: 20,
     fontWeight: '700' as const,
@@ -189,7 +280,7 @@ const styles = StyleSheet.create({
   infoSubtitle: {
     fontSize: 14,
     color: Colors.text.secondary,
-    marginBottom: 16,
+    marginBottom: 0,
   },
   infoGrid: {
     flexDirection: 'row',
