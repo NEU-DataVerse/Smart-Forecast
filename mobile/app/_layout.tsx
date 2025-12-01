@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NotificationProvider } from '@/context/NotificationContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -30,9 +31,39 @@ const queryClient = new QueryClient({
 });
 
 function RootLayoutNav() {
+  const { isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [splashHidden, setSplashHidden] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleNavigation = async () => {
+      if (!isLoading) {
+        // Hide splash screen once on first load
+        if (!splashHidden) {
+          try {
+            await SplashScreen.hideAsync();
+          } catch (e) {
+            console.error('Error hiding splash screen:', e);
+          }
+          setSplashHidden(true);
+        }
+
+        // Navigate based on auth state - this will re-run whenever isAuthenticated changes
+        if (!isAuthenticated) {
+          router.replace('/login');
+        } else {
+          router.replace('/(tabs)');
+        }
+      }
+    };
+
+    handleNavigation();
+  }, [isLoading, isAuthenticated, router, splashHidden]);
+
   return (
     <NotificationProvider>
       <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
@@ -41,16 +72,14 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  React.useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <StatusBar style="light" />
-          <RootLayoutNav />
+          <AuthProvider>
+            <RootLayoutNav />
+          </AuthProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
