@@ -49,6 +49,7 @@ export class AlertService {
     const alert = this.alertRepository.create({
       ...createDto,
       createdBy: adminId,
+      incidentId: createDto.incidentId || null,
       isAutomatic: false,
       sentAt: new Date(),
       expiresAt: createDto.expiresAt ? new Date(createDto.expiresAt) : null,

@@ -200,24 +200,36 @@ export class IncidentService {
    * Get incident statistics by type
    */
   async getStatsByType(): Promise<Array<{ type: string; count: number }>> {
-    return this.incidentRepository
+    const rawStats = await this.incidentRepository
       .createQueryBuilder('incident')
       .select('incident.type', 'type')
       .addSelect('COUNT(*)', 'count')
       .groupBy('incident.type')
       .getRawMany();
+
+    // PostgreSQL returns COUNT as string, convert to number
+    return rawStats.map((stat) => ({
+      type: stat.type,
+      count: Number(stat.count),
+    }));
   }
 
   /**
    * Get incident statistics by status
    */
   async getStatsByStatus(): Promise<Array<{ status: string; count: number }>> {
-    return this.incidentRepository
+    const rawStats = await this.incidentRepository
       .createQueryBuilder('incident')
       .select('incident.status', 'status')
       .addSelect('COUNT(*)', 'count')
       .groupBy('incident.status')
       .getRawMany();
+
+    // PostgreSQL returns COUNT as string, convert to number
+    return rawStats.map((stat) => ({
+      status: stat.status,
+      count: Number(stat.count),
+    }));
   }
 
   /**
@@ -227,7 +239,7 @@ export class IncidentService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    return this.incidentRepository
+    const rawTrend = await this.incidentRepository
       .createQueryBuilder('incident')
       .select('DATE(incident.createdAt)', 'date')
       .addSelect('COUNT(*)', 'count')
@@ -235,5 +247,11 @@ export class IncidentService {
       .groupBy('DATE(incident.createdAt)')
       .orderBy('date', 'ASC')
       .getRawMany();
+
+    // PostgreSQL returns COUNT as string, convert to number
+    return rawTrend.map((item) => ({
+      date: item.date,
+      count: Number(item.count),
+    }));
   }
 }
