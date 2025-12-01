@@ -9,6 +9,8 @@ import type {
   IngestionHealthResponse,
   IngestionStatsResponse,
   MonitoringLocation,
+  HistoricalIngestionDto,
+  HistoricalIngestionResponseDto,
 } from '@/types/dto';
 
 const BASE_PATH = '/ingestion';
@@ -51,6 +53,20 @@ export const ingestionService = {
       undefined,
       true,
       'Kích hoạt thu thập thời tiết thành công',
+    );
+  },
+
+  /**
+   * Trigger historical data ingestion
+   * @param dto Historical ingestion parameters (startDate, endDate, types)
+   */
+  async triggerHistorical(dto: HistoricalIngestionDto): Promise<HistoricalIngestionResponseDto> {
+    return apiPost<HistoricalIngestionResponseDto>(
+      `${BASE_PATH}/historical`,
+      dto,
+      undefined,
+      true,
+      'Thu thập dữ liệu lịch sử thành công',
     );
   },
 

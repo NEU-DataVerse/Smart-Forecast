@@ -83,3 +83,31 @@ export interface IngestionStatsResponse {
   };
   description: string;
 }
+
+/**
+ * Historical ingestion request DTO
+ */
+export type HistoricalIngestionType = 'weather' | 'air-quality';
+
+export interface HistoricalIngestionDto {
+  startDate: string;
+  endDate: string;
+  types: HistoricalIngestionType[];
+}
+
+/**
+ * Historical ingestion response DTO
+ */
+export interface HistoricalIngestionResponseDto {
+  message: string;
+  weatherRecords: number;
+  airQualityRecords: number;
+  startDate: string;
+  endDate: string;
+  types: HistoricalIngestionType[];
+  errors?: Array<{
+    station: string;
+    type: string;
+    error: string;
+  }>;
+}
