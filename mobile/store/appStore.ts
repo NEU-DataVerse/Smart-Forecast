@@ -1,13 +1,26 @@
 import { create } from 'zustand';
 import { EnvironmentData, Location, Alert, Incident, Sensor } from '@/types';
+import { User } from '@/context/auth.interface';
 
 interface AppStore {
+  // Auth state
+  user: User | null;
+  setUser: (user: User | null) => void;
+
+  token: string | null;
+  setToken: (token: string | null) => void;
+
+  isAuthLoading: boolean;
+  setIsAuthLoading: (loading: boolean) => void;
+
+  // Location and weather
   location: Location | null;
   setLocation: (location: Location) => void;
 
   environmentData: EnvironmentData | null;
   setEnvironmentData: (data: EnvironmentData) => void;
 
+  // Alerts and incidents
   alerts: Alert[];
   addAlert: (alert: Alert) => void;
   markAlertAsRead: (id: string) => void;
@@ -23,8 +36,28 @@ interface AppStore {
 }
 
 export const useAppStore = create<AppStore>((set) => ({
+  // Auth
+  user: null,
+  setUser: (user) => set({ user }),
+
+  token: null,
+  setToken: (token) => set({ token }),
+
+  isAuthLoading: false,
+  setIsAuthLoading: (loading) => set({ isAuthLoading: loading }),
+
   location: null,
-  setLocation: (location) => set({ location }),
+  setLocation: (location) => {
+    if (!location) {
+      return set({ location: null });
+    }
+    return set({
+      location: {
+        latitude: Number(location.latitude),
+        longitude: Number(location.longitude),
+      },
+    });
+  },
 
   environmentData: null,
   setEnvironmentData: (data) => set({ environmentData: data }),
@@ -64,32 +97,39 @@ export const useAppStore = create<AppStore>((set) => ({
     {
       id: 's1',
       name: 'Ben Thanh Sensor',
-      latitude: 10.7722,
-      longitude: 106.6986,
-      type: 'air_quality',
-      status: 'active',
+      latitude: 10.7722 as number,
+      longitude: 106.6986 as number,
+      type: 'air_quality' as const,
+      status: 'active' as const,
       lastReading: { aqi: 85, temperature: 32, humidity: 78 },
     },
     {
       id: 's2',
       name: 'District 2 Sensor',
-      latitude: 10.7896,
-      longitude: 106.7441,
-      type: 'air_quality',
-      status: 'active',
+      latitude: 10.7896 as number,
+      longitude: 106.7441 as number,
+      type: 'air_quality' as const,
+      status: 'active' as const,
       lastReading: { aqi: 95, temperature: 31, humidity: 80 },
     },
     {
       id: 's3',
       name: 'Thu Duc Sensor',
-      latitude: 10.8508,
-      longitude: 106.7717,
-      type: 'weather',
-      status: 'active',
+      latitude: 10.8508 as number,
+      longitude: 106.7717 as number,
+      type: 'weather' as const,
+      status: 'active' as const,
       lastReading: { temperature: 33, humidity: 75 },
     },
   ],
-  setSensors: (sensors) => set({ sensors }),
+  setSensors: (sensors) =>
+    set({
+      sensors: sensors.map((s) => ({
+        ...s,
+        latitude: Number(s.latitude),
+        longitude: Number(s.longitude),
+      })),
+    }),
 
   isLoading: false,
   setIsLoading: (loading) => set({ isLoading: loading }),

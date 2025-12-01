@@ -4,7 +4,7 @@ import { User } from '@/context/auth.interface';
 import { tokenStorage } from '@/utils/tokenStorage';
 
 const OPENWEATHER_API_KEY = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY || '';
-const BACKEND_API_URL = process.env.EXPO_PUBLIC_BACKEND_API_URL || 'http://localhost:8000/api/v1';
+const BACKEND_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 const WEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 // Create axios instance for backend API
