@@ -1,12 +1,45 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  Pressable,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { Stack } from 'expo-router';
-import { User, MapPin, Clock, FileText } from 'lucide-react-native';
+import { User, MapPin, Clock, FileText, LogOut } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProfileScreen() {
   const { incidents } = useAppStore();
+  const { user, signOut } = useAuth();
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
+
+  const handleSignOut = async () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', onPress: () => {} },
+      {
+        text: 'Sign Out',
+        onPress: async () => {
+          try {
+            setIsSigningOut(true);
+            await signOut();
+          } catch (error) {
+            Alert.alert('Error', 'Failed to sign out');
+            console.error(error);
+          } finally {
+            setIsSigningOut(false);
+          }
+        },
+        style: 'destructive',
+      },
+    ]);
+  };
 
   const getIncidentColor = (type: string) => {
     const colors: Record<string, string> = {
@@ -54,8 +87,8 @@ export default function ProfileScreen() {
           <View style={styles.avatarContainer}>
             <User size={40} color={Colors.text.white} />
           </View>
-          <Text style={styles.profileName}>Environmental Citizen</Text>
-          <Text style={styles.profileEmail}>citizen@environment.app</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'User'}</Text>
+          <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
         </View>
 
         <View style={styles.statsContainer}>
@@ -142,6 +175,23 @@ export default function ProfileScreen() {
               ))}
             </>
           )}
+        </View>
+
+        <View style={styles.section}>
+          <Pressable
+            style={[styles.signOutButton, isSigningOut && styles.signOutButtonDisabled]}
+            onPress={handleSignOut}
+            disabled={isSigningOut}
+          >
+            {isSigningOut ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <>
+                <LogOut size={20} color="#FFF" />
+                <Text style={styles.signOutText}>Sign Out</Text>
+              </>
+            )}
+          </Pressable>
         </View>
       </ScrollView>
     </View>
@@ -294,5 +344,22 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: Colors.text.light,
+  },
+  signOutButton: {
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  signOutButtonDisabled: {
+    opacity: 0.6,
+  },
+  signOutText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600' as const,
   },
 });

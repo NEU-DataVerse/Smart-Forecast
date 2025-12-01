@@ -1,13 +1,57 @@
-import axios from 'axios';
-import { EnvironmentData, AirQualityData, Sensor } from '@/types';
+import axios, { AxiosInstance } from 'axios';
+import { EnvironmentData } from '@/types';
+import { User } from '@/context/auth.interface';
+import { tokenStorage } from '@/utils/tokenStorage';
 
+const OPENWEATHER_API_KEY = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY || '';
 const BACKEND_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const WEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
-// Create axios instance with default config
-const apiClient = axios.create({
+// Create axios instance for backend API
+const apiClient: AxiosInstance = axios.create({
   baseURL: BACKEND_API_URL,
-  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// Add token to requests
+apiClient.interceptors.request.use(
+  async (config) => {
+    const token = await tokenStorage.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+export const authApi = {
+  async googleSignIn(
+    idToken: string,
+  ): Promise<{ access_token: string; user: User; isNewUser: boolean }> {
+    try {
+      const response = await apiClient.post('/auth/google', { idToken });
+      return response.data;
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      throw error;
+    }
+  },
+
+  async getProfile(): Promise<User> {
+    try {
+      const response = await apiClient.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      console.error('Get profile error:', error);
+      throw error;
+    }
+  },
+};
 
 export const weatherApi = {
   /**
@@ -16,7 +60,7 @@ export const weatherApi = {
    */
   async getEnvironmentData(lat: number, lon: number): Promise<EnvironmentData> {
     try {
-      const response = await apiClient.get('/air-quality/nearby', {
+      const weatherResponse = await axios.get(`${WEATHER_BASE_URL}/weather`, {
         params: {
           lat,
           lon,
@@ -25,8 +69,13 @@ export const weatherApi = {
         },
       });
 
-      const data = response.data;
-      const current = data.current || data.data?.[0];
+      const airQualityResponse = await axios.get(`${WEATHER_BASE_URL}/air_pollution`, {
+        params: {
+          lat,
+          lon,
+          appid: OPENWEATHER_API_KEY,
+        },
+      });
 
       if (!current) {
         throw new Error('No air quality data found');

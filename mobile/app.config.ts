@@ -46,7 +46,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.RECORD_AUDIO',
     ],
     googleServicesFile: './google-services.json',
-    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   },
   web: {
     favicon: './assets/images/favicon.png',
@@ -79,6 +78,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: {
       projectId: '5d231caf-e8ca-4ed0-9407-f7484b998f80',
     },
+  },
+  env: {
+    EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    EXPO_PUBLIC_BACKEND_API_URL: process.env.EXPO_PUBLIC_BACKEND_API_URL,
+    EXPO_PUBLIC_OPENWEATHER_API_KEY: process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY,
   },
   owner: 'nguyenthanhdatvn2005',
 });
