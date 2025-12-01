@@ -8,6 +8,11 @@ import {
   StationDialog,
   type StationFormData,
 } from '@/components/settings';
+import { ExportReportButton } from '@/components/reportsUI/export-report-button';
+import { ExportReportDialog } from '@/components/reportsUI/export-report-dialog';
+import { ReportType } from '@/types/dto/report.dto';
+import { useUserContext } from '@/context/userContext';
+import { UserRole } from '@smart-forecast/shared';
 import type {
   ObservationStation,
   CreateStationDto,
@@ -22,6 +27,9 @@ export default function Settings() {
     limit: 10,
     offset: 0,
   });
+
+  const { user } = useUserContext();
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const {
     stations,
@@ -281,9 +289,26 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-slate-900">Cài đặt hệ thống</h2>
-        <p className="text-slate-500">Cấu hình trạm quan trắc thời tiết</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-slate-900">Cài đặt hệ thống</h2>
+          <p className="text-slate-500">Cấu hình trạm quan trắc thời tiết</p>
+        </div>
+        {isAdmin && (
+          <div className="flex items-center gap-2">
+            <ExportReportButton reportType={ReportType.STATIONS} />
+            <ExportReportDialog
+              reportType={ReportType.STATIONS}
+              showDateRange={false}
+              showStationFilter={false}
+              trigger={
+                <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-3">
+                  Xuất nâng cao
+                </button>
+              }
+            />
+          </div>
+        )}
       </div>
 
       <StationStatistics stats={stats} />
