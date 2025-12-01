@@ -8,15 +8,21 @@
  *   npm run seed:force        - Force reseed (clear + seed)
  *   npm run seed:clear        - Clear all seeded data
  *   npm run seed:reseed       - Alias for seed:force
+ *   npm run seed:base         - Seed without fake weather/air-quality data
+ *   npm run seed:base:force   - Force reseed without fake weather/air-quality data
  *
  * Or directly with ts-node:
- *   npx ts-node src/database/seeds/seed.ts [command]
+ *   npx ts-node src/database/seeds/seed.ts [command] [options]
  *
  * Commands:
  *   (none)    - Seed if database is empty
  *   force     - Clear all data and reseed
  *   clear     - Clear all data
  *   reseed    - Alias for force
+ *
+ * Options:
+ *   --skip-env  - Skip seeding fake weather and air-quality data
+ *                 (use historical ingestion via UI for real data)
  */
 
 import { NestFactory } from '@nestjs/core';
@@ -44,6 +50,14 @@ async function bootstrap() {
     // Parse command line arguments
     const args = process.argv.slice(2);
     const command = args[0]?.toLowerCase();
+    const skipEnvData = args.includes('--skip-env') || args.includes('skipenv');
+
+    if (skipEnvData) {
+      console.log('⚠️  Option: --skip-env');
+      console.log('   Skipping fake weather and air-quality data.');
+      console.log('   Use "Historical Ingestion" in Dashboard for real data.');
+      console.log('');
+    }
 
     switch (command) {
       case 'clear':
@@ -58,14 +72,14 @@ async function bootstrap() {
         console.log('📋 Command: RESEED (force)');
         console.log('   Clearing and reseeding all data...');
         console.log('');
-        await seedService.reseed();
+        await seedService.reseed(skipEnvData);
         break;
 
       default:
         console.log('📋 Command: SEED');
         console.log('   Seeding data if database is empty...');
         console.log('');
-        await seedService.run(false);
+        await seedService.run(false, skipEnvData);
         break;
     }
 

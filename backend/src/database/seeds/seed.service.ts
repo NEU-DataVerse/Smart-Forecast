@@ -65,8 +65,9 @@ export class SeedService {
    * Main method to run the seeding process
    *
    * @param force - If true, clear all data before seeding
+   * @param skipEnvData - If true, skip seeding fake weather and air-quality data
    */
-  async run(force = false): Promise<void> {
+  async run(force = false, skipEnvData = false): Promise<void> {
     this.logger.log('🌱 Starting database seeding process...');
 
     try {
@@ -86,8 +87,16 @@ export class SeedService {
       // Seed in order (respecting foreign key constraints)
       await this.seedUsers();
       await this.seedStations();
-      await this.seedWeather();
-      await this.seedAirQuality();
+
+      if (!skipEnvData) {
+        await this.seedWeather();
+        await this.seedAirQuality();
+      } else {
+        this.logger.log(
+          '⏭️  Skipping weather and air-quality fake data (--skip-env)',
+        );
+      }
+
       await this.seedIncidents();
       await this.seedAlertThresholds();
       await this.seedAlerts();
@@ -276,9 +285,11 @@ export class SeedService {
 
   /**
    * Alias for clearAll + run
+   *
+   * @param skipEnvData - If true, skip seeding fake weather and air-quality data
    */
-  async reseed(): Promise<void> {
-    await this.run(true);
+  async reseed(skipEnvData = false): Promise<void> {
+    await this.run(true, skipEnvData);
   }
 
   /**

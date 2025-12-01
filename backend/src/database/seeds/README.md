@@ -4,36 +4,45 @@ Hệ thống seed database cho NestJS với TypeORM, tự động tạo dữ li�
 
 ## 📋 Tổng quan
 
-Hệ thống này seed dữ liệu cho **6 bảng**:
+Hệ thống này seed dữ liệu cho **7 bảng**:
 
 | Bảng                   | Mô tả                        | Số lượng records |
 | ---------------------- | ---------------------------- | ---------------- |
 | `users`                | Tài khoản người dùng         | 3                |
 | `observation_station`  | Trạm quan trắc               | 4                |
-| `weather_observed`     | Dữ liệu thời tiết            | ~256 (7 ngày)    |
-| `air_quality_observed` | Dữ liệu chất lượng không khí | ~256 (7 ngày)    |
+| `weather_observed`     | Dữ liệu thời tiết            | ~256 (7 ngày)\*  |
+| `air_quality_observed` | Dữ liệu chất lượng không khí | ~256 (7 ngày)\*  |
 | `incidents`            | Báo cáo sự cố                | 11               |
+| `alert_thresholds`     | Ngưỡng cảnh báo              | 4                |
 | `alerts`               | Cảnh báo môi trường          | 10               |
+
+> **\*** Dữ liệu weather và air-quality có thể bỏ qua bằng option `--skip-env` để sau đó thu thập dữ liệu thật từ OpenWeatherMap.
 
 ## 🚀 Cách sử dụng
 
-### 1. Seed dữ liệu (nếu DB rỗng)
+### 1. Seed đầy đủ (bao gồm fake weather/air-quality)
 
 ```bash
-npm run seed
+npm run seed              # Seed nếu DB rỗng
+npm run seed:force        # Force reseed (xóa và seed lại)
+npm run seed:reseed       # Alias cho seed:force
 ```
 
-Lệnh này sẽ kiểm tra nếu database đã có dữ liệu thì bỏ qua.
-
-### 2. Force reseed (xóa và seed lại)
+### 2. Seed cơ bản (KHÔNG có fake weather/air-quality)
 
 ```bash
-npm run seed:force
-# hoặc
-npm run seed:reseed
+npm run seed:base         # Seed base data nếu DB rỗng
+npm run seed:base:force   # Force reseed base data
 ```
 
-**Đây là lệnh nên dùng khi develop** - mỗi khi xóa Docker và run lại.
+**💡 Khuyến nghị**: Sử dụng `seed:base:force` khi muốn dùng dữ liệu thật từ OpenWeatherMap:
+
+```bash
+# 1. Seed base data (users, stations, incidents, alerts, thresholds)
+npm run seed:base:force
+
+# 2. Vào Dashboard → "Thu thập dữ liệu lịch sử" để lấy data thật
+```
 
 ### 3. Chỉ xóa dữ liệu
 
@@ -107,20 +116,41 @@ Dữ liệu được generate ngẫu nhiên với các đặc điểm:
 
 ## 🔧 Development Workflow
 
-Khi develop với Docker:
+### Với fake data (nhanh, offline)
 
 ```bash
 # 1. Khởi động containers
 docker-compose up -d
 
-# 2. Seed dữ liệu
+# 2. Seed đầy đủ dữ liệu
 cd backend
 npm run seed:force
+```
 
-# 3. Sau khi xóa Docker và chạy lại
+### Với real data từ OpenWeatherMap
+
+```bash
+# 1. Khởi động containers
+docker-compose up -d
+
+# 2. Seed base data (không có weather/air-quality fake)
+cd backend
+npm run seed:base:force
+
+# 3. Vào Dashboard web → Click "Thu thập dữ liệu lịch sử"
+#    - Chọn khoảng thời gian (tối đa 7 ngày)
+#    - Chọn loại dữ liệu (weather và/hoặc air-quality)
+#    - Click "Bắt đầu thu thập"
+```
+
+> **Lưu ý**: Historical Weather API của OpenWeatherMap yêu cầu **paid subscription**. Historical Air Quality API là **miễn phí**.
+
+### Sau khi xóa Docker
+
+```bash
 docker-compose down -v
 docker-compose up -d
-npm run seed:force  # Seed lại dữ liệu
+npm run seed:force       # Hoặc seed:base:force
 ```
 
 ## 🐛 Troubleshooting

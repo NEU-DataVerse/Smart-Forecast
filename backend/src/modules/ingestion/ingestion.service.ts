@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { OpenWeatherMapProvider } from './providers/openweathermap.provider';
 import { OrionClientProvider } from './providers/orion-client.provider';
 import { StationService } from '../stations/station.service';
@@ -8,7 +8,13 @@ import {
   transformOWMToNGSILD,
   transformOWMAirPollutionForecastToNGSILD,
   transformOWMDailyForecastToNGSILD,
+  transformOWMHistoricalAirPollutionToNGSILD,
+  transformOWMHistoricalWeatherToNGSILD,
 } from '../../common/transformers/ngsi-ld.transformer';
+import {
+  HistoricalIngestionDto,
+  HistoricalIngestionType,
+} from './dto/historical-ingestion.dto';
 
 /**
  * Ingestion Service
@@ -314,6 +320,232 @@ export class IngestionService {
     return {
       owm: owmConfigured,
       orion: orionHealthy,
+    };
+  }
+
+  /**
+   * Delay helper function for rate limiting
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Ingest historical air quality data for all active stations
+   * Uses OpenWeatherMap Historical Air Pollution API (free)
+   *
+   * @param startDate Start date for historical data
+   * @param endDate End date for historical data
+   */
+  async ingestHistoricalAirQuality(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{
+    records: number;
+    errors: Array<{ station: string; error: string }>;
+  }> {
+    const locations = await this.stationManager.findAll({
+      status: StationStatus.ACTIVE,
+    });
+
+    this.logger.log(
+      `Starting historical air quality ingestion for ${locations.length} stations from ${startDate.toISOString()} to ${endDate.toISOString()}`,
+    );
+
+    const startUnix = Math.floor(startDate.getTime() / 1000);
+    const endUnix = Math.floor(endDate.getTime() / 1000);
+
+    let totalRecords = 0;
+    const errors: Array<{ station: string; error: string }> = [];
+
+    for (const location of locations) {
+      try {
+        this.logger.debug(
+          `Fetching historical air quality for ${location.code}`,
+        );
+
+        const owmData = await this.owmProvider.getHistoricalAirPollution(
+          location.location.lat,
+          location.location.lon,
+          startUnix,
+          endUnix,
+        );
+
+        if (owmData.list && owmData.list.length > 0) {
+          const entities = transformOWMHistoricalAirPollutionToNGSILD(
+            owmData,
+            location.code,
+            location.id,
+            location.city || 'Unknown',
+            location.district,
+          );
+
+          await this.orionClient.upsertEntities(entities);
+          totalRecords += entities.length;
+
+          this.logger.debug(
+            `✓ Ingested ${entities.length} historical air quality records for ${location.code}`,
+          );
+        }
+
+        // Rate limiting: 1 second delay between stations
+        await this.delay(1000);
+      } catch (error) {
+        this.logger.error(
+          `✗ Failed to ingest historical air quality for ${location.code}`,
+          error.message,
+        );
+        errors.push({
+          station: location.code,
+          error: error.message,
+        });
+      }
+    }
+
+    this.logger.log(
+      `Historical air quality ingestion completed: ${totalRecords} records ingested`,
+    );
+
+    return { records: totalRecords, errors };
+  }
+
+  /**
+   * Ingest historical weather data for all active stations
+   * Uses OpenWeatherMap History API (requires paid subscription)
+   *
+   * @param startDate Start date for historical data
+   * @param endDate End date for historical data
+   */
+  async ingestHistoricalWeather(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{
+    records: number;
+    errors: Array<{ station: string; error: string }>;
+  }> {
+    const locations = await this.stationManager.findAll({
+      status: StationStatus.ACTIVE,
+    });
+
+    this.logger.log(
+      `Starting historical weather ingestion for ${locations.length} stations from ${startDate.toISOString()} to ${endDate.toISOString()}`,
+    );
+
+    const startUnix = Math.floor(startDate.getTime() / 1000);
+    const endUnix = Math.floor(endDate.getTime() / 1000);
+
+    let totalRecords = 0;
+    const errors: Array<{ station: string; error: string }> = [];
+
+    for (const location of locations) {
+      try {
+        this.logger.debug(`Fetching historical weather for ${location.code}`);
+
+        const owmData = await this.owmProvider.getHistoricalWeather(
+          location.location.lat,
+          location.location.lon,
+          startUnix,
+          endUnix,
+        );
+
+        if (owmData.list && owmData.list.length > 0) {
+          const entities = transformOWMHistoricalWeatherToNGSILD(
+            owmData,
+            location.code,
+            location.id,
+            location.city || 'Unknown',
+            location.district,
+          );
+
+          await this.orionClient.upsertEntities(entities);
+          totalRecords += entities.length;
+
+          this.logger.debug(
+            `✓ Ingested ${entities.length} historical weather records for ${location.code}`,
+          );
+        }
+
+        // Rate limiting: 1 second delay between stations
+        await this.delay(1000);
+      } catch (error) {
+        this.logger.error(
+          `✗ Failed to ingest historical weather for ${location.code}`,
+          error.message,
+        );
+        errors.push({
+          station: location.code,
+          error: error.message,
+        });
+      }
+    }
+
+    this.logger.log(
+      `Historical weather ingestion completed: ${totalRecords} records ingested`,
+    );
+
+    return { records: totalRecords, errors };
+  }
+
+  /**
+   * Ingest historical data (both weather and air quality)
+   *
+   * @param dto Historical ingestion DTO with date range and types
+   */
+  async ingestHistoricalData(dto: HistoricalIngestionDto): Promise<{
+    message: string;
+    weatherRecords: number;
+    airQualityRecords: number;
+    startDate: string;
+    endDate: string;
+    types: HistoricalIngestionType[];
+    errors?: Array<{ station: string; type: string; error: string }>;
+  }> {
+    const startDate = new Date(dto.startDate);
+    const endDate = new Date(dto.endDate);
+
+    this.logger.log(
+      `Starting historical data ingestion from ${startDate.toISOString()} to ${endDate.toISOString()} for types: ${dto.types.join(', ')}`,
+    );
+
+    let weatherRecords = 0;
+    let airQualityRecords = 0;
+    const allErrors: Array<{ station: string; type: string; error: string }> =
+      [];
+
+    // Ingest air quality if requested
+    if (dto.types.includes('air-quality')) {
+      const aqResult = await this.ingestHistoricalAirQuality(
+        startDate,
+        endDate,
+      );
+      airQualityRecords = aqResult.records;
+      aqResult.errors.forEach((e) =>
+        allErrors.push({ ...e, type: 'air-quality' }),
+      );
+    }
+
+    // Ingest weather if requested
+    if (dto.types.includes('weather')) {
+      const weatherResult = await this.ingestHistoricalWeather(
+        startDate,
+        endDate,
+      );
+      weatherRecords = weatherResult.records;
+      weatherResult.errors.forEach((e) =>
+        allErrors.push({ ...e, type: 'weather' }),
+      );
+    }
+
+    const totalRecords = weatherRecords + airQualityRecords;
+
+    return {
+      message: `Historical data ingestion completed: ${totalRecords} total records`,
+      weatherRecords,
+      airQualityRecords,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+      types: dto.types,
+      ...(allErrors.length > 0 && { errors: allErrors }),
     };
   }
 }
