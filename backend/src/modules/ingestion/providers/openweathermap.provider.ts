@@ -331,6 +331,7 @@ export class OpenWeatherMapProvider {
     lon: number,
     start: number,
     end?: number,
+    units: 'standard' | 'metric' | 'imperial' = 'metric',
     cnt?: number,
   ): Promise<any> {
     try {
@@ -343,6 +344,7 @@ export class OpenWeatherMapProvider {
         lon,
         type: 'hour',
         start,
+        units,
         appid: this.apiKey,
       };
 

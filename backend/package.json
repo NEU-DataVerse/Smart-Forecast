@@ -22,7 +22,9 @@
     "seed": "ts-node src/database/seeds/seed.ts",
     "seed:force": "ts-node src/database/seeds/seed.ts force",
     "seed:clear": "ts-node src/database/seeds/seed.ts clear",
-    "seed:reseed": "ts-node src/database/seeds/seed.ts reseed"
+    "seed:reseed": "ts-node src/database/seeds/seed.ts reseed",
+    "seed:base": "ts-node src/database/seeds/seed.ts --skip-env",
+    "seed:base:force": "ts-node src/database/seeds/seed.ts force --skip-env"
   },
   "dependencies": {
     "@nestjs/axios": "^3.1.3",

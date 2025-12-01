@@ -5,7 +5,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ingestionService } from '@/services/api';
-import type { IngestionHealthResponse, IngestionStatsResponse } from '@/types/dto';
+import type {
+  IngestionHealthResponse,
+  IngestionStatsResponse,
+  HistoricalIngestionDto,
+  HistoricalIngestionResponseDto,
+} from '@/types/dto';
 
 const POLLING_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
@@ -87,6 +92,16 @@ export function useIngestion(options: UseIngestionOptions = {}) {
     }
   }, [fetchData]);
 
+  const triggerHistoricalIngestion = useCallback(
+    async (dto: HistoricalIngestionDto): Promise<HistoricalIngestionResponseDto> => {
+      const result = await ingestionService.triggerHistorical(dto);
+      // Refetch data after triggering historical ingestion
+      setTimeout(() => fetchData(), 2000);
+      return result;
+    },
+    [fetchData],
+  );
+
   useEffect(() => {
     if (enabled) {
       // Fetch immediately on mount
@@ -109,6 +124,7 @@ export function useIngestion(options: UseIngestionOptions = {}) {
     lastUpdate,
     refetch,
     triggerIngestion,
+    triggerHistoricalIngestion,
     stopPolling,
     startPolling,
   };

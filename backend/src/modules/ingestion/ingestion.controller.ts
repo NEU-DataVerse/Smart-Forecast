@@ -2,16 +2,21 @@ import {
   Controller,
   Post,
   Get,
+  Body,
   HttpCode,
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { IngestionService } from './ingestion.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@smart-forecast/shared';
+import {
+  HistoricalIngestionDto,
+  HistoricalIngestionResponseDto,
+} from './dto/historical-ingestion.dto';
 
 /**
  * Ingestion Controller
@@ -60,12 +65,33 @@ export class IngestionController {
    */
   @Post('all')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Trigger full data ingestion (current + forecasts)',
+  })
   async ingestAll() {
     const result = await this.ingestionService.ingestAllData();
     return {
       message: 'Full data ingestion completed',
       ...result,
     };
+  }
+
+  /**
+   * Trigger historical data ingestion
+   * POST /api/v1/ingestion/historical
+   */
+  @Post('historical')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Trigger historical data ingestion',
+    description:
+      'Ingest historical weather and/or air quality data for a date range (max 7 days). Historical air quality is free, historical weather requires paid API key.',
+  })
+  @ApiBody({ type: HistoricalIngestionDto })
+  async ingestHistorical(
+    @Body() dto: HistoricalIngestionDto,
+  ): Promise<HistoricalIngestionResponseDto> {
+    return this.ingestionService.ingestHistoricalData(dto);
   }
 
   /**

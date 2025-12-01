@@ -923,3 +923,285 @@ export function transformOWMDailyForecastToNGSILD(
 
   return entities;
 }
+
+/**
+ * Transform OpenWeather Historical Air Pollution data to NGSI-LD AirQualityObserved entities
+ * @param owmHistoricalData Raw data from OpenWeather Historical Air Pollution API
+ * @param stationCode Station code from WeatherStation entity
+ * @param stationId Station ID for relationship (URN format)
+ * @param cityName City name for entity identification
+ * @param districtName District name (optional)
+ * @returns Array of NGSI-LD AirQualityObserved entities
+ */
+export function transformOWMHistoricalAirPollutionToNGSILD(
+  owmHistoricalData: any,
+  stationCode: string,
+  stationId: string,
+  cityName: string,
+  districtName?: string,
+): any[] {
+  if (!owmHistoricalData.list || owmHistoricalData.list.length === 0) {
+    throw new Error('No historical air pollution data available in response');
+  }
+
+  const entities: any[] = [];
+
+  for (const measurement of owmHistoricalData.list) {
+    const components = measurement.components;
+    const observedAt = new Date(measurement.dt * 1000).toISOString();
+
+    // Generate entity ID using station code with timestamp
+    const entityId = generateEntityId(
+      'AirQualityObserved',
+      `${stationCode}-${measurement.dt}`,
+    );
+
+    const entity: any = {
+      id: entityId,
+      type: 'AirQualityObserved',
+      '@context': [
+        'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
+        'https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld',
+      ],
+      dateObserved: createProperty(observedAt, observedAt),
+      source: createProperty('OpenWeatherMap'),
+      dataProvider: createProperty('OpenWeatherMap-Historical'),
+      locationId: createRelationship(stationId),
+    };
+
+    // Add location
+    if (
+      owmHistoricalData.coord?.lat !== undefined &&
+      owmHistoricalData.coord?.lon !== undefined
+    ) {
+      entity.location = createGeoProperty(
+        owmHistoricalData.coord.lon,
+        owmHistoricalData.coord.lat,
+      );
+    }
+
+    // Add address
+    if (cityName) {
+      entity.address = createAddressProperty(districtName || cityName, 'VN');
+    }
+
+    // Add pollutant measurements
+    if (components) {
+      if (components.co !== undefined) {
+        entity.co = createProperty(components.co, observedAt);
+      }
+      if (components.no !== undefined) {
+        entity.no = createProperty(components.no, observedAt);
+      }
+      if (components.no2 !== undefined) {
+        entity.no2 = createProperty(components.no2, observedAt);
+      }
+      if (components.o3 !== undefined) {
+        entity.o3 = createProperty(components.o3, observedAt);
+      }
+      if (components.so2 !== undefined) {
+        entity.so2 = createProperty(components.so2, observedAt);
+      }
+      if (components.pm2_5 !== undefined) {
+        entity.pm25 = createProperty(components.pm2_5, observedAt);
+      }
+      if (components.pm10 !== undefined) {
+        entity.pm10 = createProperty(components.pm10, observedAt);
+      }
+      if (components.nh3 !== undefined) {
+        entity.nh3 = createProperty(components.nh3, observedAt);
+      }
+    }
+
+    // Add OpenWeather AQI
+    if (measurement.main?.aqi !== undefined) {
+      entity.airQualityIndex = createProperty(measurement.main.aqi, observedAt);
+      entity.airQualityLevel = createProperty(
+        getOpenWeatherAQICategory(measurement.main.aqi),
+        observedAt,
+      );
+    }
+
+    // Calculate US EPA AQI if PM2.5 is available
+    if (components?.pm2_5 !== undefined) {
+      const usAQI = calculateAQI(components.pm2_5);
+      entity.airQualityIndexUS = createProperty(usAQI, observedAt);
+      entity.airQualityLevelUS = createProperty(
+        getAQICategory(usAQI),
+        observedAt,
+      );
+    }
+
+    entities.push(entity);
+  }
+
+  return entities;
+}
+
+/**
+ * Transform OpenWeather Historical Weather data to NGSI-LD WeatherObserved entities
+ * @param owmHistoricalData Raw data from OpenWeather History API
+ * @param stationCode Station code from WeatherStation entity
+ * @param stationId Station ID for relationship (URN format)
+ * @param cityName City name for entity identification
+ * @param districtName District name (optional)
+ * @returns Array of NGSI-LD WeatherObserved entities
+ */
+export function transformOWMHistoricalWeatherToNGSILD(
+  owmHistoricalData: any,
+  stationCode: string,
+  stationId: string,
+  cityName: string,
+  districtName?: string,
+): any[] {
+  if (!owmHistoricalData.list || owmHistoricalData.list.length === 0) {
+    throw new Error('No historical weather data available in response');
+  }
+
+  const entities: any[] = [];
+
+  for (const measurement of owmHistoricalData.list) {
+    const observedAt = new Date(measurement.dt * 1000).toISOString();
+
+    // Generate entity ID using station code with timestamp
+    const entityId = generateEntityId(
+      'WeatherObserved',
+      `${stationCode}-${measurement.dt}`,
+    );
+
+    const entity: any = {
+      id: entityId,
+      type: 'WeatherObserved',
+      '@context': [
+        'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld',
+        'https://raw.githubusercontent.com/smart-data-models/dataModel.Weather/master/context.jsonld',
+      ],
+      dateObserved: createProperty(observedAt, observedAt),
+      source: createProperty('OpenWeatherMap'),
+      dataProvider: createProperty('OpenWeatherMap-Historical'),
+      locationId: createRelationship(stationId),
+    };
+
+    // Add address
+    if (cityName) {
+      entity.address = createAddressProperty(districtName || cityName, 'VN');
+    }
+
+    // Temperature
+    if (measurement.main?.temp !== undefined) {
+      entity.temperature = createProperty(measurement.main.temp, observedAt);
+    }
+
+    // Feels like temperature
+    if (measurement.main?.feels_like !== undefined) {
+      entity.feelsLikeTemperature = createProperty(
+        measurement.main.feels_like,
+        observedAt,
+      );
+    }
+
+    // Min/Max temperature
+    if (measurement.main?.temp_min !== undefined) {
+      entity.temperatureMin = createProperty(
+        measurement.main.temp_min,
+        observedAt,
+      );
+    }
+    if (measurement.main?.temp_max !== undefined) {
+      entity.temperatureMax = createProperty(
+        measurement.main.temp_max,
+        observedAt,
+      );
+    }
+
+    // Atmospheric pressure
+    if (measurement.main?.pressure !== undefined) {
+      entity.atmosphericPressure = createProperty(
+        measurement.main.pressure,
+        observedAt,
+      );
+    }
+
+    // Sea level and ground level pressure
+    if (measurement.main?.sea_level !== undefined) {
+      entity.pressureSeaLevel = createProperty(
+        measurement.main.sea_level,
+        observedAt,
+      );
+    }
+    if (measurement.main?.grnd_level !== undefined) {
+      entity.pressureGroundLevel = createProperty(
+        measurement.main.grnd_level,
+        observedAt,
+      );
+    }
+
+    // Relative humidity (convert from % to 0-1 range)
+    if (measurement.main?.humidity !== undefined) {
+      entity.relativeHumidity = createProperty(
+        measurement.main.humidity / 100,
+        observedAt,
+      );
+    }
+
+    // Wind speed
+    if (measurement.wind?.speed !== undefined) {
+      entity.windSpeed = createProperty(measurement.wind.speed, observedAt);
+    }
+
+    // Wind direction
+    if (measurement.wind?.deg !== undefined) {
+      entity.windDirection = createProperty(measurement.wind.deg, observedAt);
+    }
+
+    // Cloudiness
+    if (measurement.clouds?.all !== undefined) {
+      entity.cloudiness = createProperty(measurement.clouds.all, observedAt);
+    }
+
+    // Precipitation (rain)
+    if (measurement.rain) {
+      if (measurement.rain['1h'] !== undefined) {
+        entity.precipitation = createProperty(
+          measurement.rain['1h'],
+          observedAt,
+        );
+      } else if (measurement.rain['3h'] !== undefined) {
+        entity.precipitation = createProperty(
+          measurement.rain['3h'],
+          observedAt,
+        );
+      }
+    }
+
+    // Snow
+    if (measurement.snow) {
+      if (measurement.snow['1h'] !== undefined) {
+        entity.snowHeight = createProperty(measurement.snow['1h'], observedAt);
+      } else if (measurement.snow['3h'] !== undefined) {
+        entity.snowHeight = createProperty(measurement.snow['3h'], observedAt);
+      }
+    }
+
+    // Weather condition
+    if (measurement.weather && measurement.weather.length > 0) {
+      const weather = measurement.weather[0];
+      if (weather.main) {
+        entity.weatherType = createProperty(weather.main, observedAt);
+      }
+      if (weather.description) {
+        entity.weatherDescription = createProperty(
+          weather.description,
+          observedAt,
+        );
+      }
+      if (weather.icon) {
+        entity.weatherIconCode = createProperty(weather.icon, observedAt);
+      }
+    }
+
+    entities.push(entity);
+  }
+
+  return entities;
+}
