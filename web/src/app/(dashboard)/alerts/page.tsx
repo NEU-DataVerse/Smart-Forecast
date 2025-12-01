@@ -1,33 +1,26 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useAlerts } from '@/hooks/useAlertQuery';
-import {
-  IAlert,
-  AlertLevel,
-  AlertType,
-  AlertLevelLabels,
-  AlertTypeLabels,
-} from '@smart-forecast/shared';
+import { useAlerts, useAlertStats } from '@/hooks/useAlertQuery';
+import { IAlert, AlertLevel, AlertType } from '@smart-forecast/shared';
 import { AlertHeader } from '@/components/alertsUI/alert-header';
 import SummaryStarts from '@/components/alertsUI/summary-starts';
-import { AlertListItem } from '@/components/alertsUI/alert-list-item';
 import { AlertDetailsDialog } from '@/components/alertsUI/alert-details-dialog';
 import { CreateAlertDialog } from '@/components/alertsUI/create-alert-dialog';
 import { ThresholdList } from '@/components/alertsUI/threshold-list';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Loader2, AlertTriangle, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { AlertTabs } from '@/components/alertsUI/alert-tabs';
+import { AlertsMapView } from '@/components/alertsUI/alerts-map-view';
+import { AlertStatsDashboard } from '@/components/alertsUI/alert-stats-dashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MapPin, List, BarChart3, Settings } from 'lucide-react';
+
+const PAGE_SIZE = 10;
+const MAP_PAGE_SIZE = 200; // Load more alerts for map view
 
 export default function AlertsPage() {
+  // View state
+  const [activeView, setActiveView] = useState<'map' | 'list' | 'dashboard' | 'thresholds'>('list');
+
   // Dialog states
   const [selectedAlert, setSelectedAlert] = useState<IAlert | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -35,28 +28,54 @@ export default function AlertsPage() {
   const [resendAlert, setResendAlert] = useState<IAlert | null>(null);
 
   // Filter states
-  const [levelFilter, setLevelFilter] = useState<AlertLevel | 'ALL'>('ALL');
-  const [typeFilter, setTypeFilter] = useState<AlertType | 'ALL'>('ALL');
+  const [levelFilter, setLevelFilter] = useState<AlertLevel | undefined>(undefined);
+  const [typeFilter, setTypeFilter] = useState<AlertType | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const limit = 10;
 
-  // Build query params
+  // Build query params for list view
   const queryParams = useMemo(
     () => ({
       page,
-      limit,
-      ...(levelFilter !== 'ALL' && { level: levelFilter }),
-      ...(typeFilter !== 'ALL' && { type: typeFilter }),
+      limit: PAGE_SIZE,
+      ...(levelFilter && { level: levelFilter }),
+      ...(typeFilter && { type: typeFilter }),
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate }),
     }),
-    [page, limit, levelFilter, typeFilter],
+    [page, levelFilter, typeFilter, startDate, endDate],
+  );
+
+  // Build query params for map view (more data)
+  const mapQueryParams = useMemo(
+    () => ({
+      page: 1,
+      limit: MAP_PAGE_SIZE,
+      ...(levelFilter && { level: levelFilter }),
+      ...(typeFilter && { type: typeFilter }),
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate }),
+    }),
+    [levelFilter, typeFilter, startDate, endDate],
   );
 
   // Fetch alerts
-  const { data, isLoading, isError, error, refetch } = useAlerts(queryParams);
+  const { data, isLoading } = useAlerts(queryParams);
+  const { data: mapData, isLoading: isLoadingMap } = useAlerts(mapQueryParams);
+  const { data: statsData } = useAlertStats();
 
   const alerts = data?.data || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
+
+  // Calculate level counts from stats
+  const levelCounts = useMemo(() => {
+    if (!statsData) return undefined;
+    return {
+      ...statsData.byLevel,
+      all: statsData.total,
+    };
+  }, [statsData]);
 
   // Handlers
   const handleViewAlert = (alert: IAlert) => {
@@ -85,165 +104,91 @@ export default function AlertsPage() {
     setShowCreateDialog(true);
   };
 
-  const clearFilters = () => {
-    setLevelFilter('ALL');
-    setTypeFilter('ALL');
+  const handleLevelFilterChange = (level?: AlertLevel) => {
+    setLevelFilter(level);
     setPage(1);
   };
 
-  const hasFilters = levelFilter !== 'ALL' || typeFilter !== 'ALL';
+  const handleTypeFilterChange = (type?: AlertType) => {
+    setTypeFilter(type);
+    setPage(1);
+  };
+
+  const handleDateRangeChange = (start?: string, end?: string) => {
+    setStartDate(start);
+    setEndDate(end);
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   return (
     <div className="space-y-6">
       <AlertHeader onCreateClick={handleCreateClick} />
-      <SummaryStarts />
 
-      <Tabs defaultValue="alerts" className="w-full">
+      {/* View Toggle */}
+      <Tabs
+        value={activeView}
+        onValueChange={(v) => setActiveView(v as 'map' | 'list' | 'dashboard' | 'thresholds')}
+      >
         <TabsList>
-          <TabsTrigger value="alerts">Lịch sử cảnh báo</TabsTrigger>
-          <TabsTrigger value="thresholds">Ngưỡng cảnh báo</TabsTrigger>
+          <TabsTrigger value="map" className="gap-2">
+            <MapPin className="h-4 w-4" />
+            Bản đồ
+          </TabsTrigger>
+          <TabsTrigger value="list" className="gap-2">
+            <List className="h-4 w-4" />
+            Danh sách
+          </TabsTrigger>
+          <TabsTrigger value="dashboard" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Thống kê
+          </TabsTrigger>
+          <TabsTrigger value="thresholds" className="gap-2">
+            <Settings className="h-4 w-4" />
+            Ngưỡng cảnh báo
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="alerts" className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm text-slate-600">Lọc theo:</span>
-                </div>
-
-                <Select
-                  value={levelFilter}
-                  onValueChange={(v) => {
-                    setLevelFilter(v as AlertLevel | 'ALL');
-                    setPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Mức độ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">Tất cả mức độ</SelectItem>
-                    {Object.values(AlertLevel).map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {AlertLevelLabels[level]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={typeFilter}
-                  onValueChange={(v) => {
-                    setTypeFilter(v as AlertType | 'ALL');
-                    setPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Loại cảnh báo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">Tất cả loại</SelectItem>
-                    {Object.values(AlertType).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {AlertTypeLabels[type]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {hasFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters}>
-                    <X className="h-4 w-4 mr-1" />
-                    Xóa bộ lọc
-                  </Button>
-                )}
-
-                <div className="ml-auto text-sm text-slate-500">
-                  {total > 0 && `Tìm thấy ${total} cảnh báo`}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Alert list */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-              <span className="ml-2 text-slate-500">Đang tải dữ liệu...</span>
-            </div>
-          ) : isError ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Không thể tải dữ liệu</h3>
-                <p className="text-slate-500 mb-4">
-                  {error instanceof Error ? error.message : 'Đã xảy ra lỗi'}
-                </p>
-                <Button onClick={() => refetch()}>Thử lại</Button>
-              </CardContent>
-            </Card>
-          ) : alerts.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <AlertTriangle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Chưa có cảnh báo nào</h3>
-                <p className="text-slate-500 mb-4">
-                  {hasFilters
-                    ? 'Không tìm thấy cảnh báo nào phù hợp với bộ lọc'
-                    : 'Hệ thống chưa có cảnh báo nào được gửi'}
-                </p>
-                {hasFilters && (
-                  <Button variant="outline" onClick={clearFilters}>
-                    Xóa bộ lọc
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <div className="space-y-4">
-                {alerts.map((alert) => (
-                  <AlertListItem
-                    key={alert.id}
-                    alert={alert}
-                    onView={handleViewAlert}
-                    onResend={handleOpenResendDialog}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm text-slate-600">
-                    Trang {page} / {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
+        <TabsContent value="map" className="mt-6">
+          <AlertsMapView
+            alerts={mapData?.data ?? []}
+            isLoading={isLoadingMap}
+            onSelectAlert={handleViewAlert}
+          />
         </TabsContent>
 
-        <TabsContent value="thresholds">
+        <TabsContent value="list" className="mt-6">
+          <AlertTabs
+            alerts={alerts}
+            onViewAlert={handleViewAlert}
+            onResendAlert={handleOpenResendDialog}
+            isLoading={isLoading}
+            page={page}
+            limit={PAGE_SIZE}
+            total={total}
+            onPageChange={handlePageChange}
+            levelFilter={levelFilter}
+            onLevelFilterChange={handleLevelFilterChange}
+            typeFilter={typeFilter}
+            onTypeFilterChange={handleTypeFilterChange}
+            startDate={startDate}
+            endDate={endDate}
+            onDateRangeChange={handleDateRangeChange}
+            levelCounts={levelCounts}
+          />
+        </TabsContent>
+
+        <TabsContent value="dashboard" className="mt-6">
+          <SummaryStarts />
+          <div className="mt-6">
+            <AlertStatsDashboard />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="thresholds" className="mt-6">
           <ThresholdList />
         </TabsContent>
       </Tabs>
