@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { EnvironmentData, Location, Alert, Incident, Sensor } from '@/types';
+import { EnvironmentData, Location, Alert, Incident, Sensor, AirQualityData } from '@/types';
 
 interface AppStore {
   location: Location | null;
@@ -7,6 +7,9 @@ interface AppStore {
 
   environmentData: EnvironmentData | null;
   setEnvironmentData: (data: EnvironmentData) => void;
+
+  airQualityData: AirQualityData | null;
+  setAirQualityData: (data: AirQualityData) => void;
 
   alerts: Alert[];
   addAlert: (alert: Alert) => void;
@@ -28,6 +31,9 @@ export const useAppStore = create<AppStore>((set) => ({
 
   environmentData: null,
   setEnvironmentData: (data) => set({ environmentData: data }),
+
+  airQualityData: null,
+  setAirQualityData: (data) => set({ airQualityData: data }),
 
   alerts: [
     {
@@ -60,35 +66,7 @@ export const useAppStore = create<AppStore>((set) => ({
   incidents: [],
   addIncident: (incident) => set((state) => ({ incidents: [incident, ...state.incidents] })),
 
-  sensors: [
-    {
-      id: 's1',
-      name: 'Ben Thanh Sensor',
-      latitude: 10.7722,
-      longitude: 106.6986,
-      type: 'air_quality',
-      status: 'active',
-      lastReading: { aqi: 85, temperature: 32, humidity: 78 },
-    },
-    {
-      id: 's2',
-      name: 'District 2 Sensor',
-      latitude: 10.7896,
-      longitude: 106.7441,
-      type: 'air_quality',
-      status: 'active',
-      lastReading: { aqi: 95, temperature: 31, humidity: 80 },
-    },
-    {
-      id: 's3',
-      name: 'Thu Duc Sensor',
-      latitude: 10.8508,
-      longitude: 106.7717,
-      type: 'weather',
-      status: 'active',
-      lastReading: { temperature: 33, humidity: 75 },
-    },
-  ],
+  sensors: [],
   setSensors: (sensors) => set({ sensors }),
 
   isLoading: false,

@@ -16,6 +16,42 @@ export interface EnvironmentData {
   timestamp: number;
 }
 
+export interface AirQualityData {
+  id: string;
+  stationId: string;
+  location: {
+    lat: number;
+    lon: number;
+  };
+  address?: string;
+  dateObserved: string;
+  pollutants?: {
+    co?: number;
+    no?: number;
+    no2?: number;
+    o3?: number;
+    so2?: number;
+    pm25?: number;
+    pm10?: number;
+    nh3?: number;
+  };
+  aqi?: {
+    openWeather?: {
+      index: number;
+      level: string;
+    };
+    epaUS?: {
+      index: number;
+      level: string;
+    };
+  };
+  temperature?: number;
+  humidity?: number;
+  pressure?: number;
+  windSpeed?: number;
+  clouds?: number;
+}
+
 export interface Sensor {
   id: string;
   name: string;

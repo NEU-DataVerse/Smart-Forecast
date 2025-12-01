@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Stack } from 'expo-router';
 import { X } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { getAQIColor, getStatusColor } from '@/utils/mapLayerOptimization';
+import { weatherApi } from '@/services/api';
+import { useQuery } from '@tanstack/react-query';
 
+// MapLibreGL requires conditional loading based on platform
 let MapLibreGL: any = null;
 
 if (Platform.OS !== 'web') {
@@ -14,10 +25,42 @@ if (Platform.OS !== 'web') {
 }
 
 export default function MapScreen() {
-  const { location, sensors } = useAppStore();
+  const { location, setSensors } = useAppStore();
   const [selectedSensor, setSelectedSensor] = useState<string | null>(null);
+  const [sensors, setSensorsLocal] = useState<any[]>([]);
 
   const initialCoords = [location?.longitude || 106.6297, location?.latitude || 10.8231];
+
+  // Fetch nearest sensors from backend
+  const { data: fetchedSensors, isLoading } = useQuery({
+    queryKey: ['sensors', location],
+    queryFn: async () => {
+      if (!location) {
+        throw new Error('Location not available');
+      }
+      try {
+        return await weatherApi.getNearestStations(
+          location.latitude,
+          location.longitude,
+          10, // Get up to 10 nearest stations
+          50, // Within 50km radius
+        );
+      } catch (err) {
+        console.error('Error fetching sensors:', err);
+        throw err;
+      }
+    },
+    enabled: !!location,
+    retry: 2,
+  });
+
+  // Update local sensors and app store
+  useEffect(() => {
+    if (fetchedSensors && fetchedSensors.length > 0) {
+      setSensorsLocal(fetchedSensors);
+      setSensors(fetchedSensors);
+    }
+  }, [fetchedSensors, setSensors]);
 
   return (
     <View style={styles.container}>
@@ -38,6 +81,11 @@ export default function MapScreen() {
             Scan the QR code to view the map on your phone
           </Text>
         </View>
+      ) : isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary.blue} />
+          <Text style={styles.loadingText}>Loading sensors...</Text>
+        </View>
       ) : (
         <>
           <MapLibreGL.MapView
@@ -46,7 +94,7 @@ export default function MapScreen() {
           >
             <MapLibreGL.Camera zoomLevel={12} centerCoordinate={initialCoords} />
 
-            {sensors?.map((sensor) => {
+            {sensors.map((sensor) => {
               const aqi = sensor.lastReading?.aqi || 0;
               const markerColor = aqi > 0 ? getAQIColor(aqi) : getStatusColor(sensor.status);
 
@@ -149,6 +197,17 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background.primary,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: Colors.text.secondary,
   },
   marker: {
     width: 30,
