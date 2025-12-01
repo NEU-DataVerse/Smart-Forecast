@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import {
   Dialog,
   DialogContent,
@@ -23,10 +25,12 @@ import {
   ChevronRight,
   X,
   Loader2,
+  PlayCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import { IIncident, IncidentStatus } from '@smart-forecast/shared';
 import { IncidentTypeLabels, IncidentStatusLabels } from '@smart-forecast/shared';
-import { formatDate, getLocationString, getReporterName } from './report-utils';
+import { formatDate, getLocationString, getReporterName, getStatusVariant } from './report-utils';
 
 interface ReportDetailsDialogProps {
   report: IIncident | null;
@@ -35,25 +39,66 @@ interface ReportDetailsDialogProps {
   onApprove: (reportId: string, notes?: string) => void;
   onReject: (reportId: string, notes: string) => void;
   onCreateAlert: () => void;
+  onStartProgress?: (reportId: string, notes?: string) => void;
+  onMarkResolved?: (reportId: string, notes?: string) => void;
   isUpdating?: boolean;
 }
 
 /**
- * Get status badge variant
+ * Mini Map Component for displaying incident location
  */
-function getStatusVariant(
-  status: IncidentStatus,
-): 'default' | 'destructive' | 'secondary' | 'outline' {
-  switch (status) {
-    case IncidentStatus.VERIFIED:
-      return 'default';
-    case IncidentStatus.REJECTED:
-      return 'destructive';
-    case IncidentStatus.RESOLVED:
-      return 'outline';
-    default:
-      return 'secondary';
-  }
+function IncidentMiniMap({ coordinates }: { coordinates: [number, number] }) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    const [lng, lat] = coordinates;
+
+    const mapStyle = {
+      version: 8 as const,
+      sources: {
+        osm: {
+          type: 'raster' as const,
+          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution: '© OpenStreetMap contributors',
+        },
+      },
+      layers: [
+        {
+          id: 'osm',
+          type: 'raster' as const,
+          source: 'osm',
+        },
+      ],
+    };
+
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: mapStyle,
+      center: [lng, lat],
+      zoom: 15,
+      interactive: false, // Read-only map
+    });
+
+    // Add marker at incident location
+    new maplibregl.Marker({ color: '#ef4444' }).setLngLat([lng, lat]).addTo(map.current);
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+      }
+    };
+  }, [coordinates]);
+
+  return (
+    <div
+      ref={mapContainer}
+      className="w-full h-[200px] rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
+    />
+  );
 }
 
 /**
@@ -170,6 +215,8 @@ export function ReportDetailsDialog({
   onApprove,
   onReject,
   onCreateAlert,
+  onStartProgress,
+  onMarkResolved,
   isUpdating = false,
 }: ReportDetailsDialogProps) {
   const [adminNotes, setAdminNotes] = useState('');
@@ -195,6 +242,16 @@ export function ReportDetailsDialog({
     }
   };
 
+  const handleStartProgress = () => {
+    onStartProgress?.(report.id, adminNotes || undefined);
+    setAdminNotes('');
+  };
+
+  const handleMarkResolved = () => {
+    onMarkResolved?.(report.id, adminNotes || undefined);
+    setAdminNotes('');
+  };
+
   const handleClose = () => {
     setAdminNotes('');
     setShowRejectForm(false);
@@ -202,6 +259,8 @@ export function ReportDetailsDialog({
   };
 
   const isPending = report.status === IncidentStatus.PENDING;
+  const isVerified = report.status === IncidentStatus.VERIFIED;
+  const isInProgress = report.status === IncidentStatus.IN_PROGRESS;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -243,16 +302,19 @@ export function ReportDetailsDialog({
 
           {/* Location */}
           <div>
-            <p className="text-sm text-slate-500 mb-1">Vị trí</p>
-            <div className="flex items-start gap-2 bg-slate-50 p-3 rounded-lg">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Vị trí</p>
+            <div className="flex items-start gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg mb-2">
               <MapPin className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
               <div>
-                <p className="text-slate-900">{getLocationString(report.location.coordinates)}</p>
-                <p className="text-sm text-slate-600">
+                <p className="text-slate-900 dark:text-slate-100">
+                  {getLocationString(report.location.coordinates)}
+                </p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Lat: {report.location.coordinates[1]}, Lng: {report.location.coordinates[0]}
                 </p>
               </div>
             </div>
+            <IncidentMiniMap coordinates={report.location.coordinates as [number, number]} />
           </div>
 
           {/* Images */}
@@ -300,6 +362,23 @@ export function ReportDetailsDialog({
                     ? 'Nhập lý do từ chối báo cáo này...'
                     : 'Thêm ghi chú cho báo cáo này...'
                 }
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+          )}
+
+          {/* Admin Notes Input (for verified/in-progress reports) */}
+          {(isVerified || isInProgress) && (
+            <div>
+              <Label htmlFor="adminNotes" className="text-sm text-slate-500">
+                Ghi chú cập nhật (tùy chọn)
+              </Label>
+              <Textarea
+                id="adminNotes"
+                placeholder="Thêm ghi chú cho việc xử lý sự cố..."
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 className="mt-1"
@@ -362,6 +441,42 @@ export function ReportDetailsDialog({
                   </Button>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Actions for VERIFIED status */}
+          {isVerified && onStartProgress && (
+            <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+              <Button className="flex-1" onClick={handleStartProgress} disabled={isUpdating}>
+                {isUpdating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <PlayCircle className="h-4 w-4 mr-2" />
+                )}
+                Bắt đầu xử lý
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={onCreateAlert}>
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Tạo cảnh báo
+              </Button>
+            </div>
+          )}
+
+          {/* Actions for IN_PROGRESS status */}
+          {isInProgress && onMarkResolved && (
+            <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={handleMarkResolved}
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                )}
+                Đánh dấu đã giải quyết
+              </Button>
             </div>
           )}
         </div>

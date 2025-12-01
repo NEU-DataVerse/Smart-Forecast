@@ -2,7 +2,13 @@
 
 import { useState, useMemo } from 'react';
 import { useAlerts } from '@/hooks/useAlertQuery';
-import { IAlert, AlertLevel, AlertType, AlertLevelLabels } from '@smart-forecast/shared';
+import {
+  IAlert,
+  AlertLevel,
+  AlertType,
+  AlertLevelLabels,
+  AlertTypeLabels,
+} from '@smart-forecast/shared';
 import { AlertHeader } from '@/components/alertsUI/alert-header';
 import SummaryStarts from '@/components/alertsUI/summary-starts';
 import { AlertListItem } from '@/components/alertsUI/alert-list-item';
@@ -20,14 +26,6 @@ import {
 } from '@/components/ui/select';
 import { Loader2, AlertTriangle, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-// Alert type labels in Vietnamese
-const AlertTypeLabels: Record<AlertType, string> = {
-  [AlertType.WEATHER]: 'Thời tiết',
-  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
-  [AlertType.DISASTER]: 'Thiên tai',
-  [AlertType.ENVIRONMENTAL]: 'Môi trường',
-};
 
 export default function AlertsPage() {
   // Dialog states

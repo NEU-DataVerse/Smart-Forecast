@@ -28,7 +28,7 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
-import { AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, TrendingUp, XCircle, Loader } from 'lucide-react';
 
 // Colors for incident types
 const TYPE_COLORS: Record<string, string> = {
@@ -90,10 +90,17 @@ export function IncidentStatsDashboard() {
   const { data: trendData, isLoading: loadingTrend } = useIncidentTrend();
 
   // Calculate summary from status data
-  const pendingCount = byStatusData?.find((s) => s.status === IncidentStatus.PENDING)?.count ?? 0;
-  const verifiedCount = byStatusData?.find((s) => s.status === IncidentStatus.VERIFIED)?.count ?? 0;
-  const resolvedCount = byStatusData?.find((s) => s.status === IncidentStatus.RESOLVED)?.count ?? 0;
-  const totalCount = byStatusData?.reduce((sum, s) => sum + s.count, 0) ?? 0;
+  const pendingCount =
+    Number(byStatusData?.find((s) => s.status === IncidentStatus.PENDING)?.count) || 0;
+  const verifiedCount =
+    Number(byStatusData?.find((s) => s.status === IncidentStatus.VERIFIED)?.count) || 0;
+  const inProgressCount =
+    Number(byStatusData?.find((s) => s.status === IncidentStatus.IN_PROGRESS)?.count) || 0;
+  const rejectedCount =
+    Number(byStatusData?.find((s) => s.status === IncidentStatus.REJECTED)?.count) || 0;
+  const resolvedCount =
+    Number(byStatusData?.find((s) => s.status === IncidentStatus.RESOLVED)?.count) || 0;
+  const totalCount = byStatusData?.reduce((sum, s) => sum + Number(s.count), 0) ?? 0;
 
   // Transform data for charts
   const pieData =
@@ -120,7 +127,7 @@ export function IncidentStatsDashboard() {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <SummaryCard
           title="Tổng báo cáo"
           value={totalCount}
@@ -140,6 +147,20 @@ export function IncidentStatsDashboard() {
           value={verifiedCount}
           icon={CheckCircle}
           color="bg-green-500"
+          loading={loadingStatus}
+        />
+        <SummaryCard
+          title="Đang xử lý"
+          value={inProgressCount}
+          icon={Loader}
+          color="bg-blue-600"
+          loading={loadingStatus}
+        />
+        <SummaryCard
+          title="Đã từ chối"
+          value={rejectedCount}
+          icon={XCircle}
+          color="bg-red-500"
           loading={loadingStatus}
         />
         <SummaryCard

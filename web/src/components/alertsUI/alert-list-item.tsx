@@ -8,15 +8,8 @@ import {
   AlertType,
   AlertLevelLabels,
   AlertLevelColors,
+  AlertTypeLabels,
 } from '@smart-forecast/shared';
-
-// Alert type labels in Vietnamese
-const AlertTypeLabels: Record<AlertType, string> = {
-  [AlertType.WEATHER]: 'Thời tiết',
-  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
-  [AlertType.DISASTER]: 'Thiên tai',
-  [AlertType.ENVIRONMENTAL]: 'Môi trường',
-};
 
 interface AlertListItemProps {
   alert: IAlert;
