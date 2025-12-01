@@ -104,11 +104,13 @@ export function WeatherMapView({
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
+    const currentMarkers = markers.current;
+    const currentMap = map.current;
     return () => {
-      markers.current.forEach((marker) => marker.remove());
-      markers.current.clear();
-      if (map.current) {
-        map.current.remove();
+      currentMarkers.forEach((marker) => marker.remove());
+      currentMarkers.clear();
+      if (currentMap) {
+        currentMap.remove();
         map.current = null;
       }
     };
@@ -137,7 +139,7 @@ export function WeatherMapView({
         onStationSelect(station.stationId);
       });
 
-      const humidity = station.atmospheric?.humidity ?? 0;
+      const humidity = (station.atmospheric?.humidity ?? 0) * 100;
       const wind = station.wind?.speed ?? 0;
       const pressure = station.atmospheric?.pressure ?? 0;
 

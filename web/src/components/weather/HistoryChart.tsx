@@ -1,6 +1,7 @@
 /**
  * History Chart Component
  * Displays historical weather trend over time from /history endpoint
+ * Supports time-based aggregation: 24h (hourly), 7d (6h intervals), 30d (daily)
  */
 
 import { useState, useMemo } from 'react';
@@ -23,12 +24,59 @@ import {
   Legend,
 } from 'recharts';
 import { useHistoryWeather } from '@/hooks/useWeatherQuery';
+import type { AggregationInterval } from '@/types/dto';
 
 interface HistoryChartProps {
   stationId?: string;
 }
 
 type TimeRange = '24h' | '7d' | '30d';
+
+// Common tooltip style matching AlertTrendChart
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: '#fff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+  },
+  labelStyle: { color: '#334155', fontWeight: 500 },
+};
+
+/**
+ * Get the appropriate aggregation interval based on time range
+ * - 24h: hourly data (~24 points)
+ * - 7d: 6-hour intervals (~28 points)
+ * - 30d: daily data (~30 points)
+ */
+function getIntervalForRange(range: TimeRange): AggregationInterval {
+  switch (range) {
+    case '24h':
+      return 'hourly';
+    case '7d':
+      return '6h';
+    case '30d':
+      return 'daily';
+    default:
+      return 'hourly';
+  }
+}
+
+/**
+ * Get appropriate limit based on time range
+ */
+function getLimitForRange(range: TimeRange): number {
+  switch (range) {
+    case '24h':
+      return 30; // ~24 hourly points + buffer
+    case '7d':
+      return 35; // ~28 six-hour points + buffer
+    case '30d':
+      return 35; // ~30 daily points + buffer
+    default:
+      return 50;
+  }
+}
 
 function getDateRange(range: TimeRange): { startDate: string; endDate: string } {
   const now = new Date();
@@ -55,18 +103,49 @@ function getDateRange(range: TimeRange): { startDate: string; endDate: string } 
   };
 }
 
+/**
+ * Format time label based on aggregation interval
+ */
 function formatTime(dateStr: string, range: TimeRange): string {
   const date = new Date(dateStr);
-  if (range === '24h') {
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+  switch (range) {
+    case '24h':
+      // Show hour only (e.g., "14:00")
+      return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    case '7d':
+      // Show day + hour (e.g., "25/11 06:00")
+      return `${date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+    case '30d':
+      // Show day/month only (e.g., "25/11")
+      return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    default:
+      return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
   }
-  return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+}
+
+/**
+ * Get interval description text
+ */
+function getIntervalDescription(range: TimeRange): string {
+  switch (range) {
+    case '24h':
+      return 'Dữ liệu theo giờ';
+    case '7d':
+      return 'Trung bình mỗi 6 giờ';
+    case '30d':
+      return 'Trung bình theo ngày';
+    default:
+      return '';
+  }
 }
 
 export function HistoryChart({ stationId }: HistoryChartProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
 
   const dateRange = useMemo(() => getDateRange(timeRange), [timeRange]);
+  const interval = useMemo(() => getIntervalForRange(timeRange), [timeRange]);
+  const limit = useMemo(() => getLimitForRange(timeRange), [timeRange]);
 
   const {
     data: historyData,
@@ -76,7 +155,8 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
     stationId,
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
-    limit: 100,
+    limit,
+    interval,
   });
 
   const chartData = useMemo(() => {
@@ -87,7 +167,9 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
       fullTime: item.dateObserved,
       temperature: item.temperature.current ?? 0,
       feelsLike: item.temperature.feelsLike ?? 0,
-      humidity: item.atmospheric.humidity ?? 0,
+      tempMin: item.temperature.min ?? null,
+      tempMax: item.temperature.max ?? null,
+      humidity: (item.atmospheric.humidity ?? 0) * 100,
       pressure: item.atmospheric.pressure ?? 0,
       windSpeed: item.wind.speed ?? 0,
       windGust: item.wind.gust ?? 0,
@@ -161,25 +243,47 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                       <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
+                    <linearGradient id="tempRangeGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05} />
+                    </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
                   <YAxis stroke="#64748b" fontSize={12} unit="°C" />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                    }}
+                    {...tooltipStyle}
                     formatter={(value: number, name: string) => {
                       const labels: Record<string, string> = {
                         temperature: 'Nhiệt độ',
                         feelsLike: 'Cảm giác như',
+                        tempMin: 'Thấp nhất',
+                        tempMax: 'Cao nhất',
                       };
-                      return [`${value}°C`, labels[name] || name];
+                      return [`${value.toFixed(1)}°C`, labels[name] || name];
                     }}
                   />
                   <Legend />
+                  <Area
+                    type="monotone"
+                    dataKey="tempMax"
+                    stroke="#ef4444"
+                    strokeWidth={1}
+                    fill="url(#tempRangeGradient)"
+                    name="tempMax"
+                    dot={false}
+                    connectNulls
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="tempMin"
+                    stroke="#3b82f6"
+                    strokeWidth={1}
+                    fill="#fff"
+                    name="tempMin"
+                    dot={false}
+                    connectNulls
+                  />
                   <Area
                     type="monotone"
                     dataKey="temperature"
@@ -191,11 +295,12 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                   <Line
                     type="monotone"
                     dataKey="feelsLike"
-                    stroke="#ef4444"
+                    stroke="#a855f7"
                     strokeWidth={2}
                     strokeDasharray="5 5"
                     name="feelsLike"
                     dot={false}
+                    connectNulls
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -208,12 +313,14 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
                   <YAxis stroke="#64748b" fontSize={12} unit="%" domain={[0, 100]} />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
+                    {...tooltipStyle}
+                    formatter={(value: number, name: string) => {
+                      const labels: Record<string, string> = {
+                        humidity: 'Độ ẩm',
+                        cloudiness: 'Mây',
+                      };
+                      return [`${value.toFixed(0)}%`, labels[name] || name];
                     }}
-                    formatter={(value: number) => [`${value}%`, 'Độ ẩm']}
                   />
                   <Legend />
                   <Line
@@ -221,7 +328,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                     dataKey="humidity"
                     stroke="#06b6d4"
                     strokeWidth={2}
-                    name="Độ ẩm (%)"
+                    name="humidity"
                     dot={{ r: 2 }}
                   />
                   <Line
@@ -229,7 +336,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                     dataKey="cloudiness"
                     stroke="#94a3b8"
                     strokeWidth={2}
-                    name="Mây (%)"
+                    name="cloudiness"
                     dot={{ r: 2 }}
                   />
                 </LineChart>
@@ -243,17 +350,13 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
                   <YAxis stroke="#64748b" fontSize={12} unit=" m/s" />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                    }}
+                    {...tooltipStyle}
                     formatter={(value: number, name: string) => {
                       const labels: Record<string, string> = {
                         windSpeed: 'Tốc độ gió',
                         windGust: 'Gió giật',
                       };
-                      return [`${value} m/s`, labels[name] || name];
+                      return [`${value.toFixed(1)} m/s`, labels[name] || name];
                     }}
                   />
                   <Legend />
@@ -285,12 +388,8 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
                   <YAxis stroke="#64748b" fontSize={12} unit=" mm" />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(value: number) => [`${value} mm`, 'Lượng mưa']}
+                    {...tooltipStyle}
+                    formatter={(value: number) => [`${value.toFixed(1)} mm`, 'Lượng mưa']}
                   />
                   <Bar
                     dataKey="precipitation"
@@ -305,8 +404,11 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
         )}
 
         {historyData?.meta && (
-          <div className="mt-4 text-sm text-slate-500 text-center">
-            Hiển thị {historyData.data.length} / {historyData.meta.total} điểm dữ liệu
+          <div className="mt-4 text-sm text-slate-500 text-center space-y-1">
+            <div>{getIntervalDescription(timeRange)}</div>
+            <div>
+              Hiển thị {historyData.data.length} / {historyData.meta.total} điểm dữ liệu
+            </div>
           </div>
         )}
       </CardContent>

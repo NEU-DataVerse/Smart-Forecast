@@ -8,13 +8,12 @@ import { Switch } from '@/components/ui/switch';
 import { useAlertThresholds, useToggleThreshold, useDeleteThreshold } from '@/hooks/useAlertQuery';
 import {
   AlertLevel,
-  AlertType,
-  AlertMetric,
   ThresholdOperator,
   AlertLevelLabels,
   AlertLevelColors,
   AlertMetricLabels,
   AlertMetricUnits,
+  AlertTypeLabels,
   type IAlertThreshold,
 } from '@smart-forecast/shared';
 import { ThresholdFormDialog } from './threshold-form-dialog';
@@ -29,14 +28,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-
-// Alert type labels in Vietnamese
-const AlertTypeLabels: Record<AlertType, string> = {
-  [AlertType.WEATHER]: 'Thời tiết',
-  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
-  [AlertType.DISASTER]: 'Thiên tai',
-  [AlertType.ENVIRONMENTAL]: 'Môi trường',
-};
 
 // Operator symbols
 const OperatorSymbols: Record<ThresholdOperator, string> = {

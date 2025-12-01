@@ -78,7 +78,7 @@ export class UserService {
       .andWhere('user.location IS NOT NULL')
       .andWhere(
         `ST_DWithin(
-          user.location::geography,
+          "user"."location"::geography,
           ST_GeomFromGeoJSON(:polygon)::geography,
           :buffer
         )`,

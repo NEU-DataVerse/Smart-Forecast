@@ -6,6 +6,7 @@ import { OrionClientProvider } from '../ingestion/providers/orion-client.provide
 import { StationService } from '../stations/station.service';
 import {
   AirQualityQueryDto,
+  AQAggregationInterval,
   AirQualityDataResponse,
   AirQualityListResponse,
   CurrentAirQualityResponse,
@@ -94,8 +95,25 @@ export class AirQualityService {
 
   /**
    * Get historical air quality data from PostgreSQL
+   * Supports time-based aggregation (hourly, 6h, daily)
    */
   async getHistoricalAirQuality(
+    query: AirQualityQueryDto,
+  ): Promise<AirQualityListResponse> {
+    const interval = query.interval || 'raw';
+
+    // Use aggregation for non-raw intervals
+    if (interval !== 'raw') {
+      return this.getHistoricalAirQualityAggregated(query, interval);
+    }
+
+    return this.getHistoricalAirQualityRaw(query);
+  }
+
+  /**
+   * Get raw historical air quality data (no aggregation)
+   */
+  private async getHistoricalAirQualityRaw(
     query: AirQualityQueryDto,
   ): Promise<AirQualityListResponse> {
     const page = query.page || 1;
@@ -121,7 +139,7 @@ export class AirQualityService {
 
     const [entities, total] = await this.airQualityRepo.findAndCount({
       where,
-      order: { dateObserved: 'DESC' },
+      order: { dateObserved: 'ASC' },
       skip,
       take: limit,
     });
@@ -135,6 +153,174 @@ export class AirQualityService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  /**
+   * Get aggregated historical air quality data
+   */
+  private async getHistoricalAirQualityAggregated(
+    query: AirQualityQueryDto,
+    interval: AQAggregationInterval,
+  ): Promise<AirQualityListResponse> {
+    const page = query.page || 1;
+    const limit = query.limit || 50;
+    const skip = (page - 1) * limit;
+
+    const periodExpr = this.getPeriodExpression(interval);
+
+    // Build aggregation query
+    const qb = this.airQualityRepo
+      .createQueryBuilder('aqi')
+      .select(periodExpr, 'period')
+      .addSelect('AVG(aqi.airQualityIndexUS)', 'avgAQI')
+      .addSelect('AVG(aqi.pm25)', 'avgPM25')
+      .addSelect('AVG(aqi.pm10)', 'avgPM10')
+      .addSelect('AVG(aqi.co)', 'avgCO')
+      .addSelect('AVG(aqi.no)', 'avgNO')
+      .addSelect('AVG(aqi.no2)', 'avgNO2')
+      .addSelect('AVG(aqi.so2)', 'avgSO2')
+      .addSelect('AVG(aqi.o3)', 'avgO3')
+      .addSelect('AVG(aqi.nh3)', 'avgNH3')
+      .addSelect('MIN(aqi.locationId)', 'locationId')
+      .addSelect('COUNT(*)', 'dataPointCount')
+      .groupBy('period')
+      .orderBy('period', 'ASC')
+      .offset(skip)
+      .limit(limit);
+
+    // Apply filters
+    if (query.stationId) {
+      qb.andWhere('aqi.locationId = :stationId', {
+        stationId: query.stationId,
+      });
+    }
+
+    if (query.startDate && query.endDate) {
+      qb.andWhere('aqi.dateObserved BETWEEN :startDate AND :endDate', {
+        startDate: new Date(query.startDate),
+        endDate: new Date(query.endDate),
+      });
+    } else if (query.startDate) {
+      qb.andWhere('aqi.dateObserved >= :startDate', {
+        startDate: new Date(query.startDate),
+      });
+    } else if (query.endDate) {
+      qb.andWhere('aqi.dateObserved <= :endDate', {
+        endDate: new Date(query.endDate),
+      });
+    }
+
+    // Get total count for pagination
+    const periodExprForCount = this.getPeriodExpression(interval);
+    const countQb = this.airQualityRepo
+      .createQueryBuilder('aqi')
+      .select(`COUNT(DISTINCT ${periodExprForCount})`, 'count');
+
+    if (query.stationId) {
+      countQb.andWhere('aqi.locationId = :stationId', {
+        stationId: query.stationId,
+      });
+    }
+
+    if (query.startDate && query.endDate) {
+      countQb.andWhere('aqi.dateObserved BETWEEN :startDate AND :endDate', {
+        startDate: new Date(query.startDate),
+        endDate: new Date(query.endDate),
+      });
+    }
+
+    const countResult = await countQb.getRawOne();
+    const total = parseInt(countResult?.count || '0');
+
+    const aggregatedData = await qb.getRawMany();
+
+    return {
+      data: aggregatedData.map((row) =>
+        this.transformAggregatedToResponse(row),
+      ),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Get SQL period expression based on aggregation interval
+   */
+  private getPeriodExpression(interval: AQAggregationInterval): string {
+    switch (interval) {
+      case 'hourly':
+        return `DATE_TRUNC('hour', aqi.dateObserved)`;
+      case '6h':
+        // Round to 6-hour periods: 00:00, 06:00, 12:00, 18:00
+        return `DATE_TRUNC('day', aqi.dateObserved) + INTERVAL '6 hours' * FLOOR(EXTRACT(HOUR FROM aqi.dateObserved) / 6)`;
+      case 'daily':
+        return `DATE_TRUNC('day', aqi.dateObserved)`;
+      default:
+        return `DATE_TRUNC('hour', aqi.dateObserved)`;
+    }
+  }
+
+  /**
+   * Transform aggregated row to response format
+   */
+  private transformAggregatedToResponse(row: {
+    period: Date;
+    avgAQI: string | null;
+    avgPM25: string | null;
+    avgPM10: string | null;
+    avgCO: string | null;
+    avgNO: string | null;
+    avgNO2: string | null;
+    avgSO2: string | null;
+    avgO3: string | null;
+    avgNH3: string | null;
+    locationId: string | null;
+    dataPointCount: string;
+  }): AirQualityDataResponse {
+    return {
+      id: `aggregated-${row.period.toISOString()}`,
+      stationId: row.locationId || 'unknown',
+      location: { lat: 0, lon: 0 },
+      dateObserved: row.period.toISOString(),
+      pollutants: {
+        co: row.avgCO ? parseFloat(row.avgCO) : undefined,
+        no: row.avgNO ? parseFloat(row.avgNO) : undefined,
+        no2: row.avgNO2 ? parseFloat(row.avgNO2) : undefined,
+        o3: row.avgO3 ? parseFloat(row.avgO3) : undefined,
+        so2: row.avgSO2 ? parseFloat(row.avgSO2) : undefined,
+        pm25: row.avgPM25 ? parseFloat(row.avgPM25) : undefined,
+        pm10: row.avgPM10 ? parseFloat(row.avgPM10) : undefined,
+        nh3: row.avgNH3 ? parseFloat(row.avgNH3) : undefined,
+      },
+      aqi: {
+        openWeather: {
+          index: 0,
+          level: 'Unknown',
+        },
+        epaUS: {
+          index: row.avgAQI ? Math.round(parseFloat(row.avgAQI)) : 0,
+          level: this.getAQILevel(
+            row.avgAQI ? Math.round(parseFloat(row.avgAQI)) : 0,
+          ),
+        },
+      },
+    };
+  }
+
+  /**
+   * Get AQI level description based on EPA US scale
+   */
+  private getAQILevel(aqi: number): string {
+    if (aqi <= 50) return 'Good';
+    if (aqi <= 100) return 'Moderate';
+    if (aqi <= 150) return 'Unhealthy for Sensitive Groups';
+    if (aqi <= 200) return 'Unhealthy';
+    if (aqi <= 300) return 'Very Unhealthy';
+    return 'Hazardous';
   }
 
   /**

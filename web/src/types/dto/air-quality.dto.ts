@@ -4,6 +4,15 @@
  */
 
 /**
+ * Aggregation interval for air quality history data
+ * - raw: Return raw data points (no aggregation)
+ * - hourly: Aggregate data per hour (for 24h range)
+ * - 6h: Aggregate data per 6-hour period (for 7d range)
+ * - daily: Aggregate data per day (for 30d range)
+ */
+export type AQAggregationInterval = 'raw' | 'hourly' | '6h' | 'daily';
+
+/**
  * Query parameters for air quality historical data
  * Matches backend AirQualityQueryDto
  */
@@ -13,6 +22,7 @@ export interface AirQualityHistoryParams {
   endDate?: string;
   page?: number;
   limit?: number;
+  interval?: AQAggregationInterval;
 }
 
 /**

@@ -73,19 +73,25 @@ export default function AirQualityPage() {
   const forecastChartData = useMemo(() => {
     if (!forecastData?.data) return [];
 
-    return forecastData.data.slice(0, 24).map((item) => {
-      const date = new Date(item.dateObserved);
-      return {
-        time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        aqi: item.aqi.epaUS.index,
-        pm25: item.pollutants.pm25 || 0,
-        pm10: item.pollutants.pm10 || 0,
-        co: item.pollutants.co || 0,
-        no2: item.pollutants.no2 || 0,
-        so2: item.pollutants.so2 || 0,
-        o3: item.pollutants.o3 || 0,
-      };
-    });
+    return forecastData.data
+      .filter((item) => item.validFrom || item.dateObserved) // Filter out items without valid date
+      .slice(0, 24)
+      .map((item) => {
+        // Use validFrom for forecast date (validFrom is the actual forecast time)
+        // dateObserved may be null for forecast data
+        const dateStr = item.validFrom || item.dateObserved;
+        const date = new Date(dateStr!);
+        return {
+          time: date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          aqi: item.aqi.epaUS.index,
+          pm25: item.pollutants.pm25 || 0,
+          pm10: item.pollutants.pm10 || 0,
+          co: item.pollutants.co || 0,
+          no2: item.pollutants.no2 || 0,
+          so2: item.pollutants.so2 || 0,
+          o3: item.pollutants.o3 || 0,
+        };
+      });
   }, [forecastData]);
 
   return (
@@ -93,12 +99,12 @@ export default function AirQualityPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900">Air Quality</h2>
-          <p className="text-slate-500">Real-time air quality monitoring and forecasts</p>
+          <h2 className="text-3xl font-bold text-slate-900">Chất lượng không khí</h2>
+          <p className="text-slate-500">Giám sát chất lượng không khí thời gian thực và dự báo</p>
         </div>
         <Button onClick={() => refetchCurrent()} variant="outline" size="sm">
           <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
+          Làm mới
         </Button>
       </div>
 
@@ -106,10 +112,10 @@ export default function AirQualityPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Map View - 2/3 width */}
         <div className="lg:col-span-2">
-          {currentLoading && <LoadingState message="Loading air quality data..." />}
+          {currentLoading && <LoadingState message="Đang tải dữ liệu chất lượng không khí..." />}
           {currentError && (
             <ErrorState
-              message="Failed to load air quality data"
+              message="Không thể tải dữ liệu chất lượng không khí"
               onRetry={() => refetchCurrent()}
             />
           )}
@@ -126,7 +132,7 @@ export default function AirQualityPage() {
         {/* Station Selector - 1/3 width */}
         <Card>
           <CardHeader>
-            <CardTitle>Select Station</CardTitle>
+            <CardTitle>Chọn trạm</CardTitle>
           </CardHeader>
           <CardContent>
             <StationSelector
@@ -135,9 +141,9 @@ export default function AirQualityPage() {
             />
             {selectedStation && currentStationData && (
               <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-                <p className="text-sm font-semibold text-slate-700">Current Selection:</p>
+                <p className="text-sm font-semibold text-slate-700">Lựa chọn hiện tại:</p>
                 <p className="text-xs text-slate-600 mt-1">
-                  {currentStationData.address || 'Unknown Location'}
+                  {currentStationData.address || 'Vị trí không xác định'}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <div
@@ -169,7 +175,7 @@ export default function AirQualityPage() {
             {!selectedStation && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-700">
-                  Click on a marker on the map or select from the dropdown
+                  Nhấp vào điểm đánh dấu trên bản đồ hoặc chọn từ danh sách
                 </p>
               </div>
             )}
@@ -206,9 +212,7 @@ export default function AirQualityPage() {
       {!selectedStation && !currentLoading && (
         <Card>
           <CardContent className="pt-6 text-center">
-            <p className="text-slate-500">
-              Select a station on the map to view detailed information
-            </p>
+            <p className="text-slate-500">Chọn một trạm trên bản đồ để xem thông tin chi tiết</p>
           </CardContent>
         </Card>
       )}
@@ -222,7 +226,7 @@ export default function AirQualityPage() {
         </TabsList>
 
         <TabsContent value="forecast">
-          {forecastLoading && <LoadingState message="Loading forecast..." />}
+          {forecastLoading && <LoadingState message="Đang tải dự báo..." />}
           {!forecastLoading && forecastChartData.length > 0 && (
             <ForecastCharts data={forecastChartData} />
           )}

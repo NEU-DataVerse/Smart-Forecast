@@ -25,14 +25,14 @@ export default function IngestionWidget() {
 
   if (loading && !health) {
     return (
-      <Card>
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Data Ingestion Service
+            Dịch vụ thu thập dữ liệu
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           <div className="animate-pulse space-y-3">
             <div className="h-4 bg-slate-200 rounded w-3/4"></div>
             <div className="h-4 bg-slate-200 rounded w-1/2"></div>
@@ -44,17 +44,17 @@ export default function IngestionWidget() {
 
   if (error) {
     return (
-      <Card>
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Data Ingestion Service
+            Dịch vụ thu thập dữ liệu
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           <div className="flex items-center gap-2 text-red-600">
             <AlertCircle className="h-4 w-4" />
-            <span className="text-sm">Failed to load ingestion status</span>
+            <span className="text-sm">Không thể tải trạng thái thu thập</span>
           </div>
         </CardContent>
       </Card>
@@ -64,21 +64,21 @@ export default function IngestionWidget() {
   const isHealthy = health?.status === 'healthy';
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-base flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Data Ingestion Service
+            Dịch vụ thu thập dữ liệu
           </div>
           {lastUpdate && (
             <span className="text-xs text-slate-500 font-normal">
-              Updated: {new Date(lastUpdate).toLocaleTimeString()}
+              Cập nhật: {new Date(lastUpdate).toLocaleTimeString()}
             </span>
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 flex flex-col justify-between space-y-4">
         {/* Health Status */}
         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
           <div className="flex items-center gap-2">
@@ -88,8 +88,8 @@ export default function IngestionWidget() {
               <AlertCircle className="h-5 w-5 text-orange-500" />
             )}
             <div>
-              <p className="text-sm font-medium">Service Status</p>
-              <p className="text-xs text-slate-500">{health?.status || 'Unknown'}</p>
+              <p className="text-sm font-medium">Trạng thái dịch vụ</p>
+              <p className="text-xs text-slate-500">{health?.status || 'Không xác định'}</p>
             </div>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function IngestionWidget() {
         {/* Stats */}
         {stats && (
           <div className="pt-2 border-t border-slate-200">
-            <p className="text-xs text-slate-500 mb-2">Monitoring Locations</p>
+            <p className="text-xs text-slate-500 mb-2">Địa điểm giám sát</p>
             <p className="text-2xl font-bold text-slate-900">{stats.locations}</p>
           </div>
         )}
@@ -132,13 +132,13 @@ export default function IngestionWidget() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm"
           >
             <RefreshCw className={`h-4 w-4 ${triggering ? 'animate-spin' : ''}`} />
-            {triggering ? 'Triggering...' : 'Trigger Ingestion'}
+            {triggering ? 'Đang thực hiện...' : 'Kích hoạt thu thập'}
           </button>
           <button
             onClick={refetch}
             className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm"
           >
-            Refresh
+            Làm mới
           </button>
         </div>
 

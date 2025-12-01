@@ -42,11 +42,11 @@ export function StationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editingStation ? 'Edit Station' : 'Add New Station'}</DialogTitle>
+          <DialogTitle>{editingStation ? 'Chỉnh sửa trạm' : 'Thêm trạm mới'}</DialogTitle>
           <DialogDescription>
             {editingStation
-              ? 'Update station details and location'
-              : 'Enter station details and select location on map'}
+              ? 'Cập nhật thông tin và vị trí trạm'
+              : 'Nhập thông tin trạm và chọn vị trí trên bản đồ'}
           </DialogDescription>
         </DialogHeader>
 
@@ -58,10 +58,10 @@ export function StationDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            Hủy
           </Button>
           <Button type="button" onClick={onSave} disabled={!formData.name || !formData.district}>
-            {editingStation ? 'Update Station' : 'Create Station'}
+            {editingStation ? 'Cập nhật trạm' : 'Tạo trạm'}
           </Button>
         </DialogFooter>
       </DialogContent>

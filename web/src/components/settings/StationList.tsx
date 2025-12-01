@@ -53,9 +53,9 @@ export function StationList({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Weather Monitoring Stations</CardTitle>
+            <CardTitle>Trạm quan trắc thời tiết</CardTitle>
             <CardDescription>
-              Manage weather data collection stations and their configurations
+              Quản lý các trạm thu thập dữ liệu thời tiết và cấu hình của chúng
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -68,7 +68,7 @@ export function StationList({
                   className="text-green-600"
                 >
                   <Activity className="h-4 w-4 mr-1" />
-                  Activate ({selectedStations.length})
+                  Kích hoạt ({selectedStations.length})
                 </Button>
                 <Button
                   variant="outline"
@@ -76,7 +76,7 @@ export function StationList({
                   onClick={onBatchDeactivate}
                   className="text-orange-600"
                 >
-                  Deactivate ({selectedStations.length})
+                  Vô hiệu ({selectedStations.length})
                 </Button>
                 <Button
                   variant="outline"
@@ -85,7 +85,7 @@ export function StationList({
                   className="text-yellow-600"
                 >
                   <Wrench className="h-4 w-4 mr-1" />
-                  Maintenance ({selectedStations.length})
+                  Bảo trì ({selectedStations.length})
                 </Button>
                 <Button
                   variant="outline"
@@ -94,13 +94,13 @@ export function StationList({
                   className="text-red-600"
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
-                  Delete ({selectedStations.length})
+                  Xóa ({selectedStations.length})
                 </Button>
               </>
             )}
             <Button onClick={onAdd}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Station
+              Thêm trạm
             </Button>
           </div>
         </div>
@@ -114,15 +114,15 @@ export function StationList({
               onCheckedChange={onToggleSelectAll}
             />
             <Label className="text-sm text-slate-600 cursor-pointer" onClick={onToggleSelectAll}>
-              Select All ({selectedStations.length} of {stations.length})
+              Chọn tất cả ({selectedStations.length} của {stations.length})
             </Label>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center py-8 text-slate-500">Loading stations...</div>
+          <div className="text-center py-8 text-slate-500">Đang tải danh sách trạm...</div>
         ) : stations.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">No stations found</div>
+          <div className="text-center py-8 text-slate-500">Không tìm thấy trạm nào</div>
         ) : (
           <div className="space-y-3">
             {stations.map((station) => (
@@ -142,11 +142,11 @@ export function StationList({
         {stations.length > 0 && (
           <div className="flex items-center justify-between pt-4 border-t border-slate-200">
             <div className="text-sm text-slate-600">
-              Page {currentPage} • Showing {stations.length} stations
+              Trang {currentPage} • Hiển thị {stations.length} trạm
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={onPrevPage} disabled={currentPage === 1}>
-                Previous
+                Trước
               </Button>
               <Button
                 variant="outline"
@@ -154,7 +154,7 @@ export function StationList({
                 onClick={onNextPage}
                 disabled={stations.length < itemsPerPage}
               >
-                Next
+                Sau
               </Button>
             </div>
           </div>

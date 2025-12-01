@@ -30,19 +30,12 @@ import {
   AlertLevelColors,
   AlertMetricLabels,
   AlertMetricUnits,
+  AlertTypeLabels,
   type IAlertThreshold,
   type ICreateAlertThresholdRequest,
   type IUpdateAlertThresholdRequest,
 } from '@smart-forecast/shared';
 import { Loader2, Save } from 'lucide-react';
-
-// Alert type labels in Vietnamese
-const AlertTypeLabels: Record<AlertType, string> = {
-  [AlertType.WEATHER]: 'Thời tiết',
-  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
-  [AlertType.DISASTER]: 'Thiên tai',
-  [AlertType.ENVIRONMENTAL]: 'Môi trường',
-};
 
 // Operator labels in Vietnamese
 const OperatorLabels: Record<ThresholdOperator, string> = {

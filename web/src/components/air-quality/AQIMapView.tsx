@@ -103,11 +103,13 @@ export function AQIMapView({
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
+    const currentMarkers = markers.current;
+    const currentMap = map.current;
     return () => {
-      markers.current.forEach((marker) => marker.remove());
-      markers.current.clear();
-      if (map.current) {
-        map.current.remove();
+      currentMarkers.forEach((marker) => marker.remove());
+      currentMarkers.clear();
+      if (currentMap) {
+        currentMap.remove();
         map.current = null;
       }
     };

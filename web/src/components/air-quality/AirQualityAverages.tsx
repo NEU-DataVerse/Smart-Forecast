@@ -25,23 +25,23 @@ export function AirQualityAverages({
     <AdminStatsPanel>
       <Card>
         <CardHeader>
-          <CardTitle>Air Quality Averages (Admin)</CardTitle>
-          <CardDescription>Statistical analysis for selected date range</CardDescription>
+          <CardTitle>Trung bình chất lượng không khí</CardTitle>
+          <CardDescription>Phân tích thống kê cho khoảng thời gian đã chọn</CardDescription>
         </CardHeader>
         <CardContent>
           <DateRangeFilter onDateRangeChange={onDateRangeChange} />
-          {isLoading && <LoadingState message="Loading averages..." />}
+          {isLoading && <LoadingState message="Đang tải giá trị trung bình..." />}
           {data && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-slate-500 text-sm">Avg AQI</p>
+                  <p className="text-slate-500 text-sm">AQI TB</p>
                   <p className="text-slate-900 text-2xl font-semibold">{data.avgAQI.toFixed(1)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-slate-500 text-sm">Avg PM2.5</p>
+                  <p className="text-slate-500 text-sm">PM2.5 TB</p>
                   <p className="text-slate-900 text-2xl font-semibold">
                     {data.avgPM25.toFixed(1)} μg/m³
                   </p>
@@ -49,7 +49,7 @@ export function AirQualityAverages({
               </Card>
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-slate-500 text-sm">Avg PM10</p>
+                  <p className="text-slate-500 text-sm">PM10 TB</p>
                   <p className="text-slate-900 text-2xl font-semibold">
                     {data.avgPM10.toFixed(1)} μg/m³
                   </p>
@@ -57,7 +57,7 @@ export function AirQualityAverages({
               </Card>
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-slate-500 text-sm">Data Points</p>
+                  <p className="text-slate-500 text-sm">Số điểm dữ liệu</p>
                   <p className="text-slate-900 text-2xl font-semibold">{data.dataPoints}</p>
                 </CardContent>
               </Card>

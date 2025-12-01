@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { AlertLevel, AlertType } from '@smart-forecast/shared';
 import { User } from '../../user/entities/user.entity';
+import { IncidentEntity } from '../../incident/entities/incident.entity';
 
 @Entity('alerts')
 export class AlertEntity {
@@ -66,6 +67,13 @@ export class AlertEntity {
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'createdBy' })
   creator: User | null;
+
+  @Column('uuid', { nullable: true })
+  incidentId: string | null;
+
+  @ManyToOne(() => IncidentEntity, { nullable: true })
+  @JoinColumn({ name: 'incidentId' })
+  incident: IncidentEntity | null;
 
   @CreateDateColumn()
   createdAt: Date;

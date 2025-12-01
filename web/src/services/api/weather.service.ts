@@ -4,7 +4,6 @@
 
 import { apiGet } from '@/lib/api-client';
 import type {
-  WeatherQueryParams,
   WeatherHistoryParams,
   CompareWeatherParams,
   CurrentWeatherResponse,

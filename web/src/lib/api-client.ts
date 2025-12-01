@@ -39,7 +39,7 @@ export async function apiPost<T>(
   data?: unknown,
   config?: AxiosRequestConfig,
   showSuccessToast = false,
-  successMessage = 'Operation completed successfully',
+  successMessage = 'Thao tác hoàn thành thành công',
 ): Promise<T> {
   try {
     const response = await ApiClient.post<T>(url, data, config);
@@ -64,7 +64,7 @@ export async function apiPut<T>(
   data?: unknown,
   config?: AxiosRequestConfig,
   showSuccessToast = true,
-  successMessage = 'Updated successfully',
+  successMessage = 'Cập nhật thành công',
 ): Promise<T> {
   try {
     const response = await ApiClient.put<T>(url, data, config);
@@ -88,7 +88,7 @@ export async function apiDelete<T>(
   url: string,
   config?: AxiosRequestConfig,
   showSuccessToast = true,
-  successMessage = 'Deleted successfully',
+  successMessage = 'Xóa thành công',
 ): Promise<T> {
   try {
     const response = await ApiClient.delete<T>(url, config);
@@ -113,7 +113,7 @@ export async function apiPatch<T>(
   data?: unknown,
   config?: AxiosRequestConfig,
   showSuccessToast = true,
-  successMessage = 'Updated successfully',
+  successMessage = 'Cập nhật thành công',
 ): Promise<T> {
   try {
     const response = await ApiClient.patch<T>(url, data, config);

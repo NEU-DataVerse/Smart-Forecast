@@ -72,7 +72,7 @@ export function CompareStations() {
         name: s.stationName || s.stationId,
         temperature: s.data?.temperature.current ?? 0,
         feelsLike: s.data?.temperature.feelsLike ?? 0,
-        humidity: s.data?.atmospheric.humidity ?? 0,
+        humidity: (s.data?.atmospheric.humidity ?? 0) * 100,
       }));
   }, [compareData]);
 
@@ -96,11 +96,11 @@ export function CompareStations() {
               value = (((station.data.temperature.current ?? 0) + 10) / 60) * 100;
               break;
             case 'humidity':
-              value = station.data.atmospheric.humidity ?? 0;
+              value = (station.data.atmospheric.humidity ?? 0) * 100;
               break;
             case 'wind':
-              // Normalize wind speed (assume 0-30 m/s range)
-              value = ((station.data.wind.speed ?? 0) / 30) * 100;
+              // Normalize wind speed (assume 0-10 m/s range)
+              value = ((station.data.wind.speed ?? 0) / 10) * 100;
               break;
             case 'clouds':
               value = station.data.cloudiness ?? 0;
@@ -320,7 +320,10 @@ export function CompareStations() {
                             )}
                           </td>
                           <td className="text-center py-2 px-3">
-                            {station.data?.atmospheric.humidity?.toFixed(0)}%
+                            {station.data
+                              ? ((station.data.atmospheric.humidity ?? 0) * 100).toFixed(0)
+                              : '-'}
+                            %
                           </td>
                           <td className="text-center py-2 px-3">
                             {station.data?.wind.speed?.toFixed(1)} m/s

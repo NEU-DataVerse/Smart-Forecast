@@ -15,6 +15,7 @@ import { FileModule } from './modules/file/file.module';
 import { IncidentModule } from './modules/incident/incident.module';
 import { AlertModule } from './modules/alert/alert.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import {
   appConfig,
   databaseConfig,
@@ -60,6 +61,7 @@ import {
     IncidentModule,
     AlertModule,
     ReportsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

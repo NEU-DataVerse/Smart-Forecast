@@ -48,7 +48,7 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
       const result = await authService.authenticate({ email, password });
 
       if (!result.success || !result.data) {
-        toast.error(result.error || 'Failed to login');
+        toast.error(result.error || 'Đăng nhập thất bại');
         setLoading(false);
         return;
       }
@@ -56,12 +56,12 @@ export const UserProvider: React.FC<IUserProviderProps> = ({ children }) => {
       // Fetch user profile after successful login
       await fetchUser();
 
-      toast.success('Login successful');
+      toast.success('Đăng nhập thành công');
 
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (error: unknown) {
-      toast.error('An unexpected error occurred');
+      toast.error('Đã xảy ra lỗi không mong đợi');
       console.error('Login error:', error);
       setLoading(false);
     }

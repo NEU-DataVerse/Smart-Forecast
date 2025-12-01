@@ -14,6 +14,7 @@ import {
   CompareWeatherResponse,
   DateRangeQueryDto,
   NearbyIncludeType,
+  AggregationInterval,
 } from './dto';
 
 // Constants
@@ -90,6 +91,7 @@ export class WeatherService {
 
   /**
    * Get historical weather data from PostgreSQL
+   * Supports time-based aggregation for different display intervals
    */
   async getHistoricalWeather(
     query: WeatherQueryDto,
@@ -97,7 +99,26 @@ export class WeatherService {
     const page = query.page || 1;
     const limit = query.limit || 50;
     const skip = (page - 1) * limit;
+    const interval = query.interval || 'raw';
 
+    // If interval is 'raw', use the original simple query
+    if (interval === 'raw') {
+      return this.getHistoricalWeatherRaw(query, page, limit, skip);
+    }
+
+    // Use aggregation query for other intervals
+    return this.getHistoricalWeatherAggregated(query, page, limit, interval);
+  }
+
+  /**
+   * Get raw historical weather data without aggregation
+   */
+  private async getHistoricalWeatherRaw(
+    query: WeatherQueryDto,
+    page: number,
+    limit: number,
+    skip: number,
+  ): Promise<WeatherListResponse> {
     const where: Record<string, unknown> = {};
 
     if (query.stationId) {
@@ -117,7 +138,7 @@ export class WeatherService {
 
     const [entities, total] = await this.weatherRepo.findAndCount({
       where,
-      order: { dateObserved: 'DESC' },
+      order: { dateObserved: 'ASC' },
       skip,
       take: limit,
     });
@@ -130,6 +151,183 @@ export class WeatherService {
         limit,
         totalPages: Math.ceil(total / limit),
       },
+    };
+  }
+
+  /**
+   * Get aggregated historical weather data using DATE_TRUNC
+   */
+  private async getHistoricalWeatherAggregated(
+    query: WeatherQueryDto,
+    page: number,
+    limit: number,
+    interval: AggregationInterval,
+  ): Promise<WeatherListResponse> {
+    const skip = (page - 1) * limit;
+
+    // Build period expression based on interval
+    const periodExpr = this.getPeriodExpression(interval);
+
+    // Build aggregation query
+    const qb = this.weatherRepo
+      .createQueryBuilder('weather')
+      .select(periodExpr, 'period')
+      .addSelect('AVG(weather.temperature)', 'avgTemperature')
+      .addSelect('MIN(weather.temperatureMin)', 'minTemperature')
+      .addSelect('MAX(weather.temperatureMax)', 'maxTemperature')
+      .addSelect('AVG(weather.feelsLikeTemperature)', 'avgFeelsLike')
+      .addSelect('AVG(weather.relativeHumidity)', 'avgHumidity')
+      .addSelect('AVG(weather.atmosphericPressure)', 'avgPressure')
+      .addSelect('AVG(weather.windSpeed)', 'avgWindSpeed')
+      .addSelect('MAX(weather.windGust)', 'maxWindGust')
+      .addSelect('SUM(weather.precipitation)', 'totalPrecipitation')
+      .addSelect('AVG(weather.cloudiness)', 'avgCloudiness')
+      .addSelect('AVG(weather.visibility)', 'avgVisibility')
+      .addSelect('MIN(weather.locationId)', 'locationId')
+      .addSelect('COUNT(*)', 'dataPointCount')
+      .groupBy('period')
+      .orderBy('period', 'ASC')
+      .offset(skip)
+      .limit(limit);
+
+    // Apply filters
+    if (query.stationId) {
+      qb.andWhere('weather.locationId = :stationId', {
+        stationId: query.stationId,
+      });
+    }
+
+    if (query.startDate && query.endDate) {
+      qb.andWhere('weather.dateObserved BETWEEN :startDate AND :endDate', {
+        startDate: new Date(query.startDate),
+        endDate: new Date(query.endDate),
+      });
+    } else if (query.startDate) {
+      qb.andWhere('weather.dateObserved >= :startDate', {
+        startDate: new Date(query.startDate),
+      });
+    } else if (query.endDate) {
+      qb.andWhere('weather.dateObserved <= :endDate', {
+        endDate: new Date(query.endDate),
+      });
+    }
+
+    // Get total count for pagination
+    const periodExprForCount = this.getPeriodExpression(interval);
+    const countQb = this.weatherRepo
+      .createQueryBuilder('weather')
+      .select(`COUNT(DISTINCT ${periodExprForCount})`, 'count');
+
+    if (query.stationId) {
+      countQb.andWhere('weather.locationId = :stationId', {
+        stationId: query.stationId,
+      });
+    }
+
+    if (query.startDate && query.endDate) {
+      countQb.andWhere('weather.dateObserved BETWEEN :startDate AND :endDate', {
+        startDate: new Date(query.startDate),
+        endDate: new Date(query.endDate),
+      });
+    } else if (query.startDate) {
+      countQb.andWhere('weather.dateObserved >= :startDate', {
+        startDate: new Date(query.startDate),
+      });
+    } else if (query.endDate) {
+      countQb.andWhere('weather.dateObserved <= :endDate', {
+        endDate: new Date(query.endDate),
+      });
+    }
+
+    const [aggregatedData, countResult] = await Promise.all([
+      qb.getRawMany(),
+      countQb.getRawOne(),
+    ]);
+
+    const total = parseInt(countResult?.count || '0');
+
+    // Transform aggregated data to response format
+    const data = aggregatedData.map((row) =>
+      this.transformAggregatedToResponse(row),
+    );
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Get PostgreSQL expression for period bucketing based on interval
+   * - hourly: DATE_TRUNC('hour', ...)
+   * - 6h: Uses epoch/interval math to bucket every 6 hours
+   * - daily: DATE_TRUNC('day', ...)
+   */
+  private getPeriodExpression(interval: AggregationInterval): string {
+    switch (interval) {
+      case 'hourly':
+        return `DATE_TRUNC('hour', weather.dateObserved)`;
+      case '6h':
+        // Bucket into 6-hour periods: 00:00-05:59, 06:00-11:59, 12:00-17:59, 18:00-23:59
+        return `DATE_TRUNC('day', weather.dateObserved) + INTERVAL '6 hours' * FLOOR(EXTRACT(HOUR FROM weather.dateObserved) / 6)`;
+      case 'daily':
+        return `DATE_TRUNC('day', weather.dateObserved)`;
+      default:
+        return `DATE_TRUNC('hour', weather.dateObserved)`;
+    }
+  }
+
+  /**
+   * Transform aggregated row to WeatherDataResponse
+   */
+  private transformAggregatedToResponse(row: {
+    period: Date;
+    avgTemperature: string | null;
+    minTemperature: string | null;
+    maxTemperature: string | null;
+    avgFeelsLike: string | null;
+    avgHumidity: string | null;
+    avgPressure: string | null;
+    avgWindSpeed: string | null;
+    maxWindGust: string | null;
+    totalPrecipitation: string | null;
+    avgCloudiness: string | null;
+    avgVisibility: string | null;
+    locationId: string | null;
+    dataPointCount: string;
+  }): WeatherDataResponse {
+    return {
+      id: `aggregated-${row.period.toISOString()}`,
+      stationId: row.locationId || 'unknown',
+      location: { lat: 0, lon: 0 },
+      dateObserved: row.period.toISOString(),
+      temperature: {
+        current: row.avgTemperature
+          ? parseFloat(row.avgTemperature)
+          : undefined,
+        feelsLike: row.avgFeelsLike ? parseFloat(row.avgFeelsLike) : undefined,
+        min: row.minTemperature ? parseFloat(row.minTemperature) : undefined,
+        max: row.maxTemperature ? parseFloat(row.maxTemperature) : undefined,
+      },
+      atmospheric: {
+        pressure: row.avgPressure ? parseFloat(row.avgPressure) : undefined,
+        humidity: row.avgHumidity ? parseFloat(row.avgHumidity) : undefined,
+      },
+      wind: {
+        speed: row.avgWindSpeed ? parseFloat(row.avgWindSpeed) : undefined,
+        gust: row.maxWindGust ? parseFloat(row.maxWindGust) : undefined,
+      },
+      precipitation: row.totalPrecipitation
+        ? parseFloat(row.totalPrecipitation)
+        : undefined,
+      visibility: row.avgVisibility ? parseFloat(row.avgVisibility) : undefined,
+      cloudiness: row.avgCloudiness ? parseFloat(row.avgCloudiness) : undefined,
+      weather: {},
     };
   }
 

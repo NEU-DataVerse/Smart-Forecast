@@ -41,53 +41,53 @@ export function StationForm({ formData, onChange, onMapLocationSelect }: Station
     <div className="space-y-4">
       {/* Basic Information */}
       <div className="space-y-2">
-        <Label>Station Name *</Label>
+        <Label>Tên trạm *</Label>
         <Input
           type="text"
           value={formData.name}
           onChange={(e) => updateField('name', e.target.value)}
-          placeholder="e.g., Hanoi Central Station"
+          placeholder="Ví dụ: Trạm quan trắc Hoàn Kiếm"
           className="mt-1"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>City</Label>
+          <Label>Thành phố</Label>
           <Input
             type="text"
             value={formData.city}
             onChange={(e) => updateField('city', e.target.value)}
-            placeholder="e.g., Hanoi"
+            placeholder="Ví dụ: Hà Nội"
             className="mt-1"
           />
         </div>
         <div className="space-y-2">
-          <Label>District *</Label>
+          <Label>Quận/Huyện *</Label>
           <Input
             type="text"
             value={formData.district}
             onChange={(e) => updateField('district', e.target.value)}
-            placeholder="e.g., Hoan Kiem"
+            placeholder="Ví dụ: Hoàn Kiếm"
             className="mt-1"
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Ward</Label>
+        <Label>Phường/Xã</Label>
         <Input
           type="text"
           value={formData.ward}
           onChange={(e) => updateField('ward', e.target.value)}
-          placeholder="e.g., Hang Bo"
+          placeholder="Ví dụ: Hàng Bạc"
           className="mt-1"
         />
       </div>
 
       {/* Map Location Picker */}
       <div className="space-y-2">
-        <Label>Location (Click map or drag marker)</Label>
+        <Label>Vị trí (Nhấp vào bản đồ hoặc kéo điểm đánh dấu)</Label>
         <MapPicker
           initialLat={formData.lat}
           initialLng={formData.lng}
@@ -95,14 +95,14 @@ export function StationForm({ formData, onChange, onMapLocationSelect }: Station
           height="300px"
         />
         <div className="grid grid-cols-2 gap-2 text-xs text-slate-500">
-          <div>Latitude: {formData.lat.toFixed(6)}</div>
-          <div>Longitude: {formData.lng.toFixed(6)}</div>
+          <div>Vĩ độ: {formData.lat.toFixed(6)}</div>
+          <div>Kinh độ: {formData.lng.toFixed(6)}</div>
         </div>
       </div>
 
       {/* Address Details */}
       <div className="space-y-2">
-        <Label>Street Address</Label>
+        <Label>Địa chỉ</Label>
         <Input
           type="text"
           value={formData.streetAddress}
@@ -114,22 +114,22 @@ export function StationForm({ formData, onChange, onMapLocationSelect }: Station
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Address Locality *</Label>
+          <Label>Địa phương *</Label>
           <Input
             type="text"
             value={formData.addressLocality}
             onChange={(e) => updateField('addressLocality', e.target.value)}
-            placeholder="e.g., Hoàn Kiếm"
+            placeholder="Ví dụ: Hoàn Kiếm"
             className="mt-1"
           />
         </div>
         <div className="space-y-2">
-          <Label>Address Region</Label>
+          <Label>Vùng miền</Label>
           <Input
             type="text"
             value={formData.addressRegion}
             onChange={(e) => updateField('addressRegion', e.target.value)}
-            placeholder="e.g., Hà Nội"
+            placeholder="Ví dụ: Hà Nội"
             className="mt-1"
           />
         </div>
@@ -137,7 +137,7 @@ export function StationForm({ formData, onChange, onMapLocationSelect }: Station
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Country Code</Label>
+          <Label>Mã quốc gia</Label>
           <Input
             type="text"
             value={formData.addressCountry}
@@ -147,7 +147,7 @@ export function StationForm({ formData, onChange, onMapLocationSelect }: Station
           />
         </div>
         <div className="space-y-2">
-          <Label>Postal Code</Label>
+          <Label>Mã bưu chính</Label>
           <Input
             type="text"
             value={formData.postalCode}
@@ -160,15 +160,15 @@ export function StationForm({ formData, onChange, onMapLocationSelect }: Station
 
       {/* Priority */}
       <div className="space-y-2">
-        <Label>Priority Level</Label>
+        <Label>Mức độ ưu tiên</Label>
         <select
           value={formData.priority}
           onChange={(e) => updateField('priority', e.target.value as StationPriority)}
           className="w-full px-3 py-2 border border-slate-200 rounded-md"
         >
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+          <option value="high">Cao</option>
+          <option value="medium">Trung bình</option>
+          <option value="low">Thấp</option>
         </select>
       </div>
     </div>

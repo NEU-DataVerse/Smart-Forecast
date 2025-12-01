@@ -5,18 +5,10 @@ import { Eye, MapPin, Clock, Users, Send, Timer } from 'lucide-react';
 import {
   IAlert,
   AlertLevel,
-  AlertType,
   AlertLevelLabels,
   AlertLevelColors,
+  AlertTypeLabels,
 } from '@smart-forecast/shared';
-
-// Alert type labels in Vietnamese
-const AlertTypeLabels: Record<AlertType, string> = {
-  [AlertType.WEATHER]: 'Thời tiết',
-  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
-  [AlertType.DISASTER]: 'Thiên tai',
-  [AlertType.ENVIRONMENTAL]: 'Môi trường',
-};
 
 interface AlertListItemProps {
   alert: IAlert;
@@ -96,9 +88,13 @@ export function AlertListItem({ alert, onView, onResend }: AlertListItemProps) {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <h3 className="text-lg font-semibold text-slate-900">{alert.title}</h3>
-              <Badge variant={active ? 'default' : 'secondary'}>
-                {active ? 'Đang hoạt động' : 'Đã hết hạn'}
-              </Badge>
+              {active ? (
+                <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+                  Đang hoạt động
+                </Badge>
+              ) : (
+                <Badge variant="destructive">Đã hết hạn</Badge>
+              )}
               <Badge style={getLevelBadgeStyle(alert.level)}>{AlertLevelLabels[alert.level]}</Badge>
               <Badge variant="outline">{AlertTypeLabels[alert.type]}</Badge>
               {alert.isAutomatic && (

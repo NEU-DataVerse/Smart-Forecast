@@ -5,6 +5,7 @@ import {
   IsObject,
   IsOptional,
   IsDateString,
+  IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AlertLevel, AlertType } from '@smart-forecast/shared';
@@ -67,4 +68,13 @@ export class CreateAlertDto {
   @IsDateString()
   @IsOptional()
   expiresAt?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'ID of related incident report (when creating alert from incident)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
+  @IsOptional()
+  incidentId?: string;
 }

@@ -5,31 +5,12 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Image as ImageIcon } from 'lucide-react';
-import { IIncident } from '@smart-forecast/shared';
-import { IncidentStatus, IncidentTypeLabels, IncidentStatusLabels } from '@smart-forecast/shared';
-import { formatDate, getLocationString, getReporterName } from './report-utils';
+import { IIncident, IncidentTypeLabels, IncidentStatusLabels } from '@smart-forecast/shared';
+import { formatDate, getLocationString, getReporterName, getStatusVariant } from './report-utils';
 
 interface ReportCardProps {
   report: IIncident;
   onClick: (report: IIncident) => void;
-}
-
-/**
- * Get status badge variant based on incident status
- */
-function getStatusVariant(
-  status: IncidentStatus,
-): 'default' | 'destructive' | 'secondary' | 'outline' {
-  switch (status) {
-    case IncidentStatus.VERIFIED:
-      return 'default';
-    case IncidentStatus.REJECTED:
-      return 'destructive';
-    case IncidentStatus.RESOLVED:
-      return 'outline';
-    default:
-      return 'secondary';
-  }
 }
 
 export function ReportCard({ report, onClick }: ReportCardProps) {

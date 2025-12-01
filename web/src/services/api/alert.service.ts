@@ -29,9 +29,22 @@ export interface AlertListResponse {
  * Alert statistics response
  */
 export interface AlertStatsResponse {
+  total: number;
   activeCount: number;
-  totalRecipients: number;
-  last24hCount: number;
+  byLevel: {
+    LOW: number;
+    MEDIUM: number;
+    HIGH: number;
+    CRITICAL: number;
+  };
+}
+
+/**
+ * Alert trend item (daily count)
+ */
+export interface AlertTrendItem {
+  date: string;
+  count: number;
 }
 
 export const alertService = {
@@ -49,6 +62,20 @@ export const alertService = {
    */
   async getActive(): Promise<IAlert[]> {
     return apiGet<IAlert[]>(`${BASE_PATH}/active`);
+  },
+
+  /**
+   * Get alert statistics
+   */
+  async getStats(): Promise<AlertStatsResponse> {
+    return apiGet<AlertStatsResponse>(`${BASE_PATH}/stats`);
+  },
+
+  /**
+   * Get alert trend data (daily count for last 30 days)
+   */
+  async getTrend(): Promise<AlertTrendItem[]> {
+    return apiGet<AlertTrendItem[]>(`${BASE_PATH}/stats/trend`);
   },
 
   /**

@@ -1,6 +1,7 @@
 /**
  * History Chart Component
  * Displays historical AQI trend over time from /history endpoint
+ * Supports time-based aggregation: 24h (hourly), 7d (6h intervals), 30d (daily)
  */
 
 import { useState, useMemo } from 'react';
@@ -19,14 +20,79 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  ReferenceLine,
 } from 'recharts';
 import { useHistoryAirQuality } from '@/hooks/useAirQualityQuery';
+import type { AQAggregationInterval } from '@/types/dto';
 
 interface HistoryChartProps {
   stationId?: string;
 }
 
 type TimeRange = '24h' | '7d' | '30d';
+
+// Common tooltip style
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: '#fff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+  },
+  labelStyle: { color: '#334155', fontWeight: 500 },
+};
+
+/**
+ * EPA AQI Breakpoints for reference lines
+ * Good: 0-50 (Green)
+ * Moderate: 51-100 (Yellow)
+ * Unhealthy for Sensitive: 101-150 (Orange)
+ * Unhealthy: 151-200 (Red)
+ * Very Unhealthy: 201-300 (Purple)
+ * Hazardous: 301+ (Maroon)
+ */
+const AQI_LEVELS = [
+  { value: 50, label: 'Tốt', color: '#22c55e' },
+  { value: 100, label: 'Trung bình', color: '#eab308' },
+  { value: 150, label: 'Không tốt cho nhóm nhạy cảm', color: '#f97316' },
+  { value: 200, label: 'Không lành mạnh', color: '#ef4444' },
+  { value: 300, label: 'Rất không lành mạnh', color: '#a855f7' },
+];
+
+/**
+ * Get the appropriate aggregation interval based on time range
+ * - 24h: hourly data (~24 points)
+ * - 7d: 6-hour intervals (~28 points)
+ * - 30d: daily data (~30 points)
+ */
+function getIntervalForRange(range: TimeRange): AQAggregationInterval {
+  switch (range) {
+    case '24h':
+      return 'hourly';
+    case '7d':
+      return '6h';
+    case '30d':
+      return 'daily';
+    default:
+      return 'hourly';
+  }
+}
+
+/**
+ * Get appropriate limit based on time range
+ */
+function getLimitForRange(range: TimeRange): number {
+  switch (range) {
+    case '24h':
+      return 30; // ~24 hourly points + buffer
+    case '7d':
+      return 35; // ~28 six-hour points + buffer
+    case '30d':
+      return 35; // ~30 daily points + buffer
+    default:
+      return 50;
+  }
+}
 
 function getDateRange(range: TimeRange): { startDate: string; endDate: string } {
   const now = new Date();
@@ -53,18 +119,49 @@ function getDateRange(range: TimeRange): { startDate: string; endDate: string } 
   };
 }
 
+/**
+ * Format time label based on aggregation interval
+ */
 function formatTime(dateStr: string, range: TimeRange): string {
   const date = new Date(dateStr);
-  if (range === '24h') {
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+  switch (range) {
+    case '24h':
+      // Show hour only (e.g., "14:00")
+      return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    case '7d':
+      // Show day + hour (e.g., "25/11 06:00")
+      return `${date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+    case '30d':
+      // Show day/month only (e.g., "25/11")
+      return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    default:
+      return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
   }
-  return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+}
+
+/**
+ * Get interval description text
+ */
+function getIntervalDescription(range: TimeRange): string {
+  switch (range) {
+    case '24h':
+      return 'Dữ liệu theo giờ';
+    case '7d':
+      return 'Trung bình mỗi 6 giờ';
+    case '30d':
+      return 'Trung bình theo ngày';
+    default:
+      return '';
+  }
 }
 
 export function HistoryChart({ stationId }: HistoryChartProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
 
   const dateRange = useMemo(() => getDateRange(timeRange), [timeRange]);
+  const interval = useMemo(() => getIntervalForRange(timeRange), [timeRange]);
+  const limit = useMemo(() => getLimitForRange(timeRange), [timeRange]);
 
   const {
     data: historyData,
@@ -74,7 +171,8 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
     stationId,
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
-    limit: 100,
+    limit,
+    interval,
   });
 
   const chartData = useMemo(() => {
@@ -144,12 +242,26 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
         ) : (
           <Tabs defaultValue="aqi" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="aqi">AQI Trend</TabsTrigger>
+              <TabsTrigger value="aqi">Xu hướng AQI</TabsTrigger>
               <TabsTrigger value="pm">PM2.5 & PM10</TabsTrigger>
               <TabsTrigger value="gases">Khí độc</TabsTrigger>
             </TabsList>
 
             <TabsContent value="aqi">
+              {/* AQI Legend */}
+              <div className="flex flex-wrap gap-3 mb-3 text-xs">
+                {AQI_LEVELS.map((level) => (
+                  <div key={level.value} className="flex items-center gap-1">
+                    <span
+                      className="w-3 h-0.5 inline-block"
+                      style={{ backgroundColor: level.color }}
+                    />
+                    <span className="text-slate-600">
+                      {level.value}: {level.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={chartData}>
                   <defs>
@@ -160,14 +272,23 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} domain={[0, 'auto']} />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                    }}
+                    {...tooltipStyle}
+                    formatter={(value: number) => [`${value}`, 'AQI (EPA US)']}
                   />
+                  {/* AQI Reference Lines */}
+                  {AQI_LEVELS.filter(
+                    (level) => level.value <= Math.max(...chartData.map((d) => d.aqi), 0) + 50,
+                  ).map((level) => (
+                    <ReferenceLine
+                      key={level.value}
+                      y={level.value}
+                      stroke={level.color}
+                      strokeDasharray="5 5"
+                      strokeWidth={1.5}
+                    />
+                  ))}
                   <Area
                     type="monotone"
                     dataKey="aqi"
@@ -185,21 +306,32 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} unit=" μg/m³" />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
+                    {...tooltipStyle}
+                    formatter={(value: number, name: string) => {
+                      const labels: Record<string, string> = {
+                        pm25: 'PM2.5',
+                        pm10: 'PM10',
+                      };
+                      return [`${value.toFixed(1)} μg/m³`, labels[name] || name];
                     }}
                   />
-                  <Legend />
+                  <Legend
+                    formatter={(value: string) => {
+                      const labels: Record<string, string> = {
+                        pm25: 'PM2.5',
+                        pm10: 'PM10',
+                      };
+                      return labels[value] || value;
+                    }}
+                  />
                   <Line
                     type="monotone"
                     dataKey="pm25"
                     stroke="#ef4444"
                     strokeWidth={2}
-                    name="PM2.5 (μg/m³)"
+                    name="pm25"
                     dot={{ r: 2 }}
                   />
                   <Line
@@ -207,7 +339,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                     dataKey="pm10"
                     stroke="#f97316"
                     strokeWidth={2}
-                    name="PM10 (μg/m³)"
+                    name="pm10"
                     dot={{ r: 2 }}
                   />
                 </LineChart>
@@ -219,21 +351,36 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} unit=" μg/m³" />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
+                    {...tooltipStyle}
+                    formatter={(value: number, name: string) => {
+                      const labels: Record<string, string> = {
+                        co: 'CO',
+                        no2: 'NO₂',
+                        so2: 'SO₂',
+                        o3: 'O₃',
+                      };
+                      return [`${value.toFixed(1)} μg/m³`, labels[name] || name];
                     }}
                   />
-                  <Legend />
+                  <Legend
+                    formatter={(value: string) => {
+                      const labels: Record<string, string> = {
+                        co: 'CO',
+                        no2: 'NO₂',
+                        so2: 'SO₂',
+                        o3: 'O₃',
+                      };
+                      return labels[value] || value;
+                    }}
+                  />
                   <Line
                     type="monotone"
                     dataKey="co"
                     stroke="#eab308"
                     strokeWidth={2}
-                    name="CO"
+                    name="co"
                     dot={{ r: 2 }}
                   />
                   <Line
@@ -241,7 +388,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                     dataKey="no2"
                     stroke="#06b6d4"
                     strokeWidth={2}
-                    name="NO₂"
+                    name="no2"
                     dot={{ r: 2 }}
                   />
                   <Line
@@ -249,7 +396,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                     dataKey="so2"
                     stroke="#8b5cf6"
                     strokeWidth={2}
-                    name="SO₂"
+                    name="so2"
                     dot={{ r: 2 }}
                   />
                   <Line
@@ -257,7 +404,7 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
                     dataKey="o3"
                     stroke="#3b82f6"
                     strokeWidth={2}
-                    name="O₃"
+                    name="o3"
                     dot={{ r: 2 }}
                   />
                 </LineChart>
@@ -267,8 +414,11 @@ export function HistoryChart({ stationId }: HistoryChartProps) {
         )}
 
         {historyData?.meta && (
-          <div className="mt-4 text-sm text-slate-500 text-center">
-            Hiển thị {historyData.data.length} / {historyData.meta.total} điểm dữ liệu
+          <div className="mt-4 text-sm text-slate-500 text-center space-y-1">
+            <div>{getIntervalDescription(timeRange)}</div>
+            <div>
+              Hiển thị {historyData.data.length} / {historyData.meta.total} điểm dữ liệu
+            </div>
           </div>
         )}
       </CardContent>

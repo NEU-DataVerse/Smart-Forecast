@@ -28,12 +28,12 @@ function getAQIBgColor(index: number): string {
 }
 
 function getHealthMessage(index: number): string {
-  if (index <= 50) return 'Air quality is satisfactory';
-  if (index <= 100) return 'Acceptable for most people';
-  if (index <= 150) return 'Sensitive groups may experience health effects';
-  if (index <= 200) return 'Everyone may experience health effects';
-  if (index <= 300) return 'Health warning: everyone may experience serious effects';
-  return 'Health alert: emergency conditions';
+  if (index <= 50) return 'Chất lượng không khí đạt yêu cầu';
+  if (index <= 100) return 'Chấp nhận được với hầu hết mọi người';
+  if (index <= 150) return 'Nhóm nhạy cảm có thể gặp vấn đề sức khỏe';
+  if (index <= 200) return 'Mọi người có thể gặp vấn đề sức khỏe';
+  if (index <= 300) return 'Cảnh báo sức khỏe: mọi người có thể gặp tác động nghiêm trọng';
+  return 'Báo động sức khỏe: tình trạng khẩn cấp';
 }
 
 export function AQICard({ index, level, location, timestamp, scale }: AQICardProps) {
@@ -61,8 +61,8 @@ export function AQICard({ index, level, location, timestamp, scale }: AQICardPro
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Air Quality Index (OpenWeather)</CardTitle>
-        <CardDescription>Scale 1-5</CardDescription>
+        <CardTitle>Chỉ số Chất lượng Không khí (OpenWeather)</CardTitle>
+        <CardDescription>Thang điểm 1-5</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center space-y-4">
@@ -70,7 +70,7 @@ export function AQICard({ index, level, location, timestamp, scale }: AQICardPro
           <div className="px-4 py-2 rounded-lg bg-blue-50">
             <p className="font-semibold text-blue-600">{level}</p>
           </div>
-          <p className="text-slate-500 text-sm">Updated: {timestamp}</p>
+          <p className="text-slate-500 text-sm">Cập nhật: {timestamp}</p>
           <div className="flex gap-1 w-full">
             {[1, 2, 3, 4, 5].map((lvl) => (
               <div

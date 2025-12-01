@@ -20,7 +20,7 @@ export function StationStatistics({ stats }: StationStatisticsProps) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-500 text-sm">Total Stations</p>
+              <p className="text-slate-500 text-sm">Tổng số trạm</p>
               <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
             </div>
             <Radio className="h-8 w-8 text-blue-500" />
@@ -31,7 +31,7 @@ export function StationStatistics({ stats }: StationStatisticsProps) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-500 text-sm">Active</p>
+              <p className="text-slate-500 text-sm">Hoạt động</p>
               <p className="text-2xl font-bold text-green-600">{stats.active}</p>
             </div>
             <Activity className="h-8 w-8 text-green-500" />
@@ -42,7 +42,7 @@ export function StationStatistics({ stats }: StationStatisticsProps) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-500 text-sm">Inactive</p>
+              <p className="text-slate-500 text-sm">Không hoạt động</p>
               <p className="text-2xl font-bold text-red-600">{stats.inactive}</p>
             </div>
             <Radio className="h-8 w-8 text-red-500" />
@@ -53,7 +53,7 @@ export function StationStatistics({ stats }: StationStatisticsProps) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-500 text-sm">Maintenance</p>
+              <p className="text-slate-500 text-sm">Bảo trì</p>
               <p className="text-2xl font-bold text-yellow-600">{stats.maintenance}</p>
             </div>
             <TrendingUp className="h-8 w-8 text-yellow-500" />

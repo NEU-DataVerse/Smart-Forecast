@@ -27,19 +27,12 @@ import {
   AlertType,
   AlertLevelLabels,
   AlertLevelColors,
+  AlertTypeLabels,
   type IAlert,
   type ICreateAlertRequest,
   type GeoPolygon,
 } from '@smart-forecast/shared';
 import { Send, Loader2, MapPin } from 'lucide-react';
-
-// Alert type labels in Vietnamese
-const AlertTypeLabels: Record<AlertType, string> = {
-  [AlertType.WEATHER]: 'Thời tiết',
-  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
-  [AlertType.DISASTER]: 'Thiên tai',
-  [AlertType.ENVIRONMENTAL]: 'Môi trường',
-};
 
 interface CreateAlertDialogProps {
   open: boolean;

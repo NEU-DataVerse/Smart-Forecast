@@ -157,7 +157,7 @@ function generateWeatherRecord(
     dateObserved,
     temperature,
     feelsLikeTemperature: temperature + randomInRange(-3, 3),
-    relativeHumidity: randomInRange(60, 95),
+    relativeHumidity: randomInRange(60, 95) / 100, // Convert to 0-1 scale to match NGSI-LD format
     atmosphericPressure: randomInRange(1008, 1020),
     windSpeed: randomInRange(0, 8),
     windDirection: randomInRange(0, 360),
