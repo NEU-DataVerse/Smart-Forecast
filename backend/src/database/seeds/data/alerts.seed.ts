@@ -39,30 +39,96 @@ function hoursFromNow(hours: number): Date {
   return date;
 }
 
-// Polygon covering Hanoi center area
+// Polygon covering Hanoi center area (Hoàn Kiếm, Ba Đình) - smaller area
 const HANOI_CENTER_POLYGON = {
   type: 'Polygon' as const,
   coordinates: [
     [
-      [105.78, 21.0],
-      [105.78, 21.06],
-      [105.88, 21.06],
-      [105.88, 21.0],
-      [105.78, 21.0],
+      [105.84, 21.025],
+      [105.84, 21.035],
+      [105.86, 21.035],
+      [105.86, 21.025],
+      [105.84, 21.025],
     ],
   ],
 };
 
-// Polygon covering Hanoi west area (Hà Đông, Cầu Giấy)
+// Polygon covering Hanoi west area (Cầu Giấy) - smaller, non-overlapping
 const HANOI_WEST_POLYGON = {
   type: 'Polygon' as const,
   coordinates: [
     [
-      [105.74, 20.94],
-      [105.74, 21.05],
-      [105.82, 21.05],
-      [105.82, 20.94],
-      [105.74, 20.94],
+      [105.78, 21.02],
+      [105.78, 21.035],
+      [105.82, 21.035],
+      [105.82, 21.02],
+      [105.78, 21.02],
+    ],
+  ],
+};
+
+// Hexagonal polygon - Thanh Xuân area
+const HANOI_THANH_XUAN_HEXAGON = {
+  type: 'Polygon' as const,
+  coordinates: [
+    [
+      [105.81, 20.99],
+      [105.795, 20.995],
+      [105.795, 21.005],
+      [105.81, 21.01],
+      [105.825, 21.005],
+      [105.825, 20.995],
+      [105.81, 20.99],
+    ],
+  ],
+};
+
+// Irregular polygon - Long Biên area (7 vertices)
+const HANOI_LONG_BIEN_POLYGON = {
+  type: 'Polygon' as const,
+  coordinates: [
+    [
+      [105.88, 21.04],
+      [105.875, 21.048],
+      [105.88, 21.055],
+      [105.895, 21.058],
+      [105.91, 21.052],
+      [105.905, 21.042],
+      [105.89, 21.038],
+      [105.88, 21.04],
+    ],
+  ],
+};
+
+// Pentagon polygon - Đống Đa area
+const HANOI_DONG_DA_PENTAGON = {
+  type: 'Polygon' as const,
+  coordinates: [
+    [
+      [105.825, 21.015],
+      [105.815, 21.022],
+      [105.82, 21.03],
+      [105.835, 21.03],
+      [105.84, 21.02],
+      [105.825, 21.015],
+    ],
+  ],
+};
+
+// Octagon polygon - Hai Bà Trưng area
+const HANOI_HAI_BA_TRUNG_OCTAGON = {
+  type: 'Polygon' as const,
+  coordinates: [
+    [
+      [105.86, 21.005],
+      [105.852, 21.008],
+      [105.848, 21.016],
+      [105.852, 21.024],
+      [105.86, 21.027],
+      [105.868, 21.024],
+      [105.872, 21.016],
+      [105.868, 21.008],
+      [105.86, 21.005],
     ],
   ],
 };
@@ -136,7 +202,7 @@ export const ALERT_SEED_DATA: AlertSeedData[] = [
       'Nồng độ PM2.5 tăng cao do đốt rơm rạ ở ngoại thành. AQI dự báo duy trì ở mức Không tốt cho nhóm nhạy cảm trong 24-48 giờ tới.',
     advice:
       'Đóng cửa sổ, sử dụng máy lọc không khí nếu có. Hạn chế ra ngoài vào sáng sớm và chiều tối.',
-    area: null,
+    area: HANOI_THANH_XUAN_HEXAGON,
     sentAt: daysAgo(3),
     expiresAt: daysAgo(1),
     sentCount: 12100,
@@ -154,7 +220,7 @@ export const ALERT_SEED_DATA: AlertSeedData[] = [
     message:
       'Chiều và tối nay có khả năng mưa rào và dông rải rác, cục bộ có mưa vừa. Đề phòng sét và gió giật mạnh trong cơn dông.',
     advice: 'Mang theo áo mưa khi ra ngoài, tránh trú dưới cây to khi có dông.',
-    area: null,
+    area: HANOI_LONG_BIEN_POLYGON,
     sentAt: hoursFromNow(-3),
     expiresAt: hoursFromNow(12),
     sentCount: 3580,
@@ -171,7 +237,7 @@ export const ALERT_SEED_DATA: AlertSeedData[] = [
       'Nhiệt độ đã đạt mức 38.5°C, vượt ngưỡng cho phép (37). Vui lòng thực hiện các biện pháp phòng ngừa cần thiết.',
     advice:
       'Hạn chế hoạt động ngoài trời từ 11h-15h, uống đủ nước, mặc quần áo thoáng mát.',
-    area: null,
+    area: HANOI_DONG_DA_PENTAGON,
     sentAt: daysAgo(5),
     expiresAt: daysAgo(2),
     sentCount: 9870,
@@ -194,7 +260,7 @@ export const ALERT_SEED_DATA: AlertSeedData[] = [
       'Do mưa lớn kéo dài, một số tuyến phố vùng trũng có thể xảy ra ngập úng. Theo dõi thông tin từ cơ quan chức năng.',
     advice:
       'Tránh các tuyến đường ngập, không lội qua vùng nước sâu. Cập nhật tình hình giao thông trước khi di chuyển.',
-    area: HANOI_CENTER_POLYGON,
+    area: HANOI_HAI_BA_TRUNG_OCTAGON,
     sentAt: hoursFromNow(-12),
     expiresAt: hoursFromNow(24),
     sentCount: 5620,
