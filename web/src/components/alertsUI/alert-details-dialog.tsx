@@ -12,7 +12,6 @@ import { MapPin, Users, Send, Clock, Timer, Zap, Map } from 'lucide-react';
 import {
   IAlert,
   AlertLevel,
-  AlertType,
   AlertLevelLabels,
   AlertLevelColors,
   AlertTypeLabels,

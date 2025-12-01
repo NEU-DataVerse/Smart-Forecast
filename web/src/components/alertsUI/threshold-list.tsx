@@ -8,7 +8,6 @@ import { Switch } from '@/components/ui/switch';
 import { useAlertThresholds, useToggleThreshold, useDeleteThreshold } from '@/hooks/useAlertQuery';
 import {
   AlertLevel,
-  AlertType,
   ThresholdOperator,
   AlertLevelLabels,
   AlertLevelColors,

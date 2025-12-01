@@ -5,7 +5,6 @@ import { Eye, MapPin, Clock, Users, Send, Timer } from 'lucide-react';
 import {
   IAlert,
   AlertLevel,
-  AlertType,
   AlertLevelLabels,
   AlertLevelColors,
   AlertTypeLabels,

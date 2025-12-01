@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
+import Image from 'next/image';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Supercluster from 'supercluster';
 import {
   IIncident,
   IncidentStatus,
-  IncidentType,
   IncidentTypeLabels,
   IncidentStatusLabels,
 } from '@smart-forecast/shared';
@@ -29,16 +29,6 @@ interface IncidentsMapViewProps {
   onSelectIncident: (incident: IIncident) => void;
   isLoading?: boolean;
 }
-
-// Colors for different incident types
-const INCIDENT_TYPE_COLORS: Record<IncidentType, string> = {
-  [IncidentType.FLOODING]: '#3b82f6', // blue
-  [IncidentType.FALLEN_TREE]: '#22c55e', // green
-  [IncidentType.LANDSLIDE]: '#a855f7', // purple
-  [IncidentType.AIR_POLLUTION]: '#6b7280', // gray
-  [IncidentType.ROAD_DAMAGE]: '#f59e0b', // amber
-  [IncidentType.OTHER]: '#64748b', // slate
-};
 
 // Colors for different statuses
 const STATUS_COLORS: Record<IncidentStatus, string> = {
@@ -322,11 +312,15 @@ export function IncidentsMapView({
                   {/* Image */}
                   {selectedIncident.imageUrls && selectedIncident.imageUrls.length > 0 && (
                     <div className="rounded-lg overflow-hidden border">
-                      <img
-                        src={selectedIncident.imageUrls[0]}
-                        alt="Hình ảnh sự cố"
-                        className="w-full h-48 object-cover"
-                      />
+                      <div className="relative w-full h-48">
+                        <Image
+                          src={selectedIncident.imageUrls[0]}
+                          alt="Hình ảnh sự cố"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
                       {selectedIncident.imageUrls.length > 1 && (
                         <div className="p-2 bg-slate-50 dark:bg-slate-800 text-xs text-center text-slate-500">
                           +{selectedIncident.imageUrls.length - 1} ảnh khác

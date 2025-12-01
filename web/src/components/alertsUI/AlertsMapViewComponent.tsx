@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Polygon, Popup, useMap } from 'react-leaflet';
 import type { IAlert, AlertLevel } from '@smart-forecast/shared';

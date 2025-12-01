@@ -16,13 +16,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  IAlert,
-  AlertLevel,
-  AlertType,
-  AlertLevelLabels,
-  AlertTypeLabels,
-} from '@smart-forecast/shared';
+import { IAlert, AlertLevel, AlertType, AlertTypeLabels } from '@smart-forecast/shared';
 import { AlertListItem } from './alert-list-item';
 import { ChevronLeft, ChevronRight, Filter, X, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
