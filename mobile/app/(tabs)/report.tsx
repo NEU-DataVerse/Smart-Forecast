@@ -34,7 +34,7 @@ export default function ReportScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const pickImage = async () => {
+  const _pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập thư viện ảnh');
