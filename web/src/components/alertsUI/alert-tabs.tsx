@@ -47,6 +47,9 @@ interface AlertTabsProps {
   startDate?: string;
   endDate?: string;
   onDateRangeChange?: (startDate?: string, endDate?: string) => void;
+  // Filter by status (active/expired)
+  statusFilter?: 'active' | 'expired';
+  onStatusFilterChange?: (status?: 'active' | 'expired') => void;
   // Level counts (from stats API)
   levelCounts?: { LOW: number; MEDIUM: number; HIGH: number; CRITICAL: number; all: number };
 }
@@ -89,11 +92,13 @@ export function AlertTabs({
   startDate,
   endDate,
   onDateRangeChange,
+  statusFilter,
+  onStatusFilterChange,
   levelCounts,
 }: AlertTabsProps) {
   const totalPages = Math.ceil(total / limit);
   const currentTab = levelFilter ?? 'all';
-  const hasFilters = typeFilter || startDate || endDate;
+  const hasFilters = typeFilter || startDate || endDate || statusFilter;
 
   // Local state for date pickers (only apply filter when both dates are selected)
   const [localStartDate, setLocalStartDate] = useState<Date | undefined>(
@@ -119,6 +124,7 @@ export function AlertTabs({
   const handleClearFilters = () => {
     onTypeFilterChange?.(undefined);
     onDateRangeChange?.(undefined, undefined);
+    onStatusFilterChange?.(undefined);
     setLocalStartDate(undefined);
     setLocalEndDate(undefined);
     onPageChange(1);
@@ -172,6 +178,27 @@ export function AlertTabs({
                   {label}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status Filter */}
+        <div className="space-y-1">
+          <Label className="text-xs text-slate-500 dark:text-slate-400">Trạng thái</Label>
+          <Select
+            value={statusFilter ?? 'all'}
+            onValueChange={(value) => {
+              onStatusFilterChange?.(value === 'all' ? undefined : (value as 'active' | 'expired'));
+              onPageChange(1);
+            }}
+          >
+            <SelectTrigger className="w-[150px] h-9">
+              <SelectValue placeholder="Tất cả" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="active">Đang hoạt động</SelectItem>
+              <SelectItem value="expired">Đã hết hạn</SelectItem>
             </SelectContent>
           </Select>
         </div>

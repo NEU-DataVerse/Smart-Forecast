@@ -30,6 +30,7 @@ export default function AlertsPage() {
   // Filter states
   const [levelFilter, setLevelFilter] = useState<AlertLevel | undefined>(undefined);
   const [typeFilter, setTypeFilter] = useState<AlertType | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<'active' | 'expired' | undefined>(undefined);
   const [startDate, setStartDate] = useState<string | undefined>(undefined);
   const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
@@ -41,10 +42,11 @@ export default function AlertsPage() {
       limit: PAGE_SIZE,
       ...(levelFilter && { level: levelFilter }),
       ...(typeFilter && { type: typeFilter }),
+      ...(statusFilter && { status: statusFilter }),
       ...(startDate && { startDate }),
       ...(endDate && { endDate }),
     }),
-    [page, levelFilter, typeFilter, startDate, endDate],
+    [page, levelFilter, typeFilter, statusFilter, startDate, endDate],
   );
 
   // Build query params for map view (more data)
@@ -54,10 +56,11 @@ export default function AlertsPage() {
       limit: MAP_PAGE_SIZE,
       ...(levelFilter && { level: levelFilter }),
       ...(typeFilter && { type: typeFilter }),
+      ...(statusFilter && { status: statusFilter }),
       ...(startDate && { startDate }),
       ...(endDate && { endDate }),
     }),
-    [levelFilter, typeFilter, startDate, endDate],
+    [levelFilter, typeFilter, statusFilter, startDate, endDate],
   );
 
   // Fetch alerts
@@ -111,6 +114,11 @@ export default function AlertsPage() {
 
   const handleTypeFilterChange = (type?: AlertType) => {
     setTypeFilter(type);
+    setPage(1);
+  };
+
+  const handleStatusFilterChange = (status?: 'active' | 'expired') => {
+    setStatusFilter(status);
     setPage(1);
   };
 
@@ -174,6 +182,8 @@ export default function AlertsPage() {
             onLevelFilterChange={handleLevelFilterChange}
             typeFilter={typeFilter}
             onTypeFilterChange={handleTypeFilterChange}
+            statusFilter={statusFilter}
+            onStatusFilterChange={handleStatusFilterChange}
             startDate={startDate}
             endDate={endDate}
             onDateRangeChange={handleDateRangeChange}
