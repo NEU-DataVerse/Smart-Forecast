@@ -45,7 +45,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.WRITE_EXTERNAL_STORAGE',
       'android.permission.RECORD_AUDIO',
     ],
-    googleServicesFile: "./google-services.json"
+    googleServicesFile: './google-services.json',
   },
   web: {
     favicon: './assets/images/favicon.png',
@@ -69,13 +69,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         photosPermission: 'The app accesses your photos to let you share them with your friends.',
       },
     ],
-    [
-      '@maplibre/maplibre-react-native',
-      {
-        StyleURL:
-          'https://tiles.goong.io/assets/goong_map_web.json?api_key=b7nUCVjr5WoudnWAr3mTdAtT28783RTQR4BBMkHP',
-      },
-    ],
   ],
   experiments: {
     typedRoutes: true,
@@ -83,8 +76,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     router: {},
     eas: {
-      projectId: '7e290901-7899-4000-a515-e66eb9e89949',
+      projectId: '5d231caf-e8ca-4ed0-9407-f7484b998f80',
     },
   },
-  owner: 'nguyenthanhdathh',
+  env: {
+    EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    EXPO_PUBLIC_BACKEND_API_URL: process.env.EXPO_PUBLIC_BACKEND_API_URL,
+    EXPO_PUBLIC_OPENWEATHER_API_KEY: process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY,
+  },
+  owner: 'nguyenthanhdatvn2005',
 });
