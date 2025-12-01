@@ -59,6 +59,16 @@ export const AlertLevelLabels: Record<AlertLevel, string> = {
 };
 
 /**
+ * Human-readable labels for alert types
+ */
+export const AlertTypeLabels: Record<AlertType, string> = {
+  [AlertType.WEATHER]: 'Thời tiết',
+  [AlertType.AIR_QUALITY]: 'Chất lượng không khí',
+  [AlertType.DISASTER]: 'Thiên tai',
+  [AlertType.ENVIRONMENTAL]: 'Môi trường',
+};
+
+/**
  * Colors for alert levels (for UI)
  */
 export const AlertLevelColors: Record<AlertLevel, string> = {

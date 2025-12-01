@@ -19,6 +19,7 @@ export interface IAlert {
   sourceData?: Record<string, unknown>; // Raw data that triggered alert
   stationId?: string; // Related station
   createdBy?: string; // Admin user id (null for auto alerts)
+  incidentId?: string; // Related incident (when alert created from incident report)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +35,7 @@ export interface ICreateAlertRequest {
   advice?: string;
   area?: GeoPolygon;
   expiresAt?: Date;
+  incidentId?: string; // Link alert to incident report
 }
 
 /**
