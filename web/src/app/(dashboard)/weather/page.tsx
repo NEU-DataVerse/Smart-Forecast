@@ -78,7 +78,7 @@ export default function WeatherPage() {
     return {
       temperature: currentStationData.temperature.current || 0,
       feelsLike: currentStationData.temperature.feelsLike || 0,
-      humidity: currentStationData.atmospheric?.humidity || 0,
+      humidity: (currentStationData.atmospheric?.humidity || 0) * 100,
       pressure: currentStationData.atmospheric?.pressure || 0,
       windSpeed: currentStationData.wind?.speed || 0,
       windDirection: currentStationData.wind?.direction || 0,
@@ -94,12 +94,20 @@ export default function WeatherPage() {
   const forecastChartData = useMemo(() => {
     if (!forecastData?.data) return [];
 
-    return forecastData.data.slice(0, 24).map((item) => {
-      const date = new Date(item.dateObserved);
+    return forecastData.data.slice(0, 7).map((item, index) => {
+      // Use validFrom for forecast date (not dateObserved which is ingestion time)
+      const date = new Date(item.validFrom);
       return {
-        time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        id: index,
+        time: date.toLocaleDateString('vi-VN', {
+          weekday: 'short',
+          day: '2-digit',
+          month: '2-digit',
+        }),
         temperature: item.temperature?.current || 0,
-        humidity: item.atmospheric?.humidity || 0,
+        tempMin: item.temperature?.min,
+        tempMax: item.temperature?.max,
+        humidity: (item.atmospheric?.humidity || 0) * 100,
         pressure: item.atmospheric?.pressure || 0,
         windSpeed: item.wind?.speed || 0,
         rainfall: item.precipitation || 0,
@@ -179,7 +187,7 @@ export default function WeatherPage() {
                 <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-slate-600">
                   <div>
                     <span className="text-slate-400">Độ ẩm:</span>{' '}
-                    {currentStationData.atmospheric?.humidity?.toFixed(0)}%
+                    {((currentStationData.atmospheric?.humidity || 0) * 100).toFixed(0)}%
                   </div>
                   <div>
                     <span className="text-slate-400">Gió:</span>{' '}
@@ -261,7 +269,7 @@ export default function WeatherPage() {
       {/* Tabs for Forecast, History, Compare */}
       <Tabs defaultValue="forecast" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="forecast">Dự báo 24h</TabsTrigger>
+          <TabsTrigger value="forecast">Dự báo 7 ngày</TabsTrigger>
           <TabsTrigger value="history">Lịch sử</TabsTrigger>
           <TabsTrigger value="compare">So sánh trạm</TabsTrigger>
         </TabsList>

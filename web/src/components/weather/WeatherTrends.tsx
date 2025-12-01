@@ -13,11 +13,20 @@ interface WeatherTrendsProps {
 }
 
 export function WeatherTrends({ data, isLoading, onDateRangeChange }: WeatherTrendsProps) {
+  // Helper to format humidity - handle both 0-1 scale and already % values
+  const formatHumidity = (value: number): string => {
+    // If value > 1, it's already in % format, don't multiply by 100
+    if (value > 1) {
+      return value.toFixed(1);
+    }
+    return (value * 100).toFixed(1);
+  };
+
   return (
     <AdminStatsPanel>
       <Card>
         <CardHeader>
-          <CardTitle>Xu hướng thời tiết (Quản trị)</CardTitle>
+          <CardTitle>Xu hướng thời tiết</CardTitle>
           <CardDescription>Phân tích thống kê cho khoảng thời gian đã chọn</CardDescription>
         </CardHeader>
         <CardContent>
@@ -45,7 +54,7 @@ export function WeatherTrends({ data, isLoading, onDateRangeChange }: WeatherTre
                 <CardContent className="pt-6 text-center">
                   <p className="text-slate-500 text-sm">Độ ẩm TB</p>
                   <p className="text-slate-900 text-2xl font-semibold">
-                    {data.avgHumidity.toFixed(1)}%
+                    {formatHumidity(data.avgHumidity)}%
                   </p>
                 </CardContent>
               </Card>

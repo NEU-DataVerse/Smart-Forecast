@@ -4,6 +4,15 @@
  */
 
 /**
+ * Supported aggregation intervals for historical data
+ * - raw: No aggregation, return raw data points
+ * - hourly: Aggregate by hour
+ * - 6h: Aggregate by 6-hour periods
+ * - daily: Aggregate by day
+ */
+export type AggregationInterval = 'raw' | 'hourly' | '6h' | 'daily';
+
+/**
  * Query parameters for weather data
  */
 export interface WeatherQueryParams {
@@ -12,6 +21,7 @@ export interface WeatherQueryParams {
   endDate?: string;
   page?: number;
   limit?: number;
+  interval?: AggregationInterval;
 }
 
 /**
@@ -23,6 +33,7 @@ export interface WeatherHistoryParams {
   endDate?: string;
   page?: number;
   limit?: number;
+  interval?: AggregationInterval;
 }
 
 /**

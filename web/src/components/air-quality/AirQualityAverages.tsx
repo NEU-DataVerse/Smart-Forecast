@@ -25,7 +25,7 @@ export function AirQualityAverages({
     <AdminStatsPanel>
       <Card>
         <CardHeader>
-          <CardTitle>Trung bình chất lượng không khí (Quản trị)</CardTitle>
+          <CardTitle>Trung bình chất lượng không khí</CardTitle>
           <CardDescription>Phân tích thống kê cho khoảng thời gian đã chọn</CardDescription>
         </CardHeader>
         <CardContent>

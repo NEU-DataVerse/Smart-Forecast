@@ -139,7 +139,7 @@ export function WeatherMapView({
         onStationSelect(station.stationId);
       });
 
-      const humidity = station.atmospheric?.humidity ?? 0;
+      const humidity = (station.atmospheric?.humidity ?? 0) * 100;
       const wind = station.wind?.speed ?? 0;
       const pressure = station.atmospheric?.pressure ?? 0;
 
