@@ -217,8 +217,17 @@ export class AlertService {
     page: number;
     limit: number;
   }> {
-    const { page = 1, limit = 10, level, type, startDate, endDate } = query;
+    const {
+      page = 1,
+      limit = 10,
+      level,
+      type,
+      status,
+      startDate,
+      endDate,
+    } = query;
     const skip = (page - 1) * limit;
+    const now = new Date();
 
     const queryBuilder = this.alertRepository
       .createQueryBuilder('alert')
@@ -231,6 +240,19 @@ export class AlertService {
 
     if (type) {
       queryBuilder.andWhere('alert.type = :type', { type });
+    }
+
+    // Filter by status (active/expired)
+    if (status === 'active') {
+      queryBuilder.andWhere(
+        '(alert.expiresAt IS NULL OR alert.expiresAt > :now)',
+        { now },
+      );
+    } else if (status === 'expired') {
+      queryBuilder.andWhere(
+        'alert.expiresAt IS NOT NULL AND alert.expiresAt <= :now',
+        { now },
+      );
     }
 
     if (startDate && endDate) {

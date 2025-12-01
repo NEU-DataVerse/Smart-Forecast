@@ -1,4 +1,11 @@
-import { IsEnum, IsOptional, IsInt, Min, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsInt,
+  Min,
+  IsDateString,
+  IsIn,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AlertLevel, AlertType } from '@smart-forecast/shared';
@@ -27,6 +34,14 @@ export class AlertQueryDto {
   @IsEnum(AlertType)
   @IsOptional()
   type?: AlertType;
+
+  @ApiPropertyOptional({
+    enum: ['active', 'expired'],
+    description: 'Filter by alert status: active (not expired) or expired',
+  })
+  @IsIn(['active', 'expired'])
+  @IsOptional()
+  status?: 'active' | 'expired';
 
   @ApiPropertyOptional({ example: '2024-01-01T00:00:00Z' })
   @IsDateString()
