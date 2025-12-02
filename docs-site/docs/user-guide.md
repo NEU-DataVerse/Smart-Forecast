@@ -3,6 +3,8 @@ sidebar_position: 8
 title: Hướng dẫn sử dụng
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Hướng dẫn sử dụng
 
 Hướng dẫn sử dụng các ứng dụng của Smart Forecast.
@@ -21,25 +23,25 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 
 ### Dashboard chính
 
-<div className="screenshot-container">
-  <img src="/img/dashboard-web.png" alt="Dashboard chính" className="screenshot" />
-  <p className="screenshot-caption">Trang Dashboard tổng quan</p>
-</div>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/dashboard-web.png')} alt="Dashboard" className="screenshot" />
+  <figcaption className="screenshot-caption">Trang Dashboard tổng quan - Hiển thị thông tin tổng hợp về trạm, cảnh báo, sự cố và chỉ số AQI</figcaption>
+</figure>
 
 ### Chức năng chính
 
 #### 1. Quản lý cảnh báo (Alerts)
-
-<div className="screenshot-container">
-  <img src="/img/alert-web.png" alt="Danh sách cảnh báo" className="screenshot" />
-  <p className="screenshot-caption">Danh sách cảnh báo</p>
-</div>
 
 **Xem danh sách cảnh báo:**
 
 - Menu → **Alerts**
 - Lọc theo: Status, Severity, Type
 - Sắp xếp theo: Ngày tạo, Mức độ
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/alert-web.png')} alt="Alert List" className="screenshot" />
+  <figcaption className="screenshot-caption">Danh sách cảnh báo với các bộ lọc và tùy chọn sắp xếp</figcaption>
+</figure>
 
 **Tạo cảnh báo mới:**
 
@@ -53,32 +55,38 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
    - Thời gian hiệu lực
 3. Nhấn **Gửi cảnh báo**
 
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/detail-alert-web.png')} alt="Alert Detail" className="screenshot" />
+  <figcaption className="screenshot-caption">Chi tiết cảnh báo - Xem và chỉnh sửa thông tin cảnh báo</figcaption>
+</figure>
+
 **Cập nhật trạng thái:**
 
 - Active → Resolved
 - Active → Expired
 
-<div className="screenshot-container">
-  <img src="/img/detail-alert-web.png" alt="Chi tiết cảnh báo" className="screenshot" />
-  <p className="screenshot-caption">Chi tiết cảnh báo</p>
-</div>
-
-<div className="screenshot-container">
-  <img src="/img/map-alert-web.png" alt="Bản đồ cảnh báo" className="screenshot" />
-  <p className="screenshot-caption">Bản đồ hiển thị cảnh báo</p>
-</div>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/map-alert-web.png')} alt="Map with Alerts" className="screenshot" />
+  <figcaption className="screenshot-caption">Bản đồ hiển thị vị trí các cảnh báo theo khu vực</figcaption>
+</figure>
 
 #### 2. Quản lý sự cố (Incidents)
-
-<div className="screenshot-container">
-  <img src="/img/incident-web.png" alt="Quản lý sự cố" className="screenshot" />
-  <p className="screenshot-caption">Quản lý sự cố</p>
-</div>
 
 **Xem danh sách sự cố:**
 
 - Menu → **Incidents**
 - Lọc theo: Status, Type
+
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/incident-web.png')} alt="Incident Management" className="screenshot" />
+    <figcaption className="screenshot-caption">Danh sách sự cố từ người dân</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/statistic-incident-web.png')} alt="Incident Statistics" className="screenshot" />
+    <figcaption className="screenshot-caption">Thống kê sự cố theo thời gian</figcaption>
+  </figure>
+</div>
 
 **Xử lý sự cố:**
 
@@ -91,22 +99,12 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 4. Thêm ghi chú xử lý
 5. Nhấn **Cập nhật**
 
-<div className="screenshot-container">
-  <img src="/img/statistic-incident-web.png" alt="Thống kê sự cố" className="screenshot" />
-  <p className="screenshot-caption">Thống kê sự cố</p>
-</div>
-
-<div className="screenshot-container">
-  <img src="/img/map-incident-web.png" alt="Bản đồ sự cố" className="screenshot" />
-  <p className="screenshot-caption">Bản đồ hiển thị sự cố</p>
-</div>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/map-incident-web.png')} alt="Map with Incidents" className="screenshot" />
+  <figcaption className="screenshot-caption">Bản đồ hiển thị vị trí các sự cố được báo cáo</figcaption>
+</figure>
 
 #### 3. Xem dữ liệu môi trường
-
-<div className="screenshot-container">
-  <img src="/img/chart-web.png" alt="Biểu đồ môi trường" className="screenshot" />
-  <p className="screenshot-caption">Biểu đồ dữ liệu môi trường</p>
-</div>
 
 **Thời tiết:**
 
@@ -122,17 +120,18 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 - Biểu đồ PM2.5, PM10
 - Dự báo 4 ngày
 
-<div className="screenshot-container">
-  <img src="/img/chart-history-web.png" alt="Lịch sử dữ liệu" className="screenshot" />
-  <p className="screenshot-caption">Lịch sử dữ liệu</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/chart-web.png')} alt="Charts" className="screenshot" />
+    <figcaption className="screenshot-caption">Biểu đồ dữ liệu môi trường real-time</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/chart-history-web.png')} alt="History Charts" className="screenshot" />
+    <figcaption className="screenshot-caption">Lịch sử dữ liệu theo khoảng thời gian</figcaption>
+  </figure>
 </div>
 
 #### 4. Quản lý trạm (Stations)
-
-<div className="screenshot-container">
-  <img src="/img/station-web.png" alt="Danh sách trạm" className="screenshot" />
-  <p className="screenshot-caption">Danh sách trạm quan trắc</p>
-</div>
 
 **Xem danh sách trạm:**
 
@@ -140,19 +139,25 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 - Xem trạng thái: Active/Inactive
 - Vị trí trên bản đồ
 
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/station-web.png')} alt="Station List" className="screenshot" />
+  <figcaption className="screenshot-caption">Danh sách trạm quan trắc với thông tin trạng thái</figcaption>
+</figure>
+
 **Quản lý trạm (Admin):**
 
 - Kích hoạt/Vô hiệu hóa trạm
 - Cập nhật thông tin trạm
 
-<div className="screenshot-container">
-  <img src="/img/create-station-web.png" alt="Tạo trạm mới" className="screenshot" />
-  <p className="screenshot-caption">Tạo trạm mới</p>
-</div>
-
-<div className="screenshot-container">
-  <img src="/img/compare-station-web.png" alt="So sánh trạm" className="screenshot" />
-  <p className="screenshot-caption">So sánh các trạm</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/create-station-web.png')} alt="Create Station" className="screenshot" />
+    <figcaption className="screenshot-caption">Form tạo trạm quan trắc mới</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/compare-station-web.png')} alt="Compare Stations" className="screenshot" />
+    <figcaption className="screenshot-caption">So sánh dữ liệu giữa các trạm</figcaption>
+  </figure>
 </div>
 
 #### 5. Reports & Export
@@ -169,8 +174,6 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 ## Mobile App (Citizen)
 
 Ứng dụng di động dành cho người dân.
-
-{/_ TODO: Thêm mobile screenshots _/}
 
 ### Cài đặt
 
@@ -194,6 +197,15 @@ pnpm run dev:mobile
 3. Đăng nhập với email/mật khẩu hoặc Google
 
 ### Màn hình chính
+
+:::info Ảnh Mobile App sắp có
+Ảnh chụp màn hình ứng dụng Mobile đang được cập nhật. Dưới đây là mô tả giao diện:
+:::
+
+<div className="mobile-placeholder">
+  <strong>Mobile Home Screen</strong>
+  <p>Hiển thị thời tiết, AQI và cảnh báo</p>
+</div>
 
 ```
 ┌─────────────────────────────┐
@@ -220,6 +232,8 @@ pnpm run dev:mobile
 │ Home   Map  Report Profile  │
 └─────────────────────────────┘
 ```
+
+<!-- TODO: Thêm mobile home screenshot khi có ảnh -->
 
 ### Chức năng chính
 
@@ -252,6 +266,13 @@ pnpm run dev:mobile
 5. Vị trí tự động lấy GPS hoặc chọn trên bản đồ
 6. Nhấn **Gửi báo cáo**
 
+<div className="mobile-placeholder">
+  <strong>Report Incident Screen</strong>
+  <p>Form báo cáo sự cố với ảnh và GPS</p>
+</div>
+
+<!-- TODO: Thêm mobile report screenshot khi có ảnh -->
+
 **Theo dõi báo cáo:**
 
 - Xem trạng thái: Đang chờ, Đang xử lý, Đã giải quyết
@@ -262,6 +283,13 @@ pnpm run dev:mobile
 - Xem vị trí các trạm quan trắc
 - Xem vị trí sự cố đã báo cáo
 - Chất lượng không khí theo khu vực
+
+<div className="mobile-placeholder">
+  <strong>Map Screen</strong>
+  <p>Bản đồ trạm quan trắc và sự cố</p>
+</div>
+
+<!-- TODO: Thêm mobile map screenshot khi có ảnh -->
 
 #### 6. Cài đặt
 

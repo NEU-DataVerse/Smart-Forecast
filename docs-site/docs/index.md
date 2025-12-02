@@ -38,7 +38,7 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 | --------------------------- | ------------------------------------------- |
 | **Đăng nhập Google OAuth2** | Xác thực an toàn với JWT                    |
 | **Xem dữ liệu môi trường**  | AQI, PM2.5, nhiệt độ, độ ẩm theo vị trí GPS |
-| **Bản đồ Live Map**         | Theo dõi chất lượng không khí và thời tiết  |
+| **Bản đồ Live Map**         | Bản đồ theo dõi sự cố                       |
 | **Nhận cảnh báo Push**      | Thông báo qua Firebase Cloud Messaging      |
 | **Gửi báo cáo sự cố**       | Chụp ảnh, mô tả, gửi vị trí                 |
 | **Lịch sử cảnh báo**        | Theo dõi các cảnh báo và báo cáo đã gửi     |
@@ -87,11 +87,11 @@ Sử dụng thanh điều hướng bên trái để khám phá:
 
 ## Team NEU-DataVerse
 
-| Thành viên                 | Vai trò               | Nhiệm vụ                                          |
-| -------------------------- | --------------------- | ------------------------------------------------- |
-| **Khải (Mkhai205)**        | PM, Backend, DevOps   | Quản lý dự án, phát triển backend, Docker & CI/CD |
-| **Đạt (NGUYENTHANHDATHH)** | Frontend Web          | Dashboard, bản đồ, charts                         |
-| **Bích (BichCan)**         | Frontend Mobile, Docs | App Expo, UI/UX, tài liệu                         |
+| Thành viên                 | Vai trò             | Nhiệm vụ                                          |
+| -------------------------- | ------------------- | ------------------------------------------------- |
+| **Khải (Mkhai205)**        | PM, Backend, DevOps | Quản lý dự án, phát triển backend, Docker & CI/CD |
+| **Đạt (NGUYENTHANHDATHH)** | Frontend            | Dashboard, bản đồ, charts                         |
+| **Bích (BichCan)**         | Design UI, Docs     | UI/UX, tài liệu                                   |
 
 ---
 

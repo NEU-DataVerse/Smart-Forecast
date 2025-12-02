@@ -11,6 +11,10 @@ Tổng quan về kiến trúc và các thành phần của Smart Forecast.
 
 ## Sơ đồ kiến trúc tổng thể
 
+<p align="center">
+  <img src="docs-site/static/img/architecture.png" alt="Smart Forecast Architecture" />
+</p>
+
 ```
                     ┌─────────────────────────────────────────┐
                     │              DATA SOURCES               │
@@ -19,20 +23,20 @@ Tổng quan về kiến trúc và các thành phần của Smart Forecast.
                                       │
                                       ▼
 ┌─────────────────┐     ┌─────────────────────────────────────┐
-│   Mobile App    │     │           Backend (NestJS)           │
+│   Mobile App    │     │           Backend (NestJS)          │
 │   (Expo RN)     │◄───►│  • Data Ingestion (NGSI-LD)         │
-└─────────────────┘     │  • Alert Management                  │
-                        │  • Incident Reports                  │
+└─────────────────┘     │  • Alert Management                 │
+                        │  • Incident Reports                 │
 ┌─────────────────┐     │  • Push Notifications (FCM)         │
 │  Web Dashboard  │◄───►│  • REST API                         │
 │   (Next.js)     │     └─────────────────┬───────────────────┘
 └─────────────────┘                       │
                             ┌─────────────┼─────────────┐
                             │             │             │
-                       ┌────▼────┐   ┌───▼────┐   ┌───▼────┐
-                       │ Orion   │   │Postgres│   │ MinIO  │
-                       │   -LD   │   │   DB   │   │Storage │
-                       └────┬────┘   └────────┘   └────────┘
+                       ┌────▼────┐    ┌───▼────┐    ┌───▼────┐
+                       │ Orion   │    │Postgres│    │ MinIO  │
+                       │   -LD   │    │   DB   │    │Storage │
+                       └────┬────┘    └────────┘    └────────┘
                             │
                        ┌────▼────┐
                        │ MongoDB │

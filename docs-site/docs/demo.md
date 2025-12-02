@@ -23,81 +23,86 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 #### Dashboard chính
 
-<div className="screenshot-container">
-  <img src="/img/dashboard-web.png" alt="Dashboard chính" className="screenshot" />
-  <p className="screenshot-caption">Trang Dashboard tổng quan</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/dashboard-web.png').default} alt="Dashboard" />
+  <figcaption>Trang Dashboard tổng quan - Hiển thị thông tin tổng hợp về trạm, cảnh báo, sự cố và chỉ số AQI</figcaption>
+</figure>
 
 #### Quản lý cảnh báo
 
-<div className="screenshot-container">
-  <img src="/img/alert-web.png" alt="Danh sách cảnh báo" className="screenshot" />
-  <p className="screenshot-caption">Danh sách cảnh báo</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/alert-web.png').default} alt="Danh sách cảnh báo" />
+  <figcaption>Danh sách cảnh báo</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/detail-alert-web.png" alt="Chi tiết cảnh báo" className="screenshot" />
-  <p className="screenshot-caption">Chi tiết cảnh báo</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/detail-alert-web.png').default} alt="Chi tiết cảnh báo" />
+  <figcaption>Chi tiết cảnh báo</figcaption>
+</figure>
 
-#### Bản đồ
+<figure>
+  <img src={require('@site/static/img/map-alert-web.png').default} alt="Bản đồ hiển thị vị trí các cảnh báo" />
+  <figcaption>Bản đồ hiển thị vị trí các cảnh báo</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/map-alert-web.png" alt="Bản đồ cảnh báo" className="screenshot" />
-  <p className="screenshot-caption">Bản đồ hiển thị cảnh báo</p>
-</div>
+#### Quản lý sự cố (Incidents)
 
-<div className="screenshot-container">
-  <img src="/img/map-incident-web.png" alt="Bản đồ sự cố" className="screenshot" />
-  <p className="screenshot-caption">Bản đồ hiển thị sự cố</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/incident-web.png').default} alt="Quản lý sự cố từ người dân" />
+  <figcaption>Quản lý sự cố từ người dân</figcaption>
+</figure>
 
-#### Quản lý trạm quan trắc
+<figure>
+  <img src={require('@site/static/img/statistic-incident-web.png').default} alt="Thống kê sự cố" />
+  <figcaption>Thống kê sự cố</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/station-web.png" alt="Danh sách trạm" className="screenshot" />
-  <p className="screenshot-caption">Danh sách trạm quan trắc</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/map-incident-web.png').default} alt="Bản đồ hiển thị vị trí các sự cố" />
+  <figcaption>Bản đồ hiển thị vị trí các sự cố</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/create-station-web.png" alt="Tạo trạm mới" className="screenshot" />
-  <p className="screenshot-caption">Tạo trạm mới</p>
-</div>
+#### Quản lý trạm quan trắc (Stations)
 
-<div className="screenshot-container">
-  <img src="/img/compare-station-web.png" alt="So sánh trạm" className="screenshot" />
-  <p className="screenshot-caption">So sánh các trạm</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/station-web.png').default} alt="Danh sách trạm quan trắc" />
+  <figcaption>Danh sách trạm quan trắc</figcaption>
+</figure>
 
-#### Biểu đồ dữ liệu
+<figure>
+  <img src={require('@site/static/img/create-station-web.png').default} alt="Tạo trạm mới" />
+  <figcaption>Tạo trạm mới</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/chart-web.png" alt="Biểu đồ" className="screenshot" />
-  <p className="screenshot-caption">Biểu đồ dữ liệu môi trường</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/compare-station-web.png').default} alt="So sánh dữ liệu giữa các trạm" />
+  <figcaption>So sánh dữ liệu giữa các trạm</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/chart-history-web.png" alt="Lịch sử dữ liệu" className="screenshot" />
-  <p className="screenshot-caption">Lịch sử dữ liệu</p>
-</div>
+#### Biểu đồ và dữ liệu
 
-#### Quản lý sự cố
+<figure>
+  <img src={require('@site/static/img/chart-web.png').default} alt="Biểu đồ dữ liệu môi trường" />
+  <figcaption>Biểu đồ dữ liệu môi trường</figcaption>
+</figure>
 
-<div className="screenshot-container">
-  <img src="/img/incident-web.png" alt="Quản lý sự cố" className="screenshot" />
-  <p className="screenshot-caption">Quản lý sự cố</p>
-</div>
-
-<div className="screenshot-container">
-  <img src="/img/statistic-incident-web.png" alt="Thống kê sự cố" className="screenshot" />
-  <p className="screenshot-caption">Thống kê sự cố</p>
-</div>
+<figure>
+  <img src={require('@site/static/img/chart-history-web.png').default} alt="Lịch sử dữ liệu theo thời gian" />
+  <figcaption>Lịch sử dữ liệu theo thời gian</figcaption>
+</figure>
 
 ### Mobile App
 
-{/_ TODO: Thêm mobile screenshots _/}
+:::info Ảnh Mobile App sắp có
+Ảnh chụp màn hình ứng dụng Mobile đang được cập nhật. Dưới đây là mô tả giao diện:
+:::
 
 #### Màn hình chính
+
+<div className="mobile-placeholder">
+  <strong>Mobile Home Screen</strong>
+  <p>Hiển thị thời tiết, AQI và cảnh báo</p>
+</div>
 
 ```
 ┌─────────────────────────────┐
@@ -136,6 +141,11 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 #### Báo cáo sự cố
 
+<div className="mobile-placeholder">
+  <strong>Report Incident Screen</strong>
+  <p>Form báo cáo sự cố với ảnh và GPS</p>
+</div>
+
 ```
 ┌─────────────────────────────┐
 │ ← Report Incident           │
@@ -169,6 +179,8 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 └─────────────────────────────┘
 ```
 
+<!-- TODO: Thêm mobile screenshots khi có ảnh -->
+
 ---
 
 ## Quick Demo
@@ -187,6 +199,11 @@ pnpm run build:shared
 # Start Docker services
 docker compose up -d
 
+# Seed database (tạo dữ liệu mẫu)
+cd backend
+npm run seed:force
+cd ..
+
 # Start all apps
 # Terminal 1
 pnpm run dev:backend    # http://localhost:8000
@@ -200,14 +217,14 @@ pnpm run dev:mobile     # Expo DevTools
 
 ### Demo accounts
 
-| Role    | Email                    | Password   |
-| ------- | ------------------------ | ---------- |
-| Admin   | admin@smartforecast.vn   | admin123   |
-| Manager | manager@smartforecast.vn | manager123 |
-| Citizen | user@smartforecast.vn    | user123    |
+| Role  | Email                   | Password | Provider |
+| ----- | ----------------------- | -------- | -------- |
+| Admin | admin@smartforecast.com | admin123 | local    |
+| User  | user@test.com           | (OAuth)  | google   |
+| Demo  | demo@smartforecast.com  | demo123  | local    |
 
 :::note
-Các tài khoản demo chỉ hoạt động trong môi trường development. Trong production, bạn cần tạo tài khoản mới.
+Các tài khoản demo được tạo tự động khi chạy `npm run seed` trong backend. Trong production, bạn cần tạo tài khoản mới.
 :::
 
 ---
@@ -262,20 +279,20 @@ Quản lý file storage:
 
 ### Người dân (Citizen)
 
-1. Xem thời tiết real-time
-2. Xem chất lượng không khí
-3. Nhận thông báo cảnh báo
-4. Báo cáo sự cố (chụp ảnh, GPS)
-5. Theo dõi trạng thái báo cáo
+1. ✅ Xem thời tiết real-time
+2. ✅ Xem chất lượng không khí
+3. ✅ Nhận thông báo cảnh báo
+4. ✅ Báo cáo sự cố (chụp ảnh, GPS)
+5. ✅ Theo dõi trạng thái báo cáo
 
 ### Admin/Manager
 
-1. Dashboard tổng quan
-2. Bản đồ trạm quan trắc
-3. Quản lý cảnh báo
-4. Xử lý sự cố từ người dân
-5. Xem dữ liệu lịch sử
-6. Xuất báo cáo
+1. ✅ Dashboard tổng quan
+2. ✅ Bản đồ trạm quan trắc
+3. ✅ Quản lý cảnh báo
+4. ✅ Xử lý sự cố từ người dân
+5. ✅ Xem dữ liệu lịch sử
+6. ✅ Xuất báo cáo
 
 ---
 
