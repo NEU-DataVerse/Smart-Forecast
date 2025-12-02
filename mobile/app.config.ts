@@ -15,6 +15,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
+  ios: {
+    supportsTablet: false,
+    bundleIdentifier: 'app.smart-forecast-app',
+    infoPlist: {
+      NSLocationAlwaysAndWhenInUseUsageDescription: 'Allow $(PRODUCT_NAME) to use your location.',
+      NSLocationAlwaysUsageDescription: 'Allow $(PRODUCT_NAME) to use your location.',
+      NSLocationWhenInUseUsageDescription: 'Allow $(PRODUCT_NAME) to use your location.',
+      UIBackgroundModes: ['location'],
+      NSPhotoLibraryUsageDescription: 'Allow $(PRODUCT_NAME) to access your photos',
+      NSCameraUsageDescription: 'Allow $(PRODUCT_NAME) to access your camera',
+      NSMicrophoneUsageDescription: 'Allow $(PRODUCT_NAME) to access your microphone',
+    },
+  },
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/images/android-icon-background.png',
@@ -41,6 +54,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-font',
     'expo-web-browser',
+    'react-native-webview',
     [
       'expo-location',
       {
@@ -65,6 +79,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: {
       projectId: '969918ff-0991-4f7c-8b36-2dcac7babc47',
     },
+  },
+  env: {
+    EXPO_PUBLIC_BACKEND_API_URL: process.env.EXPO_PUBLIC_BACKEND_API_URL,
+    EXPO_PUBLIC_MINIO_URL: process.env.EXPO_PUBLIC_MINIO_URL,
   },
   owner: 'nguyenthanhdatndc',
 });
