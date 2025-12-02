@@ -1,7 +1,14 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
-import type { IAlert, IAlertQueryParams, AlertLevel, AlertType } from '@smart-forecast/shared';
+import type {
+  IAlert,
+  IAlertQueryParams,
+  AlertLevel,
+  AlertType,
+  IIncident,
+  IIncidentQueryParams,
+} from '@smart-forecast/shared';
 
 // Backend API URL - use 10.0.2.2 for Android emulator to access host localhost
 const getBackendUrl = () => {
@@ -168,6 +175,72 @@ export const alertApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching alerts:', error);
+      throw error;
+    }
+  },
+};
+
+// Incident API types
+export interface IncidentListResponse {
+  data: IIncident[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const incidentApi = {
+  // Get current user's incidents
+  async getMyIncidents(
+    params?: IIncidentQueryParams,
+    token?: string,
+  ): Promise<IncidentListResponse> {
+    try {
+      const authToken = token || MOCK_TOKEN;
+      const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident/my-reports`, {
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 50,
+          ...(params?.status && { status: params.status }),
+          ...(params?.type && { type: params.type }),
+          ...(params?.startDate && { startDate: params.startDate }),
+          ...(params?.endDate && { endDate: params.endDate }),
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user incidents:', error);
+      throw error;
+    }
+  },
+
+  // Get all incidents with filters
+  async getIncidents(params?: IIncidentQueryParams, token?: string): Promise<IncidentListResponse> {
+    try {
+      const authToken = token || MOCK_TOKEN;
+      const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident`, {
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 50,
+          ...(params?.status && { status: params.status }),
+          ...(params?.type && { type: params.type }),
+          ...(params?.startDate && { startDate: params.startDate }),
+          ...(params?.endDate && { endDate: params.endDate }),
+          ...(params?.reportedBy && { reportedBy: params.reportedBy }),
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching incidents:', error);
       throw error;
     }
   },
