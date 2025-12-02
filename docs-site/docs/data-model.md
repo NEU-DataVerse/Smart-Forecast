@@ -288,37 +288,108 @@ interface AirQualityObserved {
 
 ---
 
-## WeatherAlert
+## AirQualityForecast
 
-Entity type cho cảnh báo thời tiết/thiên tai.
+Entity type cho dự báo chất lượng không khí.
 
 ### Schema
 
 ```typescript
-interface WeatherAlert {
-  id: string;
-  type: 'WeatherAlert';
-
-  // Alert info
-  alertSource: string;
-  category: 'weather' | 'flood' | 'fire' | 'air_quality';
-  subCategory?: string;
-  severity: 'informational' | 'low' | 'medium' | 'high' | 'critical';
-
-  // Time
-  dateIssued: DateTime;
-  validFrom: DateTime;
-  validTo: DateTime;
-
-  // Content
-  alertTitle: string;
-  alertDescription: string;
+interface AirQualityForecast {
+  id: string; // "urn:ngsi-ld:AirQualityForecast:{stationId}-{timestamp}"
+  type: 'AirQualityForecast';
 
   // Location
-  affectedArea: GeoJSON; // Polygon or MultiPolygon
+  location: GeoProperty;
+  address?: PostalAddress;
+
+  // Time
+  dateIssued: DateTime; // Thời điểm phát hành dự báo
+  validFrom: DateTime; // Thời điểm bắt đầu hiệu lực
+  validTo: DateTime; // Thời điểm kết thúc hiệu lực
+
+  // Air Quality Index Forecast
+  airQualityIndex: number; // 0-500
+  airQualityLevel: 'good' | 'moderate' | 'unhealthy' | 'very_unhealthy' | 'hazardous';
+
+  // Particulate Matter Forecast
+  pm25?: number; // µg/m³
+  pm10?: number; // µg/m³
+
+  // Gases Forecast
+  no2?: number; // µg/m³
+  so2?: number;
+  co?: number; // mg/m³
+  o3?: number;
+
+  // Confidence
+  reliability?: number; // 0-1 (độ tin cậy của dự báo)
 
   // Metadata
   source: string;
+  dataProvider: string;
+}
+```
+
+### Ví dụ NGSI-LD
+
+```json
+{
+  "id": "urn:ngsi-ld:AirQualityForecast:hanoi-01-2025-01-16T00:00:00Z",
+  "type": "AirQualityForecast",
+  "location": {
+    "type": "GeoProperty",
+    "value": {
+      "type": "Point",
+      "coordinates": [105.8542, 21.0285]
+    }
+  },
+  "dateIssued": {
+    "type": "Property",
+    "value": "2025-01-15T12:00:00Z"
+  },
+  "validFrom": {
+    "type": "Property",
+    "value": "2025-01-16T00:00:00Z"
+  },
+  "validTo": {
+    "type": "Property",
+    "value": "2025-01-16T23:59:59Z"
+  },
+  "airQualityIndex": {
+    "type": "Property",
+    "value": 95
+  },
+  "airQualityLevel": {
+    "type": "Property",
+    "value": "moderate"
+  },
+  "pm25": {
+    "type": "Property",
+    "value": 42.5,
+    "unitCode": "GQ"
+  },
+  "pm10": {
+    "type": "Property",
+    "value": 78.2,
+    "unitCode": "GQ"
+  },
+  "no2": {
+    "type": "Property",
+    "value": 32.0,
+    "unitCode": "GQ"
+  },
+  "reliability": {
+    "type": "Property",
+    "value": 0.85
+  },
+  "source": {
+    "type": "Property",
+    "value": "OpenWeatherMap"
+  },
+  "@context": [
+    "https://raw.githubusercontent.com/smart-data-models/dataModel.Environment/master/context.jsonld"
+  ]
 }
 ```
 
@@ -511,7 +582,6 @@ CREATE INDEX idx_air_quality_history_station_date ON air_quality_history(station
 | WeatherForecast    | [GitHub](https://github.com/smart-data-models/dataModel.Weather/tree/master/WeatherForecast)        |
 | AirQualityObserved | [GitHub](https://github.com/smart-data-models/dataModel.Environment/tree/master/AirQualityObserved) |
 | AirQualityForecast | [GitHub](https://github.com/smart-data-models/dataModel.Environment/tree/master/AirQualityForecast) |
-| WeatherAlert       | [GitHub](https://github.com/smart-data-models/dataModel.Weather/tree/master/WeatherAlert)           |
 
 ---
 

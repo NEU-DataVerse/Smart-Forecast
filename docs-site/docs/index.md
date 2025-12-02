@@ -4,11 +4,14 @@ slug: /
 title: Giới thiệu
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Smart Forecast
 
-**Nền tảng giám sát và cảnh báo môi trường đô thị thông minh**
-
-> _"Khi dữ liệu mở trở thành cảnh báo sớm cho cộng đồng"_
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/banner.png')} alt="Dashboard" className="screenshot" />
+  <figcaption className="screenshot-caption">Nền tảng giám sát và cảnh báo môi trường đô thị thông minh</figcaption>
+</figure>
 
 ---
 

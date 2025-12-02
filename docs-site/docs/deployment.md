@@ -245,6 +245,49 @@ make health
 
 ## Quản lý dữ liệu
 
+### Seed Database
+
+Sau khi khởi động Docker services, cần seed dữ liệu mẫu:
+
+```bash
+cd backend
+npm run seed:force
+```
+
+#### Các lệnh seed
+
+| Command                   | Mô tả                                              |
+| ------------------------- | -------------------------------------------------- |
+| `npm run seed`            | Seed nếu DB rỗng                                   |
+| `npm run seed:force`      | Force reseed (xóa và seed lại tất cả)              |
+| `npm run seed:base`       | Seed base data (không có fake weather/air-quality) |
+| `npm run seed:base:force` | Force reseed base data                             |
+| `npm run seed:clear`      | Xóa tất cả dữ liệu                                 |
+
+#### Dữ liệu được seed
+
+| Bảng                   | Mô tả                        | Số lượng      |
+| ---------------------- | ---------------------------- | ------------- |
+| `users`                | Tài khoản người dùng         | 3             |
+| `observation_station`  | Trạm quan trắc               | 4             |
+| `weather_observed`     | Dữ liệu thời tiết            | ~256 (7 ngày) |
+| `air_quality_observed` | Dữ liệu chất lượng không khí | ~256 (7 ngày) |
+| `incidents`            | Báo cáo sự cố                | 11            |
+| `alert_thresholds`     | Ngưỡng cảnh báo              | 4             |
+| `alerts`               | Cảnh báo môi trường          | 10            |
+
+:::tip Sử dụng dữ liệu thật từ OpenWeatherMap
+Nếu muốn sử dụng dữ liệu thật thay vì fake data:
+
+```bash
+# 1. Seed base data (users, stations, incidents, alerts)
+npm run seed:base:force
+
+# 2. Vào Dashboard web → "Thu thập dữ liệu lịch sử" để lấy data thật
+```
+
+:::
+
 ### Backup
 
 ```bash

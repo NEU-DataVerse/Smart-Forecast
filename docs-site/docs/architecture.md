@@ -3,6 +3,8 @@ sidebar_position: 3
 title: Kiến trúc hệ thống
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Kiến trúc hệ thống
 
 Tổng quan về kiến trúc và các thành phần của Smart Forecast.
@@ -11,9 +13,10 @@ Tổng quan về kiến trúc và các thành phần của Smart Forecast.
 
 ## Sơ đồ kiến trúc tổng thể
 
-<p align="center">
-  <img src="docs-site/static/img/architecture.png" alt="Smart Forecast Architecture" />
-</p>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/architecture.png')} alt="Dashboard" className="screenshot" />
+  <figcaption className="screenshot-caption">Kiến trúc hệ thống</figcaption>
+</figure>
 
 ```
                     ┌─────────────────────────────────────────┐

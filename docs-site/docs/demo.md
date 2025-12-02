@@ -215,6 +215,29 @@ pnpm run dev:web        # http://localhost:3000
 pnpm run dev:mobile     # Expo DevTools
 ```
 
+### Seed Database Options
+
+| Command                   | Mô tả                                              |
+| ------------------------- | -------------------------------------------------- |
+| `npm run seed`            | Seed nếu DB rỗng                                   |
+| `npm run seed:force`      | Force reseed (xóa và seed lại tất cả)              |
+| `npm run seed:base`       | Seed base data (không có fake weather/air-quality) |
+| `npm run seed:base:force` | Force reseed base data                             |
+| `npm run seed:clear`      | Xóa tất cả dữ liệu                                 |
+
+:::tip Sử dụng dữ liệu thật từ OpenWeatherMap
+Nếu muốn sử dụng dữ liệu thật thay vì fake data:
+
+```bash
+# 1. Seed base data (users, stations, incidents, alerts)
+npm run seed:base:force
+
+# 2. Vào Dashboard web → "Thu thập dữ liệu lịch sử" để lấy data thật
+```
+
+> **Lưu ý**: Historical Weather API của OpenWeatherMap yêu cầu **paid subscription**. Historical Air Quality API là **miễn phí**.
+> :::
+
 ### Demo accounts
 
 | Role  | Email                   | Password | Provider |
@@ -226,6 +249,17 @@ pnpm run dev:mobile     # Expo DevTools
 :::note
 Các tài khoản demo được tạo tự động khi chạy `npm run seed` trong backend. Trong production, bạn cần tạo tài khoản mới.
 :::
+
+### Trạm quan trắc mẫu
+
+Hệ thống seed tự động tạo 4 trạm quan trắc tại Hà Nội:
+
+| Tên trạm  | Mã        | Vị trí      | Độ ưu tiên |
+| --------- | --------- | ----------- | ---------- |
+| Hoàn Kiếm | HN-HK-001 | Trung tâm   | HIGH       |
+| Hà Đông   | HN-HD-001 | Phía Tây    | MEDIUM     |
+| Cầu Giấy  | HN-CG-001 | Khu đại học | HIGH       |
+| Long Biên | HN-LB-001 | Ven sông    | MEDIUM     |
 
 ---
 
