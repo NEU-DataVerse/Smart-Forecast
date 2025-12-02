@@ -5,41 +5,42 @@
 ```bash
 # 1. Tạo file .env
 cp .env.example .env
+cp backend/.env.example backend/.env
 
 # 2. Khởi động tất cả services
-docker-compose up -d
+docker compose up -d
 
 # 3. Xem trạng thái
-docker-compose ps
+docker compose ps
 ```
 
 ## 🔧 Quản lý Services
 
 ```bash
 # Xem logs tất cả services
-docker-compose logs
+docker compose logs
 
 # Xem logs realtime
-docker-compose logs -f
+docker compose logs -f
 
 # Xem logs một service
-docker-compose logs -f orion
+docker compose logs -f orion
 
 # Restart một service
-docker-compose restart orion
+docker compose restart orion
 
 # Dừng tất cả
-docker-compose down
+docker compose down
 
 # Dừng và xóa data
-docker-compose down -v
+docker compose down -v
 ```
 
 ## 🏥 Health Check
 
 ```bash
 # Xem health status
-docker-compose ps
+docker compose ps
 
 # Test Orion
 curl http://localhost:1026/version
@@ -101,8 +102,8 @@ http://localhost:9000
 
 ```bash
 # Exec vào container
-docker-compose exec orion bash
-docker-compose exec postgres sh
+docker compose exec orion bash
+docker compose exec postgres sh
 
 # Xem chi tiết container
 docker inspect orion
@@ -118,13 +119,13 @@ docker network inspect smart-forecast_smart-forecast-net
 
 ```bash
 # Xóa containers và networks
-docker-compose down
+docker compose down
 
 # Xóa containers, networks và volumes
-docker-compose down -v
+docker compose down -v
 
 # Xóa tất cả (bao gồm images)
-docker-compose down -v --rmi all
+docker compose down -v --rmi all
 
 # Xóa unused volumes
 docker volume prune
@@ -156,42 +157,42 @@ pnpm --filter mobile run start
 docker stats
 
 # Xem logs với timestamp
-docker-compose logs -f -t
+docker compose logs -f -t
 
 # Xem logs từ 5 phút trước
-docker-compose logs --since 5m
+docker compose logs --since 5m
 
 # Xem 100 dòng cuối
-docker-compose logs --tail=100
+docker compose logs --tail=100
 ```
 
 ## 🔄 Update & Rebuild
 
 ```bash
 # Pull images mới nhất
-docker-compose pull
+docker compose pull
 
 # Rebuild và restart
-docker-compose up -d --build
+docker compose up -d --build
 
 # Rebuild một service
-docker-compose build backend
-docker-compose up -d backend
+docker compose build backend
+docker compose up -d backend
 ```
 
 ## ⚠️ Troubleshooting
 
 ```bash
 # Restart tất cả
-docker-compose restart
+docker compose restart
 
 # Recreate containers
-docker-compose up -d --force-recreate
+docker compose up -d --force-recreate
 
 # Reset hoàn toàn
-docker-compose down -v
+docker compose down -v
 docker volume prune
-docker-compose up -d
+docker compose up -d
 
 # Kiểm tra port đang được dùng
 netstat -ano | findstr :1026  # Windows
@@ -209,10 +210,12 @@ lsof -i :1026                  # Linux/Mac
 
 ## 📚 Quick Links
 
-- [README.md](../README.md) - Hướng dẫn đầy đủ
-- [QUICKSTART.md](../QUICKSTART.md) - Khởi động nhanh
-- [DOCKER_COMPOSE_GUIDE.md](../docs/DOCKER_COMPOSE_GUIDE.md) - Hướng dẫn Docker Compose
-- [.env.example](../.env.example) - Environment variables template
+- [README.md](README.md) - Hướng dẫn đầy đủ
+- [QUICKSTART.md](QUICKSTART.md) - Khởi động nhanh
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Hướng dẫn đóng góp
+- [CHANGELOG.md](CHANGELOG.md) - Lịch sử thay đổi
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Xử lý lỗi
+- [🌐 Docusaurus Docs](https://neu-dataverse.github.io/Smart-Forecast/) - Tài liệu chi tiết (coming soon)
 
 ---
 
