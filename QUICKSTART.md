@@ -48,7 +48,7 @@ pnpm run build:shared
 
 ### 2. Tạo các file cấu hình environment
 
-Hệ thống sử dụng 4 file .env riêng biệt:
+Hệ thống sử dụng các file .env riêng biệt cho từng layer:
 
 ```bash
 # Tự động (khuyến nghị)
@@ -56,7 +56,7 @@ bash scripts/setup.sh     # Linux/Mac/Git Bash
 scripts\setup.bat         # Windows
 
 # Hoặc thủ công
-cp docker/.env.infrastructure.example docker/.env.infrastructure
+cp .env.example .env
 cp backend/.env.example backend/.env
 cp web/.env.local.example web/.env.local
 cp mobile/.env.example mobile/.env
@@ -179,23 +179,28 @@ pnpm -r run test
 
 ## 🔧 Tiếp theo
 
-1. **Khám phá PNPM Workspace**:
-   - Xem `.team/QUICK_REFERENCE.md` cho hướng dẫn chi tiết
+1. **Xem tài liệu đầy đủ**:
+   - 🌐 [Docusaurus Documentation](https://neu-dataverse.github.io/Smart-Forecast/)
+   - 📖 [CHEATSHEET.md](CHEATSHEET.md) - Các lệnh thường dùng
+   - 🤝 [CONTRIBUTING.md](CONTRIBUTING.md) - Hướng dẫn đóng góp
+
+2. **Khám phá PNPM Workspace**:
    - Đọc về [PNPM Workspaces](https://pnpm.io/workspaces)
 
-2. **Khám phá FIWARE Orion**:
+3. **Khám phá FIWARE Orion**:
    - Xem [FIWARE Tutorial](https://fiware-tutorials.readthedocs.io/)
 
-3. **Phát triển Backend**:
+4. **Phát triển Backend**:
    - `pnpm --filter backend run start:dev`
 
-4. **Phát triển Frontend**:
+5. **Phát triển Frontend**:
    - Web: `pnpm --filter web run dev`
    - Mobile: `pnpm --filter mobile run start`
 
 ## ❓ Gặp vấn đề?
 
-Xem [Troubleshooting](README.md#troubleshooting) trong README.md
+- Xem [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Hướng dẫn xử lý lỗi
+- Tạo [GitHub Issue](https://github.com/NEU-DataVerse/Smart-Forecast/issues) nếu cần hỗ trợ
 
 ## 🛠️ Development Mode
 
