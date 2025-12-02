@@ -3,15 +3,15 @@ sidebar_position: 11
 title: Troubleshooting
 ---
 
-# 🔧 Troubleshooting
+# Troubleshooting
 
 Hướng dẫn khắc phục các lỗi thường gặp trong Smart Forecast.
 
 ---
 
-## 🐳 Docker Compose Errors
+## Docker Compose Errors
 
-### ❌ Network not found
+### Network not found
 
 ```
 Error: network smart-forecast_smart-forecast-net not found
@@ -24,7 +24,7 @@ docker compose down
 docker compose up -d
 ```
 
-### ❌ Port already in use
+### Port already in use
 
 ```
 Error: bind: address already in use
@@ -49,7 +49,7 @@ ports:
 
 ---
 
-## 🏥 Container Health Issues
+## Container Health Issues
 
 ### Container status "unhealthy"
 
@@ -105,16 +105,16 @@ docker compose exec postgres pg_isready -U admin
 
 ```bash
 # Kiểm tra .env
-cat docker/.env.infrastructure | grep POSTGRES
+cat .env | grep POSTGRES
 
-# Reset (⚠️ xóa data)
+# Reset (xóa data)
 docker compose down -v
 docker compose up -d
 ```
 
 ---
 
-## 💾 Database Connection
+## Database Connection
 
 ### Cannot connect to PostgreSQL
 
@@ -153,7 +153,7 @@ docker compose exec orion ping mongodb
 
 ---
 
-## 🌐 Network Issues
+## Network Issues
 
 ### Services không connect được
 
@@ -177,7 +177,7 @@ docker compose up -d
 
 ---
 
-## 🚪 Port Conflicts
+## Port Conflicts
 
 | Service       | Default Port | Alternative |
 | ------------- | ------------ | ----------- |
@@ -198,7 +198,7 @@ ports:
 
 ---
 
-## 📱 Mobile App Issues
+## Mobile App Issues
 
 ### Cannot connect to API
 
@@ -219,7 +219,7 @@ ipconfig
 ifconfig
 
 # Cập nhật mobile/.env
-EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
+EXPO_PUBLIC_BACKEND_API_URL=http://192.168.1.100:8000/api/v1
 ```
 
 ### Map không hiển thị
@@ -232,19 +232,17 @@ EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 
 ---
 
-## 🔧 Backend Issues
+## Backend Issues
 
-### TypeORM migration fails
+### Database schema issues
 
 ```bash
-# Xem migration status
-pnpm --filter backend run migration:status
+# TypeORM đang dùng synchronize trong development
+# Kiểm tra DATABASE_URL trong backend/.env
+cat backend/.env | grep DATABASE_URL
 
-# Rollback
-pnpm --filter backend run migration:revert
-
-# Chạy lại
-pnpm --filter backend run migration:run
+# Restart backend để re-sync schema
+pnpm run dev:backend
 ```
 
 ### JWT authentication fails
@@ -261,7 +259,7 @@ cat backend/.env | grep JWT_SECRET
 
 ---
 
-## 🌐 Web Dashboard Issues
+## Web Dashboard Issues
 
 ### Build fails
 
@@ -283,7 +281,7 @@ cat web/.env.local
 
 ---
 
-## 💽 Volume Issues
+## Volume Issues
 
 ### Permission denied
 
@@ -306,7 +304,7 @@ docker system prune -a --volumes
 
 ---
 
-## 🔍 Debugging Commands
+## Debugging Commands
 
 ### Xem logs
 
@@ -349,7 +347,7 @@ docker stats --no-stream
 
 ---
 
-## 🆘 Emergency Reset
+## Emergency Reset
 
 Khi tất cả không hoạt động:
 
@@ -374,7 +372,7 @@ docker compose ps
 
 ---
 
-## ✅ Health Check Checklist
+## Health Check Checklist
 
 Sau khi khởi động:
 
@@ -397,7 +395,7 @@ docker compose logs | grep -i error
 
 ---
 
-## ❓ Cần thêm trợ giúp?
+## Cần thêm trợ giúp?
 
 1. Xem logs: `docker compose logs -f`
 2. [FIWARE Documentation](https://fiware-orion.readthedocs.io/)
@@ -406,7 +404,7 @@ docker compose logs | grep -i error
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Triển khai](./deployment) - Docker Compose setup
 - [Hướng dẫn phát triển](./dev-guide) - Development workflow

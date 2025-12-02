@@ -4,15 +4,18 @@ slug: /
 title: Giới thiệu
 ---
 
-# 🌍 Smart Forecast
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-**Nền tảng giám sát và cảnh báo môi trường đô thị thông minh**
+# Smart Forecast
 
-> _"Khi dữ liệu mở trở thành cảnh báo sớm cho cộng đồng"_
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/banner.png')} alt="Dashboard" className="screenshot" />
+  <figcaption className="screenshot-caption">Nền tảng giám sát và cảnh báo môi trường đô thị thông minh</figcaption>
+</figure>
 
 ---
 
-## 🎯 Smart Forecast là gì?
+## Smart Forecast là gì?
 
 **Smart Forecast** là nền tảng **giám sát và cảnh báo môi trường đô thị thông minh**, được phát triển hướng tới hỗ trợ **chuyển đổi số** cho các thành phố hiện đại.
 
@@ -20,30 +23,30 @@ Dự án tham gia cuộc thi **OLP'2025 – Ứng dụng dữ liệu mở liên 
 
 ---
 
-## 🌟 Ý tưởng cốt lõi
+## Ý tưởng cốt lõi
 
 Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality)** và **thời tiết (Weather)** từ các nguồn mở như **OpenWeatherMap**, sau đó:
 
-- 📊 **Phân tích & Cảnh báo tự động** khi các chỉ số vượt ngưỡng an toàn
-- 👨‍💼 **Cho phép quản lý** gửi cảnh báo thiên tai, xem báo cáo và thống kê
-- 👥 **Cho phép người dân** nhận thông báo và gửi báo cáo sự cố (ngập lụt, cây đổ, sạt lở...) kèm vị trí GPS và ảnh
+- **Phân tích & Cảnh báo tự động** khi các chỉ số vượt ngưỡng an toàn
+- **Cho phép quản lý** gửi cảnh báo thiên tai, xem báo cáo và thống kê
+- **Cho phép người dân** nhận thông báo và gửi báo cáo sự cố (ngập lụt, cây đổ, sạt lở...) kèm vị trí GPS và ảnh
 
 ---
 
-## ✨ Tính năng chính
+## Tính năng chính
 
-### 📱 Ứng dụng di động (Citizen App)
+### Ứng dụng di động (Citizen App)
 
 | Tính năng                   | Mô tả                                       |
 | --------------------------- | ------------------------------------------- |
 | **Đăng nhập Google OAuth2** | Xác thực an toàn với JWT                    |
 | **Xem dữ liệu môi trường**  | AQI, PM2.5, nhiệt độ, độ ẩm theo vị trí GPS |
-| **Bản đồ Live Map**         | Theo dõi chất lượng không khí và thời tiết  |
+| **Bản đồ Live Map**         | Bản đồ theo dõi sự cố                       |
 | **Nhận cảnh báo Push**      | Thông báo qua Firebase Cloud Messaging      |
 | **Gửi báo cáo sự cố**       | Chụp ảnh, mô tả, gửi vị trí                 |
 | **Lịch sử cảnh báo**        | Theo dõi các cảnh báo và báo cáo đã gửi     |
 
-### 🖥️ Dashboard quản trị (Admin Web)
+### Dashboard quản trị (Admin Web)
 
 | Tính năng                   | Mô tả                               |
 | --------------------------- | ----------------------------------- |
@@ -55,7 +58,7 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Thành phần           | Công nghệ                          |
 | -------------------- | ---------------------------------- |
@@ -72,30 +75,30 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 
 ---
 
-## 📚 Tài liệu
+## Tài liệu
 
 Sử dụng thanh điều hướng bên trái để khám phá:
 
 - **[Bắt đầu nhanh](./getting-started.md)** - Cài đặt và chạy dự án
 - **[Kiến trúc hệ thống](./architecture.md)** - Sơ đồ và luồng dữ liệu
 - **[Triển khai](./deployment.md)** - Docker Compose và scripts
-- **[API Documentation](./api.md)** - REST API endpoints
+- **[API Documentation](./api/)** - REST API endpoints
 - **[Hướng dẫn phát triển](./dev-guide.md)** - Cho developers
 - **[Hướng dẫn sử dụng](./user-guide.md)** - Cho người dùng
 
 ---
 
-## 👥 Team NEU-DataVerse
+## Team NEU-DataVerse
 
-| Thành viên                 | Vai trò               | Nhiệm vụ                                          |
-| -------------------------- | --------------------- | ------------------------------------------------- |
-| **Khải (Mkhai205)**        | PM, Backend, DevOps   | Quản lý dự án, phát triển backend, Docker & CI/CD |
-| **Đạt (NGUYENTHANHDATHH)** | Frontend Web          | Dashboard, bản đồ, charts                         |
-| **Bích (BichCan)**         | Frontend Mobile, Docs | App Expo, UI/UX, tài liệu                         |
+| Thành viên                 | Vai trò             | Nhiệm vụ                                          |
+| -------------------------- | ------------------- | ------------------------------------------------- |
+| **Khải (Mkhai205)**        | PM, Backend, DevOps | Quản lý dự án, phát triển backend, Docker & CI/CD |
+| **Đạt (NGUYENTHANHDATHH)** | Frontend            | Dashboard, bản đồ, charts                         |
+| **Bích (BichCan)**         | Design UI, Docs     | UI/UX, tài liệu                                   |
 
 ---
 
-## 📄 License
+## License
 
 Dự án được phân phối dưới giấy phép **MIT License**.
 

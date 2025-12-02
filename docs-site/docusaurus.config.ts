@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Smart Forecast',
   tagline: 'Nền tảng dự báo thời tiết và cảnh báo môi trường thông minh',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo-1.png',
 
   future: {
     v4: true,
@@ -60,7 +60,7 @@ const config: Config = {
       title: 'Smart Forecast',
       logo: {
         alt: 'Smart Forecast Logo',
-        src: 'img/logo.svg',
+        src: 'img/logo-1.png',
       },
       items: [
         {
