@@ -1,0 +1,113 @@
+.techSection {
+  padding: 4rem 0;
+  background: linear-gradient(
+    180deg,
+    var(--ifm-background-color) 0%,
+    var(--ifm-background-surface-color) 100%
+  );
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.sectionSubtitle {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 1.1rem;
+}
+
+.techGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.techCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  background: var(--ifm-background-color);
+  border-radius: 12px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.techCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+[data-theme='dark'] .techCard {
+  background: var(--ifm-background-surface-color);
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+[data-theme='dark'] .techCard:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.techIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
+[data-theme='dark'] .techIcon {
+  filter: brightness(1.1);
+}
+
+.techCard:hover .techIcon {
+  transform: scale(1.1);
+}
+
+.techName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-800);
+  text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  .techSection {
+    padding: 3rem 1rem;
+  }
+
+  .techGrid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+  }
+
+  .techCard {
+    padding: 1rem 0.75rem;
+  }
+
+  .techIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .techName {
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .techGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

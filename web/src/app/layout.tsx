@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: 'Smart Forecast',
   description: 'Smart urban environmental monitoring and warning system',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/logo-1.png',
   },
 };
 

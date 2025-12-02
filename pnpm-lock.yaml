@@ -216,6 +216,9 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
+      swiper:
+        specifier: 12.0.3
+        version: 12.0.3
     devDependencies:
       '@docusaurus/module-type-aliases':
         specifier: 3.9.2
@@ -10687,6 +10690,10 @@ packages:
 
   swagger-ui-dist@5.30.2:
     resolution: {integrity: sha512-HWCg1DTNE/Nmapt+0m2EPXFwNKNeKK4PwMjkwveN/zn1cV2Kxi9SURd+m0SpdcSgWEK/O64sf8bzXdtUhigtHA==}
+
+  swiper@12.0.3:
+    resolution: {integrity: sha512-BHd6U1VPEIksrXlyXjMmRWO0onmdNPaTAFduzqR3pgjvi7KfmUCAm/0cj49u2D7B0zNjMw02TSeXfinC1hDCXg==}
+    engines: {node: '>= 4.7.0'}
 
   swr@2.3.6:
     resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
@@ -24727,6 +24734,8 @@ snapshots:
   swagger-ui-dist@5.30.2:
     dependencies:
       '@scarf/scarf': 1.4.0
+
+  swiper@12.0.3: {}
 
   swr@2.3.6(react@19.1.0):
     dependencies:
