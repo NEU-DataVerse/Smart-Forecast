@@ -20,7 +20,6 @@ import { Camera, MapPin, X, RefreshCw, WifiOff } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
-import { Incident } from '@/types';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -134,7 +133,7 @@ const INCIDENT_TYPES = [
 ] as const;
 
 export default function ReportScreen() {
-  const { addIncident, location } = useAppStore();
+  const { location } = useAppStore();
   const { token: authToken } = useAuth();
   // Use mock token for testing, fallback to auth token
   const token = authToken;
@@ -436,20 +435,8 @@ export default function ReportScreen() {
         throw new Error(errorData.message || `HTTP error! status: ${status}`);
       }
 
-      const result = await response.json();
-
-      // Also save locally for offline access
-      const incident: Incident = {
-        id: result.id || Date.now().toString(),
-        type: selectedType.toLowerCase() as any,
-        description: description.trim(),
-        imageUri: imageUris.length > 0 ? imageUris[0] : undefined,
-        location: currentLocation,
-        timestamp: Date.now(),
-        status: 'pending',
-      };
-
-      addIncident(incident);
+      // Response parsed successfully - incident uploaded
+      await response.json();
 
       Alert.alert('Thành công', 'Báo cáo sự cố của bạn đã được gửi thành công!', [
         {
@@ -483,18 +470,6 @@ export default function ReportScreen() {
 
         await savePendingIncident(pendingIncident);
         setPendingCount((prev) => prev + 1);
-
-        // Also save locally for offline access
-        const incident: Incident = {
-          id: pendingIncident.id,
-          type: selectedType.toLowerCase() as any,
-          description: description.trim(),
-          imageUri: imageUris.length > 0 ? imageUris[0] : undefined,
-          location: currentLocation,
-          timestamp: Date.now(),
-          status: 'pending',
-        };
-        addIncident(incident);
 
         Alert.alert(
           'Đã lưu offline',
