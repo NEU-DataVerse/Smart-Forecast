@@ -4,7 +4,7 @@ slug: /
 title: Giới thiệu
 ---
 
-# 🌍 Smart Forecast
+# Smart Forecast
 
 **Nền tảng giám sát và cảnh báo môi trường đô thị thông minh**
 
@@ -12,7 +12,7 @@ title: Giới thiệu
 
 ---
 
-## 🎯 Smart Forecast là gì?
+## Smart Forecast là gì?
 
 **Smart Forecast** là nền tảng **giám sát và cảnh báo môi trường đô thị thông minh**, được phát triển hướng tới hỗ trợ **chuyển đổi số** cho các thành phố hiện đại.
 
@@ -20,19 +20,19 @@ Dự án tham gia cuộc thi **OLP'2025 – Ứng dụng dữ liệu mở liên 
 
 ---
 
-## 🌟 Ý tưởng cốt lõi
+## Ý tưởng cốt lõi
 
 Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality)** và **thời tiết (Weather)** từ các nguồn mở như **OpenWeatherMap**, sau đó:
 
-- 📊 **Phân tích & Cảnh báo tự động** khi các chỉ số vượt ngưỡng an toàn
-- 👨‍💼 **Cho phép quản lý** gửi cảnh báo thiên tai, xem báo cáo và thống kê
-- 👥 **Cho phép người dân** nhận thông báo và gửi báo cáo sự cố (ngập lụt, cây đổ, sạt lở...) kèm vị trí GPS và ảnh
+- **Phân tích & Cảnh báo tự động** khi các chỉ số vượt ngưỡng an toàn
+- **Cho phép quản lý** gửi cảnh báo thiên tai, xem báo cáo và thống kê
+- **Cho phép người dân** nhận thông báo và gửi báo cáo sự cố (ngập lụt, cây đổ, sạt lở...) kèm vị trí GPS và ảnh
 
 ---
 
-## ✨ Tính năng chính
+## Tính năng chính
 
-### 📱 Ứng dụng di động (Citizen App)
+### Ứng dụng di động (Citizen App)
 
 | Tính năng                   | Mô tả                                       |
 | --------------------------- | ------------------------------------------- |
@@ -43,7 +43,7 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 | **Gửi báo cáo sự cố**       | Chụp ảnh, mô tả, gửi vị trí                 |
 | **Lịch sử cảnh báo**        | Theo dõi các cảnh báo và báo cáo đã gửi     |
 
-### 🖥️ Dashboard quản trị (Admin Web)
+### Dashboard quản trị (Admin Web)
 
 | Tính năng                   | Mô tả                               |
 | --------------------------- | ----------------------------------- |
@@ -55,7 +55,7 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Thành phần           | Công nghệ                          |
 | -------------------- | ---------------------------------- |
@@ -72,7 +72,7 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 
 ---
 
-## 📚 Tài liệu
+## Tài liệu
 
 Sử dụng thanh điều hướng bên trái để khám phá:
 
@@ -85,7 +85,7 @@ Sử dụng thanh điều hướng bên trái để khám phá:
 
 ---
 
-## 👥 Team NEU-DataVerse
+## Team NEU-DataVerse
 
 | Thành viên                 | Vai trò               | Nhiệm vụ                                          |
 | -------------------------- | --------------------- | ------------------------------------------------- |
@@ -95,7 +95,7 @@ Sử dụng thanh điều hướng bên trái để khám phá:
 
 ---
 
-## 📄 License
+## License
 
 Dự án được phân phối dưới giấy phép **MIT License**.
 

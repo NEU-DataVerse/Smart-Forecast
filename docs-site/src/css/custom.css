@@ -28,3 +28,41 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Screenshot styles for documentation */
+.screenshot {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 1rem 0;
+}
+
+.screenshot-caption {
+  font-style: italic;
+  text-align: center;
+  color: var(--ifm-color-emphasis-600);
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.screenshot-mobile {
+  max-width: 320px;
+  margin: 1rem auto;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.screenshot-container {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+[data-theme='dark'] .screenshot {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .screenshot-mobile {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}

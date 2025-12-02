@@ -3,22 +3,22 @@ sidebar_position: 6
 title: Data Models
 ---
 
-# 📊 Data Models
+# Data Models
 
 Mô hình dữ liệu NGSI-LD và cấu trúc database của Smart Forecast.
 
 ---
 
-## 🌐 NGSI-LD Overview
+## NGSI-LD Overview
 
 Smart Forecast sử dụng **NGSI-LD** (Next Generation Service Interface - Linked Data) làm chuẩn dữ liệu cho dữ liệu môi trường. NGSI-LD là tiêu chuẩn của ETSI, được FIWARE Foundation phát triển.
 
 ### Tại sao NGSI-LD?
 
-- ✅ **Tiêu chuẩn quốc tế** - ETSI NGSI-LD specification
-- ✅ **Linked Data** - JSON-LD format với ngữ cảnh (context)
-- ✅ **Smart Data Models** - Sử dụng models chuẩn của FIWARE
-- ✅ **Interoperability** - Dễ tích hợp với các hệ thống Smart City khác
+- **Tiêu chuẩn quốc tế** - ETSI NGSI-LD specification
+- **Linked Data** - JSON-LD format với ngữ cảnh (context)
+- **Smart Data Models** - Sử dụng models chuẩn của FIWARE
+- **Interoperability** - Dễ tích hợp với các hệ thống Smart City khác
 
 ### Context Broker
 
@@ -47,7 +47,7 @@ Orion-LD là Context Broker chính, lưu trữ và quản lý các NGSI-LD entit
 
 ---
 
-## 🌡️ WeatherObserved
+## WeatherObserved
 
 Entity type cho dữ liệu thời tiết quan trắc được.
 
@@ -182,7 +182,7 @@ interface WeatherObserved {
 
 ---
 
-## 🌬️ AirQualityObserved
+## AirQualityObserved
 
 Entity type cho dữ liệu chất lượng không khí.
 
@@ -288,7 +288,7 @@ interface AirQualityObserved {
 
 ---
 
-## 🚨 WeatherAlert
+## WeatherAlert
 
 Entity type cho cảnh báo thời tiết/thiên tai.
 
@@ -324,7 +324,7 @@ interface WeatherAlert {
 
 ---
 
-## 📅 WeatherForecast
+## WeatherForecast
 
 Entity type cho dự báo thời tiết.
 
@@ -366,7 +366,7 @@ interface WeatherForecast {
 
 ---
 
-## 🗄️ PostgreSQL Schema
+## PostgreSQL Schema
 
 ### users
 
@@ -503,18 +503,19 @@ CREATE INDEX idx_air_quality_history_station_date ON air_quality_history(station
 
 ---
 
-## 📚 Smart Data Models References
+## Smart Data Models References
 
 | Model              | Documentation                                                                                       |
 | ------------------ | --------------------------------------------------------------------------------------------------- |
 | WeatherObserved    | [GitHub](https://github.com/smart-data-models/dataModel.Weather/tree/master/WeatherObserved)        |
-| AirQualityObserved | [GitHub](https://github.com/smart-data-models/dataModel.Environment/tree/master/AirQualityObserved) |
 | WeatherForecast    | [GitHub](https://github.com/smart-data-models/dataModel.Weather/tree/master/WeatherForecast)        |
+| AirQualityObserved | [GitHub](https://github.com/smart-data-models/dataModel.Environment/tree/master/AirQualityObserved) |
+| AirQualityForecast | [GitHub](https://github.com/smart-data-models/dataModel.Environment/tree/master/AirQualityForecast) |
 | WeatherAlert       | [GitHub](https://github.com/smart-data-models/dataModel.Weather/tree/master/WeatherAlert)           |
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [API Documentation](./api) - REST API endpoints
 - [Hướng dẫn phát triển](./dev-guide) - Development workflow

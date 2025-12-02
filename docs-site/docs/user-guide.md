@@ -3,13 +3,13 @@ sidebar_position: 8
 title: Hướng dẫn sử dụng
 ---
 
-# 📖 Hướng dẫn sử dụng
+# Hướng dẫn sử dụng
 
 Hướng dẫn sử dụng các ứng dụng của Smart Forecast.
 
 ---
 
-## 🌐 Web Dashboard (Admin/Manager)
+## Web Dashboard (Admin/Manager)
 
 Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 
@@ -21,28 +21,19 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 
 ### Dashboard chính
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Smart Forecast Dashboard                      👤 Admin │
-├─────────────────────────────────────────────────────────┤
-│ ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐│
-│ │ Stations  │ │  Alerts   │ │ Incidents │ │    AQI    ││
-│ │    15     │ │     3     │ │     8     │ │    85     ││
-│ └───────────┘ └───────────┘ └───────────┘ └───────────┘│
-│                                                         │
-│ ┌─────────────────────────────────────────────────────┐│
-│ │                      Map View                       ││
-│ │                                                     ││
-│ │    📍 Station 1                                     ││
-│ │         📍 Station 2                                ││
-│ │                📍 Station 3                         ││
-│ └─────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────┘
-```
+<div className="screenshot-container">
+  <img src="/img/dashboard-web.png" alt="Dashboard chính" className="screenshot" />
+  <p className="screenshot-caption">Trang Dashboard tổng quan</p>
+</div>
 
 ### Chức năng chính
 
 #### 1. Quản lý cảnh báo (Alerts)
+
+<div className="screenshot-container">
+  <img src="/img/alert-web.png" alt="Danh sách cảnh báo" className="screenshot" />
+  <p className="screenshot-caption">Danh sách cảnh báo</p>
+</div>
 
 **Xem danh sách cảnh báo:**
 
@@ -67,7 +58,22 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 - Active → Resolved
 - Active → Expired
 
+<div className="screenshot-container">
+  <img src="/img/detail-alert-web.png" alt="Chi tiết cảnh báo" className="screenshot" />
+  <p className="screenshot-caption">Chi tiết cảnh báo</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/map-alert-web.png" alt="Bản đồ cảnh báo" className="screenshot" />
+  <p className="screenshot-caption">Bản đồ hiển thị cảnh báo</p>
+</div>
+
 #### 2. Quản lý sự cố (Incidents)
+
+<div className="screenshot-container">
+  <img src="/img/incident-web.png" alt="Quản lý sự cố" className="screenshot" />
+  <p className="screenshot-caption">Quản lý sự cố</p>
+</div>
 
 **Xem danh sách sự cố:**
 
@@ -85,7 +91,22 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 4. Thêm ghi chú xử lý
 5. Nhấn **Cập nhật**
 
+<div className="screenshot-container">
+  <img src="/img/statistic-incident-web.png" alt="Thống kê sự cố" className="screenshot" />
+  <p className="screenshot-caption">Thống kê sự cố</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/map-incident-web.png" alt="Bản đồ sự cố" className="screenshot" />
+  <p className="screenshot-caption">Bản đồ hiển thị sự cố</p>
+</div>
+
 #### 3. Xem dữ liệu môi trường
+
+<div className="screenshot-container">
+  <img src="/img/chart-web.png" alt="Biểu đồ môi trường" className="screenshot" />
+  <p className="screenshot-caption">Biểu đồ dữ liệu môi trường</p>
+</div>
 
 **Thời tiết:**
 
@@ -101,7 +122,17 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 - Biểu đồ PM2.5, PM10
 - Dự báo 4 ngày
 
+<div className="screenshot-container">
+  <img src="/img/chart-history-web.png" alt="Lịch sử dữ liệu" className="screenshot" />
+  <p className="screenshot-caption">Lịch sử dữ liệu</p>
+</div>
+
 #### 4. Quản lý trạm (Stations)
+
+<div className="screenshot-container">
+  <img src="/img/station-web.png" alt="Danh sách trạm" className="screenshot" />
+  <p className="screenshot-caption">Danh sách trạm quan trắc</p>
+</div>
 
 **Xem danh sách trạm:**
 
@@ -114,6 +145,16 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 - Kích hoạt/Vô hiệu hóa trạm
 - Cập nhật thông tin trạm
 
+<div className="screenshot-container">
+  <img src="/img/create-station-web.png" alt="Tạo trạm mới" className="screenshot" />
+  <p className="screenshot-caption">Tạo trạm mới</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/compare-station-web.png" alt="So sánh trạm" className="screenshot" />
+  <p className="screenshot-caption">So sánh các trạm</p>
+</div>
+
 #### 5. Reports & Export
 
 **Xuất báo cáo:**
@@ -125,9 +166,11 @@ Dashboard web dành cho Admin và Manager để quản lý hệ thống.
 
 ---
 
-## 📱 Mobile App (Citizen)
+## Mobile App (Citizen)
 
 Ứng dụng di động dành cho người dân.
+
+{/_ TODO: Thêm mobile screenshots _/}
 
 ### Cài đặt
 
@@ -228,7 +271,7 @@ pnpm run dev:mobile
 
 ---
 
-## 🔔 Thông báo đẩy (Push Notifications)
+## Thông báo đẩy (Push Notifications)
 
 ### Loại thông báo
 
@@ -248,7 +291,7 @@ pnpm run dev:mobile
 
 ---
 
-## 🎨 Giao diện
+## Giao diện
 
 ### Màu sắc AQI
 
@@ -272,7 +315,7 @@ pnpm run dev:mobile
 
 ---
 
-## ❓ FAQ
+## FAQ
 
 ### Làm sao để đăng ký tài khoản?
 
@@ -297,7 +340,7 @@ Web Dashboard: **Weather/Air Quality** → Chọn tab **History** → Chọn kho
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Kiến trúc hệ thống](./architecture) - System architecture
 - [API Documentation](./api) - REST API endpoints

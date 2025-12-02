@@ -3,13 +3,13 @@ sidebar_position: 5
 title: API Documentation
 ---
 
-# 📡 API Documentation
+# API Documentation
 
 Tài liệu REST API của Smart Forecast Backend.
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 Tất cả API endpoints (trừ login/register) yêu cầu JWT token trong header.
 
@@ -47,7 +47,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-## 👥 Roles & Permissions
+## Roles & Permissions
 
 | Role      | Quyền hạn                                 |
 | --------- | ----------------------------------------- |
@@ -57,7 +57,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-## 🌡️ Weather API
+## Weather API
 
 ### Lấy thời tiết hiện tại
 
@@ -169,7 +169,7 @@ GET /api/v1/weather/station/:stationId
 
 ---
 
-## 🌬️ Air Quality API
+## Air Quality API
 
 ### Chất lượng không khí hiện tại
 
@@ -232,7 +232,7 @@ GET /api/v1/air-quality/station/:stationId
 
 ---
 
-## 🚨 Alerts API
+## Alerts API
 
 ### Danh sách cảnh báo
 
@@ -312,7 +312,7 @@ Authorization: Bearer <ADMIN_TOKEN>
 
 ---
 
-## 📝 Incidents API
+## Incidents API
 
 ### Danh sách sự cố
 
@@ -391,7 +391,7 @@ Content-Type: application/json
 
 ---
 
-## 📍 Stations API
+## Stations API
 
 ### Danh sách trạm
 
@@ -415,7 +415,7 @@ Authorization: Bearer <ADMIN_TOKEN>
 
 ---
 
-## 🔄 Ingestion API
+## Ingestion API
 
 ### Trigger thu thập dữ liệu
 
@@ -439,7 +439,7 @@ Authorization: Bearer <ADMIN_TOKEN>
 
 ---
 
-## 📊 Response Format
+## Response Format
 
 ### Success Response
 
@@ -483,7 +483,7 @@ Authorization: Bearer <ADMIN_TOKEN>
 
 ---
 
-## ⚡ Performance Notes
+## Performance Notes
 
 | Endpoint               | Latency   | Cache         |
 | ---------------------- | --------- | ------------- |
@@ -495,7 +495,7 @@ Authorization: Bearer <ADMIN_TOKEN>
 
 ---
 
-## 🧪 Testing với cURL
+## Testing với cURL
 
 ```bash
 # 1. Login
@@ -521,7 +521,7 @@ curl -X POST http://localhost:8000/api/v1/alerts \
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Data Models](./data-model) - NGSI-LD entities chi tiết
 - [Hướng dẫn phát triển](./dev-guide) - Development workflow

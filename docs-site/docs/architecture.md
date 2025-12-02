@@ -3,13 +3,13 @@ sidebar_position: 3
 title: Kiến trúc hệ thống
 ---
 
-# 🏗️ Kiến trúc hệ thống
+# Kiến trúc hệ thống
 
 Tổng quan về kiến trúc và các thành phần của Smart Forecast.
 
 ---
 
-## 📐 Sơ đồ kiến trúc tổng thể
+## Sơ đồ kiến trúc tổng thể
 
 ```
                     ┌─────────────────────────────────────────┐
@@ -41,7 +41,7 @@ Tổng quan về kiến trúc và các thành phần của Smart Forecast.
 
 ---
 
-## 📦 Cấu trúc Monorepo
+## Cấu trúc Monorepo
 
 ```
 smart-forecast/
@@ -67,7 +67,7 @@ smart-forecast/
 
 ---
 
-## 🔄 Luồng dữ liệu
+## Luồng dữ liệu
 
 ### 1. Thu thập dữ liệu (Data Ingestion)
 
@@ -157,7 +157,7 @@ OpenWeatherMap API
 
 ---
 
-## 🧩 Các thành phần chi tiết
+## Các thành phần chi tiết
 
 ### Backend (NestJS)
 
@@ -166,19 +166,28 @@ backend/src/
 ├── main.ts                   # Entry point
 ├── app.module.ts             # Root module
 ├── config/                   # Configuration
+│   ├── app.config.ts
 │   ├── database.config.ts
+│   ├── firebase.config.ts
+│   ├── google.config.ts
 │   ├── jwt.config.ts
+│   ├── minio.config.ts
+│   ├── openweathermap.config.ts
 │   └── orion.config.ts
 ├── modules/
-│   ├── auth/                 # JWT Authentication
-│   ├── user/                 # User Management
-│   ├── alert/                # Alert System
-│   ├── incident/             # Incident Reports
 │   ├── air-quality/          # Air Quality Data
-│   ├── weather/              # Weather Data
+│   ├── alert/                # Alert System
+│   ├── auth/                 # JWT Authentication
+│   ├── dashboard/            # Dashboard Statistics
+│   ├── file/                 # File Upload
+│   ├── incident/             # Incident Reports
 │   ├── ingestion/            # Data Ingestion
-│   ├── station/              # Station Management
-│   └── persistence/          # Data Persistence
+│   ├── notification/         # Push Notifications
+│   ├── persistence/          # Data Persistence
+│   ├── reports/              # Reports & Export
+│   ├── stations/             # Station Management
+│   ├── user/                 # User Management
+│   └── weather/              # Weather Data
 └── common/
     ├── decorators/
     ├── guards/               # RBAC Guards
@@ -221,7 +230,7 @@ mobile/
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### PostgreSQL Tables
 
@@ -239,11 +248,13 @@ mobile/
 | Collection | Entity Type          | Mô tả                        |
 | ---------- | -------------------- | ---------------------------- |
 | `entities` | `WeatherObserved`    | Dữ liệu thời tiết real-time  |
+| `entities` | `WeatherForecast`    | Dự báo thời tiết 7 ngày      |
 | `entities` | `AirQualityObserved` | Dữ liệu chất lượng không khí |
+| `entities` | `AirQualityForecast` | Dự báo chất lượng không khí  |
 
 ---
 
-## 🔌 Tích hợp FIWARE
+## Tích hợp FIWARE
 
 ### NGSI-LD Context Broker
 
@@ -251,21 +262,23 @@ Smart Forecast sử dụng **Orion-LD** làm Context Broker để quản lý d�
 
 ### Tại sao dùng NGSI-LD?
 
-- ✅ **Tiêu chuẩn ETSI** - Chuẩn quốc tế cho dữ liệu ngữ cảnh
-- ✅ **Linked Data** - Dữ liệu liên kết với JSON-LD
-- ✅ **Smart Data Models** - Sử dụng data models chuẩn của FIWARE
-- ✅ **Interoperability** - Dễ dàng tích hợp với các hệ thống khác
+- **Tiêu chuẩn ETSI** - Chuẩn quốc tế cho dữ liệu ngữ cảnh
+- **Linked Data** - Dữ liệu liên kết với JSON-LD
+- **Smart Data Models** - Sử dụng data models chuẩn của FIWARE
+- **Interoperability** - Dễ dàng tích hợp với các hệ thống khác
 
 ### Smart Data Models sử dụng
 
 | Model                | Mô tả                                       |
 | -------------------- | ------------------------------------------- |
 | `WeatherObserved`    | Dữ liệu thời tiết (nhiệt độ, độ ẩm, gió...) |
+| `WeatherForecast`    | Dự báo thời tiết (7 ngày)                   |
 | `AirQualityObserved` | Chất lượng không khí (AQI, PM2.5, PM10...)  |
+| `AirQualityForecast` | Dự báo chất lượng không khí (4 ngày)        |
 
 ---
 
-## 🔐 Authentication & Authorization
+## Authentication & Authorization
 
 ### JWT Authentication
 
@@ -286,7 +299,7 @@ Smart Forecast sử dụng **Orion-LD** làm Context Broker để quản lý d�
 
 ---
 
-## 📱 Push Notifications
+## Push Notifications
 
 ### Firebase Cloud Messaging (FCM)
 
@@ -305,7 +318,7 @@ Smart Forecast sử dụng **Orion-LD** làm Context Broker để quản lý d�
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Triển khai](./deployment) - Docker Compose và scripts
 - [API Documentation](./api) - REST API endpoints

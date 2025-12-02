@@ -3,13 +3,13 @@ sidebar_position: 2
 title: Bắt đầu nhanh
 ---
 
-# 🚀 Bắt đầu nhanh
+# Bắt đầu nhanh
 
 Hướng dẫn cài đặt và chạy Smart Forecast trong vài phút.
 
 ---
 
-## ✅ Yêu cầu hệ thống
+## Yêu cầu hệ thống
 
 ### Phần mềm cần thiết
 
@@ -46,16 +46,16 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 
 ---
 
-## 📥 Cài đặt
+## Cài đặt
 
-### 1️⃣ Clone repository
+### 1. Clone repository
 
 ```bash
 git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
 cd Smart-Forecast
 ```
 
-### 2️⃣ Cài đặt dependencies
+### 2. Cài đặt dependencies
 
 ```bash
 # Cài đặt tất cả packages trong monorepo
@@ -65,7 +65,7 @@ pnpm install
 pnpm run build:shared
 ```
 
-### 3️⃣ Cấu hình môi trường
+### 3. Cấu hình môi trường
 
 ```bash
 # Tự động copy tất cả file .env.example (khuyến nghị)
@@ -79,7 +79,7 @@ cp web/.env.local.example web/.env.local
 cp mobile/.env.example mobile/.env
 ```
 
-### 4️⃣ Cấu hình API Keys
+### 4. Cấu hình API Keys
 
 Chỉnh sửa `backend/.env`:
 
@@ -94,7 +94,7 @@ JWT_SECRET=your_secure_secret_key
 
 ---
 
-## 🐳 Khởi động với Docker
+## Khởi động với Docker
 
 ### Quick Start (1 lệnh)
 
@@ -131,7 +131,7 @@ docker compose logs -f
 
 ---
 
-## 💻 Development Mode
+## Development Mode
 
 ### Chạy Backend
 
@@ -172,7 +172,7 @@ EXPO_PUBLIC_BACKEND_API_URL=http://192.168.1.100:8000/api/v1
 
 ---
 
-## 🧪 Kiểm tra hệ thống
+## Kiểm tra hệ thống
 
 ### Health Check
 
@@ -199,7 +199,7 @@ docker exec -it mongodb mongosh
 
 ---
 
-## 🛑 Dừng dịch vụ
+## Dừng dịch vụ
 
 ```bash
 # Dừng tất cả (giữ data)
@@ -214,13 +214,13 @@ docker compose down --rmi all
 
 ---
 
-## ❓ Gặp vấn đề?
+## Gặp vấn đề?
 
 Xem [Troubleshooting](./troubleshooting) để giải quyết các lỗi thường gặp.
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Kiến trúc hệ thống](./architecture) - Hiểu về cách hệ thống hoạt động
 - [Hướng dẫn phát triển](./dev-guide) - Cho developers

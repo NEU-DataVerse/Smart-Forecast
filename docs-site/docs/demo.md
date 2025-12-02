@@ -3,13 +3,13 @@ sidebar_position: 12
 title: Demo
 ---
 
-# 🎬 Demo
+# Demo
 
 Xem demo và hướng dẫn nhanh về Smart Forecast.
 
 ---
 
-## 📹 Video Demo
+## Video Demo
 
 :::note Coming Soon
 Video demo đang được chuẩn bị. Vui lòng quay lại sau!
@@ -17,71 +17,85 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 ---
 
-## 🖼️ Screenshots
+## Screenshots
 
 ### Web Dashboard
 
 #### Dashboard chính
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Smart Forecast Dashboard                      👤 Admin │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌──────────┐│
-│  │ 🏢 15     │ │ 🚨 3      │ │ 📝 8      │ │ 🌡️ 85   ││
-│  │ Stations  │ │ Alerts    │ │ Incidents │ │ AQI      ││
-│  └───────────┘ └───────────┘ └───────────┘ └──────────┘│
-│                                                         │
-│  ┌──────────────────────────────────────────────────── ┐│
-│  │                                                     ││
-│  │              📍 Interactive Map                     ││
-│  │                                                     ││
-│  │     📍 Station 1 (Good)                            ││
-│  │           📍 Station 2 (Moderate)                   ││
-│  │                  📍 Station 3 (Good)                ││
-│  │                                                     ││
-│  └─────────────────────────────────────────────────────┘│
-│                                                         │
-│  ┌───────────────────────┐ ┌───────────────────────────┐│
-│  │ 📊 Weather Chart      │ │ 📈 Air Quality Chart      ││
-│  │ [Line chart showing   │ │ [Bar chart showing        ││
-│  │  temperature trends]  │ │  AQI over time]           ││
-│  └───────────────────────┘ └───────────────────────────┘│
-└─────────────────────────────────────────────────────────┘
-```
+<div className="screenshot-container">
+  <img src="/img/dashboard-web.png" alt="Dashboard chính" className="screenshot" />
+  <p className="screenshot-caption">Trang Dashboard tổng quan</p>
+</div>
 
 #### Quản lý cảnh báo
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Alerts Management                    [+ New Alert]     │
-├─────────────────────────────────────────────────────────┤
-│  Filter: [All ▼] [All Severity ▼] [Search...]          │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  🔴 CRITICAL | Flood Warning                            │
-│     Heavy rain expected in Hanoi area                   │
-│     Affected: Hanoi, Hai Phong                          │
-│     Valid: 2025-01-15 08:00 - 2025-01-16 20:00         │
-│     [View] [Edit] [Resolve]                             │
-│  ─────────────────────────────────────────────────────  │
-│  🟠 HIGH | Air Quality Alert                            │
-│     PM2.5 levels elevated in industrial zone            │
-│     Affected: Industrial District                       │
-│     Valid: 2025-01-15 06:00 - 2025-01-15 18:00         │
-│     [View] [Edit] [Resolve]                             │
-│  ─────────────────────────────────────────────────────  │
-│  🟡 MEDIUM | Weather Advisory                           │
-│     Strong winds expected tomorrow                      │
-│     Affected: Coastal areas                             │
-│     Valid: 2025-01-16 00:00 - 2025-01-16 24:00         │
-│     [View] [Edit] [Resolve]                             │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+<div className="screenshot-container">
+  <img src="/img/alert-web.png" alt="Danh sách cảnh báo" className="screenshot" />
+  <p className="screenshot-caption">Danh sách cảnh báo</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/detail-alert-web.png" alt="Chi tiết cảnh báo" className="screenshot" />
+  <p className="screenshot-caption">Chi tiết cảnh báo</p>
+</div>
+
+#### Bản đồ
+
+<div className="screenshot-container">
+  <img src="/img/map-alert-web.png" alt="Bản đồ cảnh báo" className="screenshot" />
+  <p className="screenshot-caption">Bản đồ hiển thị cảnh báo</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/map-incident-web.png" alt="Bản đồ sự cố" className="screenshot" />
+  <p className="screenshot-caption">Bản đồ hiển thị sự cố</p>
+</div>
+
+#### Quản lý trạm quan trắc
+
+<div className="screenshot-container">
+  <img src="/img/station-web.png" alt="Danh sách trạm" className="screenshot" />
+  <p className="screenshot-caption">Danh sách trạm quan trắc</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/create-station-web.png" alt="Tạo trạm mới" className="screenshot" />
+  <p className="screenshot-caption">Tạo trạm mới</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/compare-station-web.png" alt="So sánh trạm" className="screenshot" />
+  <p className="screenshot-caption">So sánh các trạm</p>
+</div>
+
+#### Biểu đồ dữ liệu
+
+<div className="screenshot-container">
+  <img src="/img/chart-web.png" alt="Biểu đồ" className="screenshot" />
+  <p className="screenshot-caption">Biểu đồ dữ liệu môi trường</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/chart-history-web.png" alt="Lịch sử dữ liệu" className="screenshot" />
+  <p className="screenshot-caption">Lịch sử dữ liệu</p>
+</div>
+
+#### Quản lý sự cố
+
+<div className="screenshot-container">
+  <img src="/img/incident-web.png" alt="Quản lý sự cố" className="screenshot" />
+  <p className="screenshot-caption">Quản lý sự cố</p>
+</div>
+
+<div className="screenshot-container">
+  <img src="/img/statistic-incident-web.png" alt="Thống kê sự cố" className="screenshot" />
+  <p className="screenshot-caption">Thống kê sự cố</p>
+</div>
 
 ### Mobile App
+
+{/_ TODO: Thêm mobile screenshots _/}
 
 #### Màn hình chính
 
@@ -157,7 +171,7 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 ---
 
-## 🚀 Quick Demo
+## Quick Demo
 
 ### Chạy demo local
 
@@ -198,7 +212,7 @@ Các tài khoản demo chỉ hoạt động trong môi trường development. Tr
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 ### API Demo
 
@@ -228,7 +242,7 @@ Quản lý file storage:
 
 ---
 
-## 📱 Mobile Demo
+## Mobile Demo
 
 ### Expo Go
 
@@ -244,28 +258,28 @@ Quản lý file storage:
 
 ---
 
-## 🎯 Tính năng demo
+## Tính năng demo
 
 ### Người dân (Citizen)
 
-1. ✅ Xem thời tiết real-time
-2. ✅ Xem chất lượng không khí
-3. ✅ Nhận thông báo cảnh báo
-4. ✅ Báo cáo sự cố (chụp ảnh, GPS)
-5. ✅ Theo dõi trạng thái báo cáo
+1. Xem thời tiết real-time
+2. Xem chất lượng không khí
+3. Nhận thông báo cảnh báo
+4. Báo cáo sự cố (chụp ảnh, GPS)
+5. Theo dõi trạng thái báo cáo
 
 ### Admin/Manager
 
-1. ✅ Dashboard tổng quan
-2. ✅ Bản đồ trạm quan trắc
-3. ✅ Quản lý cảnh báo
-4. ✅ Xử lý sự cố từ người dân
-5. ✅ Xem dữ liệu lịch sử
-6. ✅ Xuất báo cáo
+1. Dashboard tổng quan
+2. Bản đồ trạm quan trắc
+3. Quản lý cảnh báo
+4. Xử lý sự cố từ người dân
+5. Xem dữ liệu lịch sử
+6. Xuất báo cáo
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Bắt đầu](./getting-started) - Hướng dẫn cài đặt chi tiết
 - [Hướng dẫn sử dụng](./user-guide) - User guide
