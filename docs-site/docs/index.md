@@ -76,12 +76,12 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 
 Sử dụng thanh điều hướng bên trái để khám phá:
 
-- **[Bắt đầu nhanh](./getting-started)** - Cài đặt và chạy dự án
-- **[Kiến trúc hệ thống](./architecture)** - Sơ đồ và luồng dữ liệu
-- **[Triển khai](./deployment)** - Docker Compose và scripts
-- **[API Documentation](./api)** - REST API endpoints
-- **[Hướng dẫn phát triển](./dev-guide)** - Cho developers
-- **[Hướng dẫn sử dụng](./user-guide)** - Cho người dùng
+- **[Bắt đầu nhanh](./getting-started.md)** - Cài đặt và chạy dự án
+- **[Kiến trúc hệ thống](./architecture.md)** - Sơ đồ và luồng dữ liệu
+- **[Triển khai](./deployment.md)** - Docker Compose và scripts
+- **[API Documentation](./api.md)** - REST API endpoints
+- **[Hướng dẫn phát triển](./dev-guide.md)** - Cho developers
+- **[Hướng dẫn sử dụng](./user-guide.md)** - Cho người dùng
 
 ---
 
