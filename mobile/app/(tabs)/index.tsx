@@ -10,42 +10,70 @@ import {
 } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Location from 'expo-location';
-import { Thermometer, Droplets, Wind, Cloud, Activity, Gauge } from 'lucide-react-native';
+import { Thermometer, Droplets, Wind, Cloud, Activity, Gauge, MapPin } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@tanstack/react-query';
 
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
-import { weatherApi } from '@/services/api';
+import { weatherApi, airQualityApi } from '@/services/api';
 import EnvCard from '@/components/EnvCard';
+import { NearbyAirQualityResponse } from '@/types';
 
 export default function HomeScreen() {
   const { location, setLocation, environmentData, setEnvironmentData } = useAppStore();
 
-  const { data, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ['environment', location],
+  // Query for weather data from OpenWeatherMap
+  const {
+    data: weatherData,
+    isLoading: isWeatherLoading,
+    refetch: refetchWeather,
+    isRefetching: isWeatherRefetching,
+  } = useQuery({
+    queryKey: ['weather', location],
     queryFn: async () => {
       if (!location) {
         throw new Error('Location not available');
       }
-      try {
-        return await weatherApi.getEnvironmentData(location.latitude, location.longitude);
-      } catch (error) {
-        console.error('Failed to fetch from backend, error:', error);
-        // Return mock data or re-throw
-        throw error;
-      }
+      return await weatherApi.getEnvironmentData(location.latitude, location.longitude);
     },
     enabled: !!location,
     retry: 3,
     retryDelay: 1000,
   });
 
+  // Query for air quality data from backend API
+  const {
+    data: airQualityData,
+    isLoading: isAirQualityLoading,
+    refetch: refetchAirQuality,
+    isRefetching: isAirQualityRefetching,
+  } = useQuery<NearbyAirQualityResponse>({
+    queryKey: ['airQuality', location],
+    queryFn: async () => {
+      if (!location) {
+        throw new Error('Location not available');
+      }
+      return await airQualityApi.getNearbyAirQuality(location.latitude, location.longitude);
+    },
+    enabled: !!location,
+    retry: 3,
+    retryDelay: 1000,
+  });
+
+  const isLoading = isWeatherLoading || isAirQualityLoading;
+  const isRefetching = isWeatherRefetching || isAirQualityRefetching;
+
+  const handleRefresh = () => {
+    refetchWeather();
+    refetchAirQuality();
+  };
+
   useEffect(() => {
-    if (data) {
-      setEnvironmentData(data);
+    if (weatherData) {
+      setEnvironmentData(weatherData);
     }
-  }, [data, setEnvironmentData]);
+  }, [weatherData, setEnvironmentData]);
 
   useEffect(() => {
     const requestLocation = async () => {
@@ -79,6 +107,10 @@ export default function HomeScreen() {
   };
 
   const getAQILabel = (aqi: number): string => {
+    // Use level from backend if available
+    if (airQualityData?.current?.aqi?.openWeather?.level) {
+      return airQualityData.current.aqi.openWeather.level;
+    }
     const status = getAQIStatus(aqi);
     const labels = {
       good: 'Good',
@@ -88,6 +120,9 @@ export default function HomeScreen() {
     };
     return labels[status];
   };
+
+  // Get AQI index from backend or fallback to weather data
+  const currentAQI = airQualityData?.current?.aqi?.openWeather?.index ?? environmentData?.aqi ?? 1;
 
   if (isLoading && !environmentData) {
     return (
@@ -99,7 +134,9 @@ export default function HomeScreen() {
     );
   }
 
-  const envData = environmentData || data;
+  const envData = environmentData || weatherData;
+  const pollutants = airQualityData?.current?.pollutants;
+  const stationInfo = airQualityData?.nearestStation;
 
   return (
     <View style={styles.container}>
@@ -129,7 +166,7 @@ export default function HomeScreen() {
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
-            onRefresh={refetch}
+            onRefresh={handleRefresh}
             tintColor={Colors.primary.blue}
           />
         }
@@ -137,14 +174,40 @@ export default function HomeScreen() {
         {envData && (
           <>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Air Quality</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Air Quality</Text>
+                {stationInfo && (
+                  <View style={styles.stationInfo}>
+                    <MapPin size={12} color={Colors.text.secondary} />
+                    <Text style={styles.stationText}>
+                      {stationInfo.name} ({stationInfo.distance.toFixed(1)} km)
+                    </Text>
+                  </View>
+                )}
+              </View>
               <View style={styles.grid}>
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="AQI"
-                    value={getAQILabel(envData.aqi)}
-                    icon={<Activity size={20} color={Colors.status[getAQIStatus(envData.aqi)]} />}
-                    status={getAQIStatus(envData.aqi)}
+                    value={getAQILabel(currentAQI)}
+                    icon={<Activity size={20} color={Colors.status[getAQIStatus(currentAQI)]} />}
+                    status={getAQIStatus(currentAQI)}
+                  />
+                </View>
+                <View style={styles.gridItem}>
+                  <EnvCard
+                    title="PM2.5"
+                    value={pollutants?.pm25?.toFixed(1) ?? '--'}
+                    unit="μg/m³"
+                    icon={<Activity size={20} color={Colors.primary.blue} />}
+                  />
+                </View>
+                <View style={styles.gridItem}>
+                  <EnvCard
+                    title="PM10"
+                    value={pollutants?.pm10?.toFixed(1) ?? '--'}
+                    unit="μg/m³"
+                    icon={<Activity size={20} color={Colors.primary.blue} />}
                   />
                 </View>
                 <View style={styles.gridItem}>
@@ -260,11 +323,25 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600' as const,
     color: Colors.text.primary,
-    marginBottom: 16,
+  },
+  stationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  stationText: {
+    fontSize: 12,
+    color: Colors.text.secondary,
   },
   grid: {
     flexDirection: 'row',

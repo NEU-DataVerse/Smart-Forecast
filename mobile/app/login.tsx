@@ -1,9 +1,29 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, Text, StyleSheet, SafeAreaView, Pressable, ActivityIndicator } from 'react-native';
+import { Stack, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
+  const { signInWithGoogle, isSigningIn, isAuthenticated } = useAuth();
+
+  // Redirect to home if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      router.replace('/(tabs)');
+    } catch (error) {
+      // Error is already handled in AuthContext
+      console.log('Sign in failed');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen
@@ -43,8 +63,23 @@ export default function LoginScreen() {
           <View style={styles.signInSection}>
             <Text style={styles.signInTitle}>Get Started</Text>
             <Text style={styles.signInDescription}>
-              Access the app to monitor environmental conditions
+              Sign in with your Google account to access the app
             </Text>
+
+            <Pressable
+              style={[styles.googleButton, isSigningIn && styles.googleButtonDisabled]}
+              onPress={handleGoogleSignIn}
+              disabled={isSigningIn}
+            >
+              {isSigningIn ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <View style={styles.googleButtonContent}>
+                  <Text style={styles.googleIcon}>G</Text>
+                  <Text style={styles.googleButtonText}>Sign in with Google</Text>
+                </View>
+              )}
+            </Pressable>
           </View>
         </View>
       </LinearGradient>
@@ -156,11 +191,34 @@ const styles = StyleSheet.create({
   },
   googleButton: {
     width: '100%',
-    height: 48,
-    backgroundColor: '#4285F4',
-    borderRadius: 8,
+    height: 52,
+    backgroundColor: '#fff',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  googleButtonDisabled: {
+    opacity: 0.7,
+  },
+  googleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  googleIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#4285F4',
+    marginRight: 12,
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
 });
