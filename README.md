@@ -1,454 +1,304 @@
-# Smart-Forecast
+<p align="center">
+  <img src="docs-site/static/img/logo.jpg" alt="Smart Forecast Logo" width="120"/>
+</p>
 
-Smart urban environmental monitoring and warning system - Hệ thống giám sát và cảnh báo môi trường đô thị thông minh
+<h1 align="center">🌍 Smart Forecast</h1>
+
+<p align="center">
+  <strong>Nền tảng giám sát và cảnh báo môi trường đô thị thông minh</strong>
+</p>
+
+<p align="center">
+  <em>"Khi dữ liệu mở trở thành cảnh báo sớm cho cộng đồng"</em>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/OLP'2025-Dữ%20liệu%20mở%20liên%20kết-orange?style=flat-square" alt="OLP 2025">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-%3E%3D18-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/NestJS-11-E0234E?style=flat-square&logo=nestjs&logoColor=white" alt="NestJS">
+  <img src="https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js">
+  <img src="https://img.shields.io/badge/Expo-54-000020?style=flat-square&logo=expo&logoColor=white" alt="Expo">
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/FIWARE-Orion--LD-5DC0CF?style=flat-square" alt="FIWARE">
+  <img src="https://img.shields.io/badge/NGSI--LD-Smart%20Data%20Models-FF6F00?style=flat-square" alt="NGSI-LD">
+</p>
+
+---
 
 ## 📋 Mục Lục
 
-- [Giới thiệu](#giới-thiệu)
-- [Kiến trúc hệ thống](#kiến-trúc-hệ-thống)
-- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-- [Cài đặt và chạy](#cài-đặt-và-chạy)
-- [Cấu hình môi trường](#cấu-hình-môi-trường)
-- [Các dịch vụ](#các-dịch-vụ)
-- [Kiểm tra health check](#kiểm-tra-health-check)
-- [Quản lý dữ liệu](#quản-lý-dữ-liệu)
-- [Troubleshooting](#troubleshooting)
+- [Giới thiệu](#-giới-thiệu)
+- [Tính năng](#-tính-năng)
+- [Screenshots](#-screenshots)
+- [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
+- [Tech Stack](#-tech-stack)
+- [Cài đặt nhanh](#-cài-đặt-nhanh)
+- [Tài liệu](#-tài-liệu)
+- [Đóng góp](#-đóng-góp)
+- [Team NEU-DataVerse](#-team-neu-dataverse)
+- [License](#-license)
 
-> 📖 **New to the project?** Check out:
->
-> - [MONOREPO_MIGRATION_SUMMARY.md](docs/MONOREPO_MIGRATION_SUMMARY.md) - PNPM monorepo migration overview
-> - [DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md) - Comprehensive development guide
-> - [AUTOMATION_GUIDE.md](docs/AUTOMATION_GUIDE.md) - Makefile and scripts guide
+---
 
 ## 🎯 Giới thiệu
 
-Smart-Forecast là hệ thống giám sát và cảnh báo môi trường đô thị sử dụng công nghệ FIWARE và các công nghệ hiện đại:
+**Smart Forecast** là nền tảng **giám sát và cảnh báo môi trường đô thị thông minh**, được phát triển hướng tới hỗ trợ **chuyển đổi số** cho các thành phố hiện đại.
 
-- **Backend**: NestJS (Node.js)
-- **Web Frontend**: Next.js
-- **Mobile App**: Expo (React Native)
-- **Context Broker**: FIWARE Orion-LD
-- **Databases**: PostgreSQL, MongoDB
-- **Object Storage**: MinIO
-- **Data Persistence**: Native NestJS Service
+Dự án tham gia cuộc thi **OLP'2025 – Ứng dụng dữ liệu mở liên kết phục vụ chuyển đổi số**, tuân thủ chuẩn **NGSI-LD** và sử dụng **Smart Data Models** của FIWARE.
+
+### 🌟 Ý tưởng cốt lõi
+
+Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality)** và **thời tiết (Weather)** từ các nguồn mở như **OpenWeatherMap**, sau đó:
+
+- Phân tích, hiển thị và **cảnh báo tự động** khi vượt ngưỡng
+- Cho phép **quản lý** gửi cảnh báo thiên tai, xem báo cáo và thống kê
+- Cho phép **người dân** nhận thông báo và **gửi báo cáo sự cố** (ngập lụt, cây đổ, sạt lở...) kèm vị trí GPS và ảnh
+
+---
+
+## ✨ Tính năng
+
+### 📱 Ứng dụng di động (Citizen App)
+
+| Mã  | Chức năng                  | Mô tả                                                |
+| --- | -------------------------- | ---------------------------------------------------- |
+| C1  | Đăng nhập / Đăng ký        | Xác thực JWT với Google OAuth2                       |
+| C2  | Xem dữ liệu môi trường     | Hiển thị AQI, PM2.5, nhiệt độ, độ ẩm theo vị trí GPS |
+| C3  | Bản đồ đô thị (Live Map)   | Bản đồ cảnh báo sự cố                                |
+| C4  | Nhận cảnh báo tự động      | Push Notification qua Firebase Cloud Messaging       |
+| C5  | Gửi báo cáo sự cố          | Chụp ảnh, chọn loại sự cố, nhập mô tả, gửi vị trí    |
+| C6  | Lịch sử cảnh báo & báo cáo | Theo dõi các cảnh báo và sự cố đã gửi                |
+
+### 🖥️ Dashboard quản trị (Admin Web)
+
+| Mã  | Chức năng               | Mô tả                                              |
+| --- | ----------------------- | -------------------------------------------------- |
+| A1  | Đăng nhập quản trị      | Phân quyền Admin/Manager                           |
+| A2  | Theo dõi thời gian thực | Bản đồ cảm biến, biểu đồ AQI, nhiệt độ, thời tiết  |
+| A3  | Quản lý báo cáo sự cố   | Xem, xác nhận, gán trạng thái xử lý                |
+| A4  | Gửi cảnh báo đô thị     | Soạn và gửi cảnh báo tự động đến người dân qua FCM |
+| A5  | Xuất báo cáo            | Export thống kê PDF/CSV theo tháng, quý, năm       |
+
+---
+
+## 📸 Screenshots
+
+<!-- TODO: Thêm ảnh chụp màn hình Dashboard, Mobile App, biểu đồ -->
+
+<p align="center">
+  <em>🚧 Đang cập nhật screenshots...</em>
+</p>
+
+<!--
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="45%"/>
+  <img src="docs/screenshots/mobile-app.png" alt="Mobile App" width="45%"/>
+</p>
+-->
+
+### 🎬 Demo Video
+
+<!-- TODO: Thêm link YouTube demo -->
+
+> 🎥 Video demo sẽ được cập nhật sau
+
+---
 
 ## 🏗️ Kiến trúc hệ thống
 
 ```
-┌─────────────────┐     ┌─────────────────┐
-│   Mobile App    │     │   Web Frontend  │
-│   (Expo)        │     │   (Next.js)     │
-└────────┬────────┘     └────────┬────────┘
-         │                       │
-         └───────────┬───────────┘
-                     │
-              ┌──────▼──────┐
-              │   Backend   │◄─── NGSI-LD Notifications
-              │  (NestJS)   │     (Native Persistence)
-              └──────┬──────┘
-                     │
-         ┌───────────┼───────────┐
-         │           │           │
-    ┌────▼───┐  ┌───▼────┐ ┌───▼────┐
-    │ Orion  │  │Postgres│ │ MinIO  │
-    │  -LD   │  │   DB   │ │Storage │
-    └────┬───┘  └────────┘ └────────┘
-         │
-    ┌────▼────┐
-    │ MongoDB │
-    └─────────┘
+                    ┌─────────────────────────────────────────┐
+                    │              DATA SOURCES               │
+                    │         (OpenWeatherMap APIs)           │
+                    └─────────────────┬───────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────┐     ┌─────────────────────────────────────┐
+│   Mobile App    │     │           Backend (NestJS)          │
+│   (Expo RN)     │◄───►│  • Data Ingestion (NGSI-LD)         │
+└─────────────────┘     │  • Alert Management                 │
+                        │  • Incident Reports                 │
+┌─────────────────┐     │  • Push Notifications (FCM)         │
+│  Web Dashboard  │◄───►│  • REST API                         │
+│   (Next.js)     │     └─────────────────┬───────────────────┘
+└─────────────────┘                       │
+                            ┌─────────────┼─────────────┐
+                            │             │             │
+                       ┌────▼────┐    ┌───▼────┐    ┌───▼────┐
+                       │ Orion   │    │Postgres│    │ MinIO  │
+                       │   -LD   │    │   DB   │    │Storage │
+                       └────┬────┘    └────────┘    └────────┘
+                            │
+                       ┌────▼────┐
+                       │ MongoDB │
+                       └─────────┘
 ```
 
-## 💻 Yêu cầu hệ thống
-
-### Phần mềm cần thiết:
-
-- **Docker**: >= 20.10
-- **Docker Compose**: >= 2.0
-- **Git**: Để clone repository
-- **Node.js**: >= 20.x (cho development)
-- **pnpm**: >= 8.x (package manager cho monorepo)
-
-### Kiểm tra version:
-
-```bash
-docker --version
-docker-compose --version
-git --version
-node --version
-pnpm --version
-```
-
-### Cài đặt pnpm:
-
-```bash
-# Sử dụng npm (đã có sẵn với Node.js)
-npm install -g pnpm
-
-# Hoặc sử dụng các phương pháp khác:
-# Windows (PowerShell)
-iwr https://get.pnpm.io/install.ps1 -useb | iex
-
-# macOS/Linux
-curl -fsSL https://get.pnpm.io/install.sh | sh -
-
-# Xem thêm: https://pnpm.io/installation
-```
-
-## 🚀 Cài đặt và chạy
-
-### 1️⃣ Clone repository
-
-```bash
-git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
-cd Smart-Forecast
-```
-
-### 1.5️⃣ Cài đặt dependencies (cho development)
-
-```bash
-# Cài đặt tất cả dependencies cho monorepo
-pnpm install
-
-# Build shared package (cần thiết trước khi chạy backend/web/mobile)
-pnpm run build:shared
-```
-
-### 2️⃣ Cấu hình môi trường
-
-Hệ thống sử dụng cấu trúc environment variables được tách biệt cho từng layer:
-
-```bash
-# Tự động copy tất cả file .env.example (khuyến nghị)
-bash scripts/setup.sh  # Linux/Mac/Git Bash
-# hoặc
-scripts\setup.bat      # Windows
-
-# Hoặc copy thủ công từng file:
-cp docker/.env.infrastructure.example docker/.env.infrastructure
-cp backend/.env.example backend/.env
-cp web/.env.local.example web/.env.local
-cp mobile/.env.example mobile/.env
-```
-
-**Cấu trúc environment files:**
-
-- `docker/.env.infrastructure` - Biến cho Docker services (PostgreSQL, MongoDB, MinIO, Orion-LD)
-- `backend/.env` - Biến cho NestJS backend (API keys, database connection strings)
-- `web/.env.local` - Biến public cho Next.js frontend (chỉ `NEXT_PUBLIC_*`)
-- `mobile/.env` - Biến public cho Expo app (chỉ `EXPO_PUBLIC_*`)
-
-**Chỉnh sửa các file sau khi copy:**
-
-```bash
-# backend/.env - Cấu hình API key
-OPENWEATHER_API_KEY=your_openweathermap_api_key_here
-JWT_SECRET=change_this_to_secure_random_string
-
-# mobile/.env - Thay YOUR_LOCAL_IP bằng IP máy của bạn (không dùng localhost)
-EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
-```
-
-### 3️⃣ Khởi động các dịch vụ
-
-#### Chạy tất cả dịch vụ:
-
-```bash
-docker-compose up -d
-```
-
-#### Chạy các dịch vụ cụ thể:
-
-```bash
-# Chỉ chạy FIWARE stack
-docker-compose up -d orion mongodb
-
-# Chạy cơ sở dữ liệu
-docker-compose up -d postgres mongodb minio
-
-# Chạy với logs để debug
-docker-compose up orion mongodb postgres
-```
-
-### 4️⃣ Kiểm tra trạng thái
-
-```bash
-# Xem trạng thái các container
-docker-compose ps
-
-# Xem logs của tất cả services
-docker-compose logs
-
-# Xem logs của service cụ thể
-docker-compose logs -f orion
-docker-compose logs -f postgres
-docker-compose logs -f minio
-```
-
-### 5️⃣ Dừng các dịch vụ
-
-```bash
-# Dừng tất cả services (giữ data)
-docker-compose down
-
-# Dừng và xóa tất cả data
-docker-compose down -v
-
-# Dừng và xóa images
-docker-compose down --rmi all
-```
-
-## ⚙️ Cấu hình môi trường chi tiết
-
-### Environment Files Structure:
+### 📦 Cấu trúc Monorepo
 
 ```
-Smart-Forecast/
-├── docker/.env.infrastructure     # Docker services config
-├── backend/.env                   # Backend API config
-├── web/.env.local                 # Web frontend config
-└── mobile/.env                    # Mobile app config
+smart-forecast/
+├── backend/        # NestJS API Server
+├── web/            # Next.js Admin Dashboard
+├── mobile/         # Expo React Native App
+├── shared/         # Shared TypeScript Models & Constants
+├── docs-site/      # Docusaurus Documentation
+├── docker-compose.yml
+└── pnpm-workspace.yaml
 ```
-
-### Các biến môi trường theo layer:
-
-**Docker Infrastructure (`docker/.env.infrastructure`):**
-
-| Biến                         | Mô tả                | Giá trị mặc định  |
-| ---------------------------- | -------------------- | ----------------- |
-| `POSTGRES_USER`              | PostgreSQL username  | admin             |
-| `POSTGRES_PASSWORD`          | PostgreSQL password  | admin             |
-| `POSTGRES_DB`                | Database name        | smart_forecast_db |
-| `MONGO_INITDB_ROOT_USERNAME` | MongoDB username     | admin             |
-| `MONGO_INITDB_ROOT_PASSWORD` | MongoDB password     | admin             |
-| `MINIO_ROOT_USER`            | MinIO admin user     | minioadmin        |
-| `MINIO_ROOT_PASSWORD`        | MinIO admin password | minioadmin        |
-| `ORION_LOG_LEVEL`            | Orion log level      | DEBUG             |
-
-**Backend (`backend/.env`):**
-
-| Biến                  | Mô tả                        | Giá trị mặc định                                             |
-| --------------------- | ---------------------------- | ------------------------------------------------------------ |
-| `DATABASE_URL`        | PostgreSQL connection string | postgresql://admin:admin@localhost:5432/smart_forecast_db    |
-| `MONGO_URL`           | MongoDB connection string    | mongodb://admin:admin@localhost:27017/orion?authSource=admin |
-| `OPENWEATHER_API_KEY` | OpenWeatherMap API key       | (cần đăng ký)                                                |
-| `JWT_SECRET`          | JWT signing secret           | (đổi trong production)                                       |
-| `MINIO_ACCESS_KEY`    | MinIO access key             | minioadmin                                                   |
-| `MINIO_SECRET_KEY`    | MinIO secret key             | minioadmin                                                   |
-
-**Web Frontend (`web/.env.local`):**
-
-| Biến                    | Mô tả             | Giá trị mặc định             |
-| ----------------------- | ----------------- | ---------------------------- |
-| `NEXT_PUBLIC_API_URL`   | Backend API URL   | http://localhost:8000/api/v1 |
-| `NEXT_PUBLIC_MINIO_URL` | MinIO storage URL | http://localhost:9000        |
-
-**Mobile App (`mobile/.env`):**
-
-| Biến                    | Mô tả                  | Giá trị mặc định                 |
-| ----------------------- | ---------------------- | -------------------------------- |
-| `EXPO_PUBLIC_API_URL`   | Backend API URL        | http://YOUR_LOCAL_IP:8000/api/v1 |
-| `EXPO_PUBLIC_MINIO_URL` | MinIO storage URL      | http://YOUR_LOCAL_IP:9000        |
-| `OWM_API_KEY`           | API key OpenWeatherMap | -                                |
-| `JWT_SECRET`            | Secret key cho JWT     | -                                |
-
-### Lấy API Keys:
-
-2. **OpenWeatherMap**: Đăng ký tại https://openweathermap.org/api
-3. **Mapbox** (cho frontend): https://www.mapbox.com/
-
-## 🔧 Các dịch vụ
-
-### FIWARE Orion-LD Context Broker
-
-- **Port**: 1026
-- **URL**: http://localhost:1026
-- **Health Check**: http://localhost:1026/version
-- **Mô tả**: Quản lý context data theo chuẩn NGSI-LD
-
-### MongoDB
-
-- **Port**: 27017
-- **Mô tả**: Database cho Orion Context Broker
-
-### PostgreSQL
-
-- **Port**: 5432
-- **Username**: admin (hoặc theo `.env`)
-- **Password**: admin (hoặc theo `.env`)
-- **Database**: smart_forecast_db
-- **Mô tả**: Lưu trữ dữ liệu lịch sử và dữ liệu ứng dụng
-
-### MinIO (Object Storage)
-
-- **API Port**: 9000
-- **Console Port**: 9001
-- **Console URL**: http://localhost:9001
-- **Username**: minioadmin (hoặc theo `.env`)
-- **Password**: minioadmin (hoặc theo `.env`)
-- **Mô tả**: Lưu trữ file, ảnh, video của incidents
-
-### Backend API (NestJS)
-
-- **Port**: 8000
-- **URL**: http://localhost:8000
-- **API Docs**: http://localhost:8000/api
-- **Mô tả**: RESTful API cho ứng dụng
-
-## 🏥 Kiểm tra Health Check
-
-Tất cả services đều có health check tự động. Kiểm tra trạng thái:
-
-```bash
-# Xem health status của tất cả containers
-docker-compose ps
-
-# Kiểm tra chi tiết một container
-docker inspect --format='{{json .State.Health}}' orion
-
-# Kiểm tra thủ công từng service
-curl http://localhost:1026/version        # Orion
-curl http://localhost:8000/api/v1         # Backend
-curl http://localhost:9000/minio/health/live  # MinIO
-```
-
-### Health Check Configuration:
-
-- **Interval**: 30 giây - Kiểm tra mỗi 30 giây
-- **Timeout**: 10 giây - Timeout sau 10 giây
-- **Retries**: 3 lần - Thử lại 3 lần trước khi báo unhealthy
-- **Start Period**: 40-60 giây - Thời gian khởi động
-
-## 📊 Quản lý dữ liệu
-
-### Truy cập MinIO Console:
-
-1. Mở browser: http://localhost:9001
-2. Đăng nhập với credentials từ `.env`
-3. Tạo bucket `incidents` nếu chưa có
-
-### Kết nối PostgreSQL:
-
-```bash
-# Sử dụng psql
-docker exec -it postgres psql -U admin -d smart_forecast_db
-
-# Hoặc dùng GUI tool
-# Host: localhost
-# Port: 5432
-# Username: admin
-# Password: admin
-# Database: smart_forecast_db
-```
-
-### Kết nối MongoDB:
-
-```bash
-# Sử dụng mongo shell
-docker exec -it mongodb mongo
-
-# Hoặc dùng MongoDB Compass
-# Connection string: mongodb://localhost:27017
-```
-
-### Backup & Restore:
-
-```bash
-# Backup PostgreSQL
-docker exec postgres pg_dump -U admin smart_forecast_db > backup.sql
-
-# Restore PostgreSQL
-docker exec -i postgres psql -U admin smart_forecast_db < backup.sql
-
-# Backup MongoDB
-docker exec mongodb mongodump --out /backup
-
-# Restore MongoDB
-docker exec mongodb mongorestore /backup
-```
-
-## 🔍 Troubleshooting
-
-### Container không start được:
-
-```bash
-# Xem logs chi tiết
-docker-compose logs <service-name>
-
-# Restart một service
-docker-compose restart <service-name>
-
-# Rebuild và restart
-docker-compose up -d --build <service-name>
-```
-
-### Port bị conflict:
-
-Nếu port đã được sử dụng, sửa trong `docker-compose.yml`:
-
-```yaml
-ports:
-  - '5433:5432' # Thay đổi port bên trái
-```
-
-### Xóa tất cả và start lại:
-
-```bash
-# Dừng và xóa tất cả
-docker-compose down -v
-
-# Xóa images (optional)
-docker-compose down --rmi all
-
-# Start lại
-docker-compose up -d
-```
-
-### Health check failed:
-
-```bash
-# Kiểm tra logs
-docker-compose logs <service-name>
-
-# Restart service
-docker-compose restart <service-name>
-
-# Tăng start_period trong docker-compose.yml nếu cần
-```
-
-### Vấn đề với volumes:
-
-```bash
-# List volumes
-docker volume ls
-
-# Remove specific volume
-docker volume rm smart-forecast_postgres_data
-
-# Remove all unused volumes
-docker volume prune
-```
-
-## 📚 Tài liệu thêm
-
-- [FIWARE Orion-LD Documentation](https://fiware-orion.readthedocs.io/)
-- [MinIO Documentation](https://min.io/docs/minio/linux/index.html)
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Expo Documentation](https://docs.expo.dev/)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Team
-
-NEU-DataVerse Team
 
 ---
 
-**Note**: Đây là project đang trong giai đoạn phát triển. Một số tính năng có thể chưa hoàn thiện.
+## 🛠️ Tech Stack
+
+| Thành phần           | Công nghệ                                                                                                                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Backend**          | ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)     |
+| **Web Frontend**     | ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) |
+| **Mobile App**       | ![Expo](https://img.shields.io/badge/Expo-000020?style=flat-square&logo=expo&logoColor=white) ![React Native](https://img.shields.io/badge/React%20Native-61DAFB?style=flat-square&logo=react&logoColor=black)          |
+| **Context Broker**   | ![FIWARE](https://img.shields.io/badge/FIWARE-5DC0CF?style=flat-square) Orion-LD (NGSI-LD)                                                                                                                              |
+| **Databases**        | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)  |
+| **Object Storage**   | ![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=flat-square&logo=minio&logoColor=white) (S3-compatible)                                                                                                        |
+| **Notifications**    | ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black) Cloud Messaging                                                                                               |
+| **Data Source**      | OpenWeatherMap API                                                                                                                                                                                                      |
+| **Containerization** | ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) Docker Compose                                                                                                      |
+| **Package Manager**  | ![pnpm](https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white) Monorepo Workspace                                                                                                        |
+
+---
+
+## 🚀 Cài đặt nhanh
+
+### Yêu cầu hệ thống
+
+- **Docker** >= 20.10
+- **Docker Compose** >= 2.0
+- **Node.js** >= 18.x (cho development)
+- **pnpm** >= 8.x
+
+### Quick Start (3 bước)
+
+```bash
+# 1️⃣ Clone repository
+git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
+cd Smart-Forecast
+
+# 2️⃣ Copy file môi trường
+cp .env.example .env
+cp backend/.env.example backend/.env
+# Chỉnh sửa các API keys trong backend/.env
+
+# 3️⃣ Khởi động tất cả services
+docker compose up -d
+```
+
+### Truy cập các dịch vụ
+
+| Dịch vụ           | URL                          | Mô tả                   |
+| ----------------- | ---------------------------- | ----------------------- |
+| **Backend API**   | http://localhost:8000/api/v1 | REST API & Swagger Docs |
+| **Web Dashboard** | http://localhost:3000        | Admin Dashboard         |
+| **Orion-LD**      | http://localhost:1026        | Context Broker          |
+| **MinIO Console** | http://localhost:9001        | Object Storage UI       |
+
+### Development Mode
+
+```bash
+# Cài đặt dependencies
+pnpm install
+
+# Build shared package
+pnpm run build:shared
+
+# Chạy backend development
+pnpm run dev:backend
+
+# Chạy web development
+pnpm run dev:web
+
+# Chạy mobile (Expo)
+pnpm run dev:mobile
+```
+
+> 📖 **Chi tiết hơn?** Xem [QUICKSTART.md](QUICKSTART.md) hoặc [Tài liệu đầy đủ](#-tài-liệu)
+
+---
+
+## 📚 Tài liệu
+
+| Tài liệu                           | Mô tả                   |
+| ---------------------------------- | ----------------------- |
+| [QUICKSTART.md](QUICKSTART.md)     | Hướng dẫn cài đặt nhanh |
+| [CHEATSHEET.md](CHEATSHEET.md)     | Các lệnh thường dùng    |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Hướng dẫn đóng góp      |
+| [CHANGELOG.md](CHANGELOG.md)       | Lịch sử thay đổi        |
+
+### Tài liệu chi tiết (Docusaurus)
+
+> 🌐 https://neu-dataverse.github.io/Smart-Forecast/
+
+- Kiến trúc hệ thống (Architecture)
+- Hướng dẫn triển khai (Deployment)
+- API Documentation
+- Data Models (NGSI-LD)
+- Hướng dẫn sử dụng
+
+---
+
+## 🤝 Đóng góp
+
+Chúng tôi hoan nghênh mọi đóng góp! Xem [CONTRIBUTING.md](CONTRIBUTING.md) để biết thêm chi tiết.
+
+```bash
+# Fork repo → Tạo branch → Commit → Push → Pull Request
+git checkout -b feat/amazing-feature
+git commit -m "feat: add amazing feature"
+git push origin feat/amazing-feature
+```
+
+---
+
+## 👥 Team NEU-DataVerse
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Mkhai205">
+        <img src="https://github.com/Mkhai205.png" width="100px;" alt="Khải"/><br />
+        <sub><b>Khải (Mkhai205)</b></sub>
+      </a><br />
+      <sub>PM, Backend, Frondend, DevOps</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/NGUYENTHANHDATHH">
+        <img src="https://github.com/NGUYENTHANHDATHH.png" width="100px;" alt="Đạt"/><br />
+        <sub><b>Đạt (NGUYENTHANHDATHH)</b></sub>
+      </a><br />
+      <sub>Frontend</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/BichCan">
+        <img src="https://github.com/BichCan.png" width="100px;" alt="Bích"/><br />
+        <sub><b>Bích (BichCan)</b></sub>
+      </a><br />
+      <sub>Design UI, Docs</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 📄 License
+
+Dự án được phân phối dưới giấy phép **MIT License**. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
+
+---
+
+<p align="center">
+  <strong>Nhóm NEU-DataVerse – OLP'2025</strong><br/>
+  <em>🌍 Smart Forecast – Khi dữ liệu mở trở thành cảnh báo sớm cho cộng đồng</em>
+</p>
