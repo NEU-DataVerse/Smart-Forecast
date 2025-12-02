@@ -3,13 +3,15 @@ sidebar_position: 12
 title: Demo
 ---
 
-# 🎬 Demo
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Demo
 
 Xem demo và hướng dẫn nhanh về Smart Forecast.
 
 ---
 
-## 📹 Video Demo
+## Video Demo
 
 :::note Coming Soon
 Video demo đang được chuẩn bị. Vui lòng quay lại sau!
@@ -17,73 +19,92 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 ---
 
-## 🖼️ Screenshots
+## Screenshots
 
 ### Web Dashboard
 
 #### Dashboard chính
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Smart Forecast Dashboard                      👤 Admin │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌──────────┐│
-│  │ 🏢 15     │ │ 🚨 3      │ │ 📝 8      │ │ 🌡️ 85   ││
-│  │ Stations  │ │ Alerts    │ │ Incidents │ │ AQI      ││
-│  └───────────┘ └───────────┘ └───────────┘ └──────────┘│
-│                                                         │
-│  ┌──────────────────────────────────────────────────── ┐│
-│  │                                                     ││
-│  │              📍 Interactive Map                     ││
-│  │                                                     ││
-│  │     📍 Station 1 (Good)                            ││
-│  │           📍 Station 2 (Moderate)                   ││
-│  │                  📍 Station 3 (Good)                ││
-│  │                                                     ││
-│  └─────────────────────────────────────────────────────┘│
-│                                                         │
-│  ┌───────────────────────┐ ┌───────────────────────────┐│
-│  │ 📊 Weather Chart      │ │ 📈 Air Quality Chart      ││
-│  │ [Line chart showing   │ │ [Bar chart showing        ││
-│  │  temperature trends]  │ │  AQI over time]           ││
-│  └───────────────────────┘ └───────────────────────────┘│
-└─────────────────────────────────────────────────────────┘
-```
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/dashboard-web.png')} alt="Dashboard" className="screenshot" />
+  <figcaption className="screenshot-caption">Trang Dashboard tổng quan - Hiển thị thông tin tổng hợp về trạm, cảnh báo, sự cố và chỉ số AQI</figcaption>
+</figure>
 
 #### Quản lý cảnh báo
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Alerts Management                    [+ New Alert]     │
-├─────────────────────────────────────────────────────────┤
-│  Filter: [All ▼] [All Severity ▼] [Search...]          │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  🔴 CRITICAL | Flood Warning                            │
-│     Heavy rain expected in Hanoi area                   │
-│     Affected: Hanoi, Hai Phong                          │
-│     Valid: 2025-01-15 08:00 - 2025-01-16 20:00         │
-│     [View] [Edit] [Resolve]                             │
-│  ─────────────────────────────────────────────────────  │
-│  🟠 HIGH | Air Quality Alert                            │
-│     PM2.5 levels elevated in industrial zone            │
-│     Affected: Industrial District                       │
-│     Valid: 2025-01-15 06:00 - 2025-01-15 18:00         │
-│     [View] [Edit] [Resolve]                             │
-│  ─────────────────────────────────────────────────────  │
-│  🟡 MEDIUM | Weather Advisory                           │
-│     Strong winds expected tomorrow                      │
-│     Affected: Coastal areas                             │
-│     Valid: 2025-01-16 00:00 - 2025-01-16 24:00         │
-│     [View] [Edit] [Resolve]                             │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/alert-web.png')} alt="Danh sách cảnh báo" className="screenshot" />
+  <figcaption className="screenshot-caption">Danh sách cảnh báo</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/detail-alert-web.png')} alt="Chi tiết cảnh báo" className="screenshot" />
+  <figcaption className="screenshot-caption">Chi tiết cảnh báo</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/map-alert-web.png')} alt="Bản đồ hiển thị vị trí các cảnh báo" className="screenshot" />
+  <figcaption className="screenshot-caption">Bản đồ hiển thị vị trí các cảnh báo</figcaption>
+</figure>
+
+#### Quản lý sự cố (Incidents)
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/incident-web.png')} alt="Quản lý sự cố từ người dân" className="screenshot" />
+  <figcaption className="screenshot-caption">Quản lý sự cố từ người dân</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/statistic-incident-web.png')} alt="Thống kê sự cố" className="screenshot" />
+  <figcaption className="screenshot-caption">Thống kê sự cố</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/map-incident-web.png')} alt="Bản đồ hiển thị vị trí các sự cố" className="screenshot" />
+  <figcaption className="screenshot-caption">Bản đồ hiển thị vị trí các sự cố</figcaption>
+</figure>
+
+#### Quản lý trạm quan trắc (Stations)
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/station-web.png')} alt="Danh sách trạm quan trắc" className="screenshot" />
+  <figcaption className="screenshot-caption">Danh sách trạm quan trắc</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/create-station-web.png')} alt="Tạo trạm mới" className="screenshot" />
+  <figcaption className="screenshot-caption">Tạo trạm mới</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/compare-station-web.png')} alt="So sánh dữ liệu giữa các trạm" className="screenshot" />
+  <figcaption className="screenshot-caption">So sánh dữ liệu giữa các trạm</figcaption>
+</figure>
+
+#### Biểu đồ và dữ liệu
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/chart-web.png')} alt="Biểu đồ dữ liệu môi trường" className="screenshot" />
+  <figcaption className="screenshot-caption">Biểu đồ dữ liệu môi trường</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/chart-history-web.png')} alt="Lịch sử dữ liệu theo thời gian" className="screenshot" />
+  <figcaption className="screenshot-caption">Lịch sử dữ liệu theo thời gian</figcaption>
+</figure>
 
 ### Mobile App
 
+:::info Ảnh Mobile App sắp có
+Ảnh chụp màn hình ứng dụng Mobile đang được cập nhật. Dưới đây là mô tả giao diện:
+:::
+
 #### Màn hình chính
+
+<div className="mobile-placeholder">
+  <strong>Mobile Home Screen</strong>
+  <p>Hiển thị thời tiết, AQI và cảnh báo</p>
+</div>
 
 ```
 ┌─────────────────────────────┐
@@ -122,6 +143,11 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 #### Báo cáo sự cố
 
+<div className="mobile-placeholder">
+  <strong>Report Incident Screen</strong>
+  <p>Form báo cáo sự cố với ảnh và GPS</p>
+</div>
+
 ```
 ┌─────────────────────────────┐
 │ ← Report Incident           │
@@ -155,9 +181,11 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 └─────────────────────────────┘
 ```
 
+<!-- TODO: Thêm mobile screenshots khi có ảnh -->
+
 ---
 
-## 🚀 Quick Demo
+## Quick Demo
 
 ### Chạy demo local
 
@@ -173,6 +201,11 @@ pnpm run build:shared
 # Start Docker services
 docker compose up -d
 
+# Seed database (tạo dữ liệu mẫu)
+cd backend
+npm run seed:force
+cd ..
+
 # Start all apps
 # Terminal 1
 pnpm run dev:backend    # http://localhost:8000
@@ -184,21 +217,55 @@ pnpm run dev:web        # http://localhost:3000
 pnpm run dev:mobile     # Expo DevTools
 ```
 
+### Seed Database Options
+
+| Command                   | Mô tả                                              |
+| ------------------------- | -------------------------------------------------- |
+| `npm run seed`            | Seed nếu DB rỗng                                   |
+| `npm run seed:force`      | Force reseed (xóa và seed lại tất cả)              |
+| `npm run seed:base`       | Seed base data (không có fake weather/air-quality) |
+| `npm run seed:base:force` | Force reseed base data                             |
+| `npm run seed:clear`      | Xóa tất cả dữ liệu                                 |
+
+:::tip Sử dụng dữ liệu thật từ OpenWeatherMap
+Nếu muốn sử dụng dữ liệu thật thay vì fake data:
+
+```bash
+# 1. Seed base data (users, stations, incidents, alerts)
+npm run seed:base:force
+
+# 2. Vào Dashboard web → "Thu thập dữ liệu lịch sử" để lấy data thật
+```
+
+> **Lưu ý**: Historical Weather API của OpenWeatherMap yêu cầu **paid subscription**. Historical Air Quality API là **miễn phí**.
+> :::
+
 ### Demo accounts
 
-| Role    | Email                    | Password   |
-| ------- | ------------------------ | ---------- |
-| Admin   | admin@smartforecast.vn   | admin123   |
-| Manager | manager@smartforecast.vn | manager123 |
-| Citizen | user@smartforecast.vn    | user123    |
+| Role  | Email                   | Password | Provider |
+| ----- | ----------------------- | -------- | -------- |
+| Admin | admin@smartforecast.com | admin123 | local    |
+| User  | user@test.com           | (OAuth)  | google   |
+| Demo  | demo@smartforecast.com  | demo123  | local    |
 
 :::note
-Các tài khoản demo chỉ hoạt động trong môi trường development. Trong production, bạn cần tạo tài khoản mới.
+Các tài khoản demo được tạo tự động khi chạy `npm run seed` trong backend. Trong production, bạn cần tạo tài khoản mới.
 :::
+
+### Trạm quan trắc mẫu
+
+Hệ thống seed tự động tạo 4 trạm quan trắc tại Hà Nội:
+
+| Tên trạm  | Mã        | Vị trí      | Độ ưu tiên |
+| --------- | --------- | ----------- | ---------- |
+| Hoàn Kiếm | HN-HK-001 | Trung tâm   | HIGH       |
+| Hà Đông   | HN-HD-001 | Phía Tây    | MEDIUM     |
+| Cầu Giấy  | HN-CG-001 | Khu đại học | HIGH       |
+| Long Biên | HN-LB-001 | Ven sông    | MEDIUM     |
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 ### API Demo
 
@@ -228,7 +295,7 @@ Quản lý file storage:
 
 ---
 
-## 📱 Mobile Demo
+## Mobile Demo
 
 ### Expo Go
 
@@ -244,7 +311,7 @@ Quản lý file storage:
 
 ---
 
-## 🎯 Tính năng demo
+## Tính năng demo
 
 ### Người dân (Citizen)
 
@@ -265,7 +332,7 @@ Quản lý file storage:
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Bắt đầu](./getting-started) - Hướng dẫn cài đặt chi tiết
 - [Hướng dẫn sử dụng](./user-guide) - User guide

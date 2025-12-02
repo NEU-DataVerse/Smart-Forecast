@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { EnvironmentData, Location, Alert, Incident, Sensor } from '@/types';
+import { EnvironmentData, Location, Alert, Sensor } from '@/types';
+import type { IIncident } from '@smart-forecast/shared';
 
 interface AppStore {
   location: Location | null;
@@ -12,8 +13,8 @@ interface AppStore {
   addAlert: (alert: Alert) => void;
   markAlertAsRead: (id: string) => void;
 
-  incidents: Incident[];
-  addIncident: (incident: Incident) => void;
+  incidents: IIncident[];
+  setIncidents: (incidents: IIncident[]) => void;
 
   sensors: Sensor[];
   setSensors: (sensors: Sensor[]) => void;
@@ -58,7 +59,7 @@ export const useAppStore = create<AppStore>((set) => ({
     })),
 
   incidents: [],
-  addIncident: (incident) => set((state) => ({ incidents: [incident, ...state.incidents] })),
+  setIncidents: (incidents) => set({ incidents }),
 
   sensors: [
     {

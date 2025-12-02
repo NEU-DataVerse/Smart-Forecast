@@ -1,20 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useMemo, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { Stack } from 'expo-router';
-// import Colors from '@/constants/colors'; // Giả sử bạn có file này
-// import { useAppStore } from '@/store/appStore'; // Giả sử bạn có store này
-import CityMap from '@/components/CityMap'; // Import component vừa tạo ở Bước 2
+import { AlertTriangle, X, Clock, Info, MapPin } from 'lucide-react-native';
+import AlertMap from '@/components/AlertMap';
+import { useActiveAlerts, useRefreshAlerts } from '@/hooks/useAlerts';
+import {
+  IAlert,
+  AlertLevelColors,
+  AlertLevelLabels,
+  AlertTypeLabels,
+} from '@smart-forecast/shared';
 
-// --- MOCK DATA & CONSTANTS (Để chạy demo, bạn có thể xóa phần này nếu đã có file thật) ---
 const Colors = {
   primary: { blue: '#007AFF' },
   text: { white: '#FFFFFF', primary: '#000000', secondary: '#666666', light: '#999999' },
-  background: { card: '#FFFFFF' },
-  status: { good: '#34C759', unhealthy: '#FF3B30' },
+  background: { primary: '#F5F5F5', card: '#FFFFFF' },
   shadow: '#000',
 };
 
-// Định nghĩa lại Type nếu chưa có
 type MapRegion = {
   latitude: number;
   longitude: number;
@@ -22,120 +25,159 @@ type MapRegion = {
   longitudeDelta: number;
 };
 
-type Sensor = {
-  id: string;
-  name: string;
-  type: string;
-  location: { latitude: number; longitude: number };
-  lastReading: { aqi?: number; temperature?: number; humidity?: number };
-  status: 'active' | 'inactive';
-};
-
-// Mock Store Hook
-const useAppStore = () => ({
-  location: { latitude: 10.762622, longitude: 106.660172 }, // TP.HCM
-  sensors: [
-    {
-      id: 's1',
-      name: 'Sensor District 1',
-      type: 'air_quality',
-      location: { latitude: 10.7756, longitude: 106.7004 }, // Chợ Bến Thành
-      lastReading: { aqi: 45, temperature: 30, humidity: 65 },
-      status: 'active',
-    },
-    {
-      id: 's2',
-      name: 'Sensor District 5',
-      type: 'air_quality',
-      location: { latitude: 10.7546, longitude: 106.6664 },
-      lastReading: { aqi: 112, temperature: 31, humidity: 60 },
-      status: 'active',
-    },
-  ] as Sensor[],
-});
-// ---------------------------------------------------------------------------------
-
 export default function MapScreen() {
-  const { location, sensors } = useAppStore();
-  const [selectedSensor, setSelectedSensor] = useState<string | null>(null);
+  // Alert state
+  const { data: alerts, isLoading } = useActiveAlerts();
+  const { refreshActive } = useRefreshAlerts();
+  const [selectedAlert, setSelectedAlert] = useState<IAlert | null>(null);
+  const [showAlertModal, setShowAlertModal] = useState(false);
 
   const initialRegion = useMemo<MapRegion>(
     () => ({
-      latitude: location?.latitude ?? 10.8231,
-      longitude: location?.longitude ?? 106.6297,
-      latitudeDelta: 0.05, // Zoom gần hơn một chút để thấy rõ đường phố
-      longitudeDelta: 0.05,
+      latitude: 10.762622,
+      longitude: 106.660172,
+      latitudeDelta: 0.1,
+      longitudeDelta: 0.1,
     }),
-    [location?.latitude, location?.longitude],
+    [],
   );
 
-  const activeSensor = useMemo<Sensor | null>(() => {
-    if (!selectedSensor) return null;
-    return sensors.find((sensor) => sensor.id === selectedSensor) ?? null;
-  }, [selectedSensor, sensors]);
+  const handleAlertSelect = useCallback(
+    (alertId: string) => {
+      const alert = alerts?.find((a) => a.id === alertId);
+      if (alert) {
+        setSelectedAlert(alert);
+        setShowAlertModal(true);
+      }
+    },
+    [alerts],
+  );
+
+  const isAlertActive = (alert: IAlert): boolean => {
+    if (!alert.expiresAt) return true;
+    return new Date() < new Date(alert.expiresAt);
+  };
+
+  const formatDate = (date: Date | string): string => {
+    const d = new Date(date);
+    return d.toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   return (
     <View style={styles.container} testID="map-screen">
       <Stack.Screen
         options={{
-          title: 'Bản đồ OpenStreetMap',
+          title: 'Bản đồ Cảnh báo',
           headerStyle: { backgroundColor: Colors.primary.blue },
           headerTintColor: Colors.text.white,
         }}
       />
 
-      <CityMap
+      {/* Alert Map */}
+      <AlertMap
         initialRegion={initialRegion}
-        sensors={sensors}
-        onSensorSelect={(sensorId) => {
-          console.log('MapScreen sensor selected', sensorId);
-          setSelectedSensor(sensorId);
-        }}
+        alerts={alerts ?? []}
+        onAlertSelect={handleAlertSelect}
+        isLoading={isLoading}
       />
 
-      {activeSensor && (
-        <View style={styles.infoPanel} testID="sensor-info-panel">
-          <ScrollView>
-            <Text style={styles.infoTitle}>{activeSensor.name}</Text>
-            <Text style={styles.infoSubtitle}>
-              {activeSensor.type.replace('_', ' ').toUpperCase()}
-            </Text>
+      {/* Alert Detail Modal */}
+      <Modal
+        visible={showAlertModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAlertModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Pressable style={styles.closeButton} onPress={() => setShowAlertModal(false)}>
+              <X size={24} color={Colors.text.primary} />
+            </Pressable>
 
-            <View style={styles.infoGrid}>
-              {activeSensor.lastReading.aqi !== undefined && (
-                <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>AQI</Text>
-                  <Text style={styles.infoValue}>{activeSensor.lastReading.aqi}</Text>
+            {selectedAlert && (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Level Badge */}
+                <View
+                  style={[
+                    styles.modalLevelBadge,
+                    { backgroundColor: AlertLevelColors[selectedAlert.level] || '#3b82f6' },
+                  ]}
+                >
+                  <AlertTriangle size={16} color="#fff" />
+                  <Text style={styles.modalLevelText}>
+                    {AlertLevelLabels[selectedAlert.level] || selectedAlert.level}
+                  </Text>
                 </View>
-              )}
-              {activeSensor.lastReading.temperature !== undefined && (
-                <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Temp</Text>
-                  <Text style={styles.infoValue}>{activeSensor.lastReading.temperature}°C</Text>
-                </View>
-              )}
-              {activeSensor.lastReading.humidity !== undefined && (
-                <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Humidity</Text>
-                  <Text style={styles.infoValue}>{activeSensor.lastReading.humidity}%</Text>
-                </View>
-              )}
-            </View>
 
-            <View
-              style={[
-                styles.statusBadge,
-                {
-                  backgroundColor:
-                    activeSensor.status === 'active' ? Colors.status.good : Colors.status.unhealthy,
-                },
-              ]}
-            >
-              <Text style={styles.statusText}>{activeSensor.status.toUpperCase()}</Text>
-            </View>
-          </ScrollView>
+                {/* Title */}
+                <Text style={styles.modalTitle}>{selectedAlert.title}</Text>
+
+                {/* Type */}
+                <View style={styles.modalInfoRow}>
+                  <Info size={16} color={Colors.text.secondary} />
+                  <Text style={styles.modalInfoLabel}>Loại:</Text>
+                  <Text style={styles.modalInfoValue}>
+                    {AlertTypeLabels[selectedAlert.type] || selectedAlert.type}
+                  </Text>
+                </View>
+
+                {/* Time */}
+                <View style={styles.modalInfoRow}>
+                  <Clock size={16} color={Colors.text.secondary} />
+                  <Text style={styles.modalInfoLabel}>Gửi lúc:</Text>
+                  <Text style={styles.modalInfoValue}>{formatDate(selectedAlert.sentAt)}</Text>
+                </View>
+
+                {/* Expires */}
+                {selectedAlert.expiresAt && (
+                  <View style={styles.modalInfoRow}>
+                    <Clock size={16} color={Colors.text.secondary} />
+                    <Text style={styles.modalInfoLabel}>Hết hạn:</Text>
+                    <Text
+                      style={[
+                        styles.modalInfoValue,
+                        !isAlertActive(selectedAlert) && styles.expiredText,
+                      ]}
+                    >
+                      {formatDate(selectedAlert.expiresAt)}
+                      {!isAlertActive(selectedAlert) && ' (Đã hết hạn)'}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Area indicator */}
+                {selectedAlert.area && (
+                  <View style={styles.modalInfoRow}>
+                    <MapPin size={16} color={Colors.text.secondary} />
+                    <Text style={styles.modalInfoLabel}>Khu vực:</Text>
+                    <Text style={styles.modalInfoValue}>Có vùng ảnh hưởng</Text>
+                  </View>
+                )}
+
+                {/* Message */}
+                <Text style={styles.modalSectionTitle}>Nội dung</Text>
+                <Text style={styles.modalMessage}>{selectedAlert.message}</Text>
+
+                {/* Advice */}
+                {selectedAlert.advice && (
+                  <>
+                    <Text style={styles.modalSectionTitle}>Khuyến cáo</Text>
+                    <View style={styles.adviceBox}>
+                      <Text style={styles.adviceText}>{selectedAlert.advice}</Text>
+                    </View>
+                  </>
+                )}
+              </ScrollView>
+            )}
+          </View>
         </View>
-      )}
+      </Modal>
     </View>
   );
 }
@@ -144,61 +186,88 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  infoPanel: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background.card,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 40, // Thêm padding đáy cho an toàn trên iPhone X+
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
-  infoTitle: {
+  modalContent: {
+    backgroundColor: Colors.background.primary,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    padding: 4,
+  },
+  modalLevelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  modalLevelText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  modalTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: Colors.text.primary,
-    marginBottom: 4,
+    marginBottom: 16,
+    paddingRight: 40,
   },
-  infoSubtitle: {
+  modalInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  modalInfoLabel: {
     fontSize: 14,
     color: Colors.text.secondary,
-    marginBottom: 16,
   },
-  infoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 16,
+  modalInfoValue: {
+    fontSize: 14,
+    color: Colors.text.primary,
+    fontWeight: '500',
   },
-  infoItem: {
-    width: '33.33%',
-    marginBottom: 12,
+  expiredText: {
+    color: '#ef4444',
   },
-  infoLabel: {
-    fontSize: 12,
-    color: Colors.text.light,
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 18,
+  modalSectionTitle: {
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.text.primary,
+    marginTop: 16,
+    marginBottom: 8,
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
+  modalMessage: {
+    fontSize: 14,
+    color: Colors.text.secondary,
+    lineHeight: 22,
   },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.text.white,
+  adviceBox: {
+    backgroundColor: '#fef3c7',
+    borderRadius: 8,
+    padding: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#f59e0b',
+  },
+  adviceText: {
+    fontSize: 14,
+    color: '#92400e',
+    lineHeight: 20,
   },
 });

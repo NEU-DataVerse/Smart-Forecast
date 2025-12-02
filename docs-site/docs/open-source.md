@@ -3,13 +3,13 @@ sidebar_position: 10
 title: Mã nguồn mở
 ---
 
-# 📜 Thông tin Mã nguồn mở
+# Thông tin Mã nguồn mở
 
 Dự án **Smart Forecast** được xây dựng trên nền tảng các thư viện và framework mã nguồn mở. Tài liệu này liệt kê các dependencies chính và license tương ứng.
 
 ---
 
-## 🎯 License của dự án
+## License của dự án
 
 Smart Forecast được phát hành dưới giấy phép **MIT License** - một trong những giấy phép mã nguồn mở phổ biến và linh hoạt nhất.
 
@@ -31,7 +31,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🔧 Backend (NestJS)
+## Backend (NestJS)
 
 ### Core Framework
 
@@ -72,7 +72,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🌐 Web Frontend (Next.js)
+## Web Frontend (Next.js)
 
 ### Core Framework
 
@@ -112,7 +112,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 📱 Mobile App (Expo)
+## Mobile App (Expo)
 
 ### Core Framework
 
@@ -150,7 +150,7 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🏗️ Infrastructure
+## Infrastructure
 
 ### FIWARE Components
 
@@ -186,7 +186,7 @@ MongoDB sử dụng SSPL (Server Side Public License). Tương tự Orion-LD, Mo
 
 ---
 
-## 📚 Tham khảo
+## Tham khảo
 
 | License    | Link                                                           | Mô tả                        |
 | ---------- | -------------------------------------------------------------- | ---------------------------- |
@@ -197,7 +197,7 @@ MongoDB sử dụng SSPL (Server Side Public License). Tương tự Orion-LD, Mo
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Đóng góp](https://github.com/NEU-DataVerse/Smart-Forecast/blob/main/CONTRIBUTING.md) - Hướng dẫn đóng góp
 - [Kiến trúc hệ thống](./architecture.md) - System architecture

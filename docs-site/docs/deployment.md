@@ -3,13 +3,13 @@ sidebar_position: 4
 title: Triển khai
 ---
 
-# 🚀 Triển khai
+# Triển khai
 
 Hướng dẫn triển khai Smart Forecast với Docker Compose.
 
 ---
 
-## 📋 Yêu cầu hệ thống
+## Yêu cầu hệ thống
 
 | Thành phần     | Phiên bản |
 | -------------- | --------- |
@@ -20,7 +20,7 @@ Hướng dẫn triển khai Smart Forecast với Docker Compose.
 
 ---
 
-## 🏗️ Cấu trúc Docker Services
+## Cấu trúc Docker Services
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -35,16 +35,16 @@ Hướng dẫn triển khai Smart Forecast với Docker Compose.
 
 ### Services
 
-| Service    | Image                  | Port             | Mô tả                  |
-| ---------- | ---------------------- | ---------------- | ---------------------- |
-| `orion`    | fiware/orion-ld:latest | 1026             | NGSI-LD Context Broker |
-| `mongodb`  | mongo:4.4              | 27017 (internal) | Database cho Orion-LD  |
-| `postgres` | postgres:14-alpine     | 5432             | Database chính         |
-| `minio`    | minio/minio:latest     | 9000, 9001       | Object Storage         |
+| Service    | Image                         | Port             | Mô tả                  |
+| ---------- | ----------------------------- | ---------------- | ---------------------- |
+| `orion`    | fiware/orion-ld:latest        | 1026             | NGSI-LD Context Broker |
+| `mongodb`  | mongo:4.4                     | 27017 (internal) | Database cho Orion-LD  |
+| `postgres` | postgis/postgis:14-3.4-alpine | 5432             | Database chính         |
+| `minio`    | minio/minio:latest            | 9000, 9001       | Object Storage         |
 
 ---
 
-## 🔧 Cấu hình
+## Cấu hình
 
 ### Biến môi trường
 
@@ -98,7 +98,7 @@ services:
       retries: 3
 
   postgres:
-    image: postgres:14-alpine
+    image: postgis/postgis:14-3.4-alpine
     ports:
       - '5432:5432'
     volumes:
@@ -139,7 +139,7 @@ networks:
 
 ---
 
-## 🚀 Các lệnh triển khai
+## Các lệnh triển khai
 
 ### Sử dụng Makefile (khuyến nghị)
 
@@ -199,7 +199,7 @@ docker compose down -v
 
 ---
 
-## 📜 Setup Scripts
+## Setup Scripts
 
 ### Linux/macOS
 
@@ -214,12 +214,12 @@ chmod +x scripts/health-check.sh
 
 Script sẽ:
 
-1. ✅ Kiểm tra Docker & Docker Compose
-2. ✅ Tạo file `.env` từ template
-3. ✅ Tạo các thư mục cần thiết
-4. ✅ Pull Docker images
-5. ✅ Khởi động services
-6. ✅ Kiểm tra health
+1. Kiểm tra Docker & Docker Compose
+2. Tạo file `.env` từ template
+3. Tạo các thư mục cần thiết
+4. Pull Docker images
+5. Khởi động services
+6. Kiểm tra health
 
 ### Windows
 
@@ -243,7 +243,50 @@ make health
 
 ---
 
-## 💾 Quản lý dữ liệu
+## Quản lý dữ liệu
+
+### Seed Database
+
+Sau khi khởi động Docker services, cần seed dữ liệu mẫu:
+
+```bash
+cd backend
+npm run seed:force
+```
+
+#### Các lệnh seed
+
+| Command                   | Mô tả                                              |
+| ------------------------- | -------------------------------------------------- |
+| `npm run seed`            | Seed nếu DB rỗng                                   |
+| `npm run seed:force`      | Force reseed (xóa và seed lại tất cả)              |
+| `npm run seed:base`       | Seed base data (không có fake weather/air-quality) |
+| `npm run seed:base:force` | Force reseed base data                             |
+| `npm run seed:clear`      | Xóa tất cả dữ liệu                                 |
+
+#### Dữ liệu được seed
+
+| Bảng                   | Mô tả                        | Số lượng      |
+| ---------------------- | ---------------------------- | ------------- |
+| `users`                | Tài khoản người dùng         | 3             |
+| `observation_station`  | Trạm quan trắc               | 4             |
+| `weather_observed`     | Dữ liệu thời tiết            | ~256 (7 ngày) |
+| `air_quality_observed` | Dữ liệu chất lượng không khí | ~256 (7 ngày) |
+| `incidents`            | Báo cáo sự cố                | 11            |
+| `alert_thresholds`     | Ngưỡng cảnh báo              | 4             |
+| `alerts`               | Cảnh báo môi trường          | 10            |
+
+:::tip Sử dụng dữ liệu thật từ OpenWeatherMap
+Nếu muốn sử dụng dữ liệu thật thay vì fake data:
+
+```bash
+# 1. Seed base data (users, stations, incidents, alerts)
+npm run seed:base:force
+
+# 2. Vào Dashboard web → "Thu thập dữ liệu lịch sử" để lấy data thật
+```
+
+:::
 
 ### Backup
 
@@ -298,7 +341,7 @@ docker volume prune
 
 ---
 
-## 🏥 Health Checks
+## Health Checks
 
 ### Kiểm tra thủ công
 
@@ -322,21 +365,21 @@ Smart-Forecast Health Check
 
 Testing Service Endpoints...
 -----------------------------------
-Testing Orion Context Broker... ✅ OK
-Testing Backend API... ✅ OK
-Testing MinIO Health... ✅ OK
+Testing Orion Context Broker... OK
+Testing Backend API... OK
+Testing MinIO Health... OK
 
 Testing Database Connections...
 -----------------------------------
-Testing PostgreSQL... ✅ OK
-Testing MongoDB... ✅ OK
+Testing PostgreSQL... OK
+Testing MongoDB... OK
 
-🎉 All services are running and healthy!
+All services are running and healthy!
 ```
 
 ---
 
-## 🌐 Service URLs
+## Service URLs
 
 | Service       | URL                   | Credentials             |
 | ------------- | --------------------- | ----------------------- |
@@ -348,7 +391,7 @@ Testing MongoDB... ✅ OK
 
 ---
 
-## 📈 Scaling
+## Scaling
 
 ### Scale services
 
@@ -379,7 +422,7 @@ services:
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Container không start
 
@@ -430,7 +473,7 @@ docker compose up -d
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [API Documentation](./api) - REST API endpoints
 - [Hướng dẫn phát triển](./dev-guide) - Development workflow

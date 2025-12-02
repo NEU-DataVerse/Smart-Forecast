@@ -1,0 +1,122 @@
+.screenshotSection {
+  padding: 4rem 0;
+  background-color: var(--ifm-background-surface-color);
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.sectionSubtitle {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 1.1rem;
+}
+
+.carouselContainer {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.swiper {
+  padding-bottom: 3rem !important;
+}
+
+.slide {
+  display: flex;
+  justify-content: center;
+}
+
+.slideContent {
+  width: 100%;
+  text-align: center;
+}
+
+.screenshotImage {
+  width: 100%;
+  max-height: 550px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+[data-theme='dark'] .screenshotImage {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+.caption {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--ifm-color-emphasis-700);
+  font-weight: 500;
+}
+
+/* Swiper Navigation Customization */
+:global(.swiper-button-prev),
+:global(.swiper-button-next) {
+  color: var(--ifm-color-primary) !important;
+  background: var(--ifm-background-color);
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+:global(.swiper-button-prev)::after,
+:global(.swiper-button-next)::after {
+  font-size: 18px !important;
+  font-weight: bold;
+}
+
+:global(.swiper-button-prev):hover,
+:global(.swiper-button-next):hover {
+  background: var(--ifm-color-primary);
+  color: #fff !important;
+}
+
+/* Swiper Pagination Customization */
+:global(.swiper-pagination-bullet) {
+  background: var(--ifm-color-emphasis-400) !important;
+  opacity: 1 !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+:global(.swiper-pagination-bullet-active) {
+  background: var(--ifm-color-primary) !important;
+  width: 24px !important;
+  border-radius: 5px !important;
+}
+
+@media screen and (max-width: 996px) {
+  .screenshotSection {
+    padding: 3rem 1rem;
+  }
+
+  .screenshotImage {
+    max-height: 400px;
+  }
+
+  :global(.swiper-button-prev),
+  :global(.swiper-button-next) {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .screenshotImage {
+    max-height: 300px;
+    border-radius: 8px;
+  }
+}

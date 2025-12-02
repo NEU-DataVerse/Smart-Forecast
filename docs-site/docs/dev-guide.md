@@ -3,13 +3,13 @@ sidebar_position: 7
 title: Hướng dẫn phát triển
 ---
 
-# 👨‍💻 Hướng dẫn phát triển
+# Hướng dẫn phát triển
 
 Hướng dẫn chi tiết cho developers tham gia dự án Smart Forecast.
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 | Công cụ | Phiên bản | Ghi chú               |
 | ------- | --------- | --------------------- |
@@ -29,7 +29,7 @@ git --version     # git version 2.x.x
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone repository
 
@@ -75,7 +75,7 @@ pnpm run dev:mobile
 
 ---
 
-## 🏗️ Cấu trúc dự án
+## Cấu trúc dự án
 
 ```
 Smart-Forecast/
@@ -91,7 +91,7 @@ Smart-Forecast/
 
 ---
 
-## 🔧 Backend Development (NestJS)
+## Backend Development (NestJS)
 
 ### Khởi động
 
@@ -126,29 +126,7 @@ pnpm --filter backend run lint:fix
 
 ### Cấu trúc code
 
-```
-backend/src/
-├── main.ts                   # Entry point
-├── app.module.ts            # Root module
-├── config/                  # Configuration
-│   ├── database.config.ts
-│   ├── jwt.config.ts
-│   └── orion.config.ts
-├── modules/
-│   ├── auth/               # JWT Authentication
-│   ├── user/               # User Management
-│   ├── alert/              # Alert System
-│   ├── incident/           # Incident Reports
-│   ├── air-quality/        # Air Quality Data
-│   ├── weather/            # Weather Data
-│   ├── ingestion/          # Data Ingestion
-│   └── station/            # Station Management
-└── common/
-    ├── decorators/         # Custom decorators
-    ├── guards/             # Auth guards (RBAC)
-    ├── filters/            # Exception filters
-    └── interceptors/       # Request interceptors
-```
+Xem chi tiết cấu trúc backend tại [Kiến trúc hệ thống](./architecture#backend-nestjs).
 
 ### Tạo module mới
 
@@ -164,22 +142,9 @@ npx nest g controller modules/my-module
 npx nest g service modules/my-module
 ```
 
-### Database migrations
-
-```bash
-# Chạy migrations
-pnpm --filter backend run migration:run
-
-# Tạo migration mới
-pnpm --filter backend run migration:create my-migration
-
-# Revert migration
-pnpm --filter backend run migration:revert
-```
-
 ---
 
-## 🌐 Web Development (Next.js)
+## Web Development (Next.js)
 
 ### Khởi động
 
@@ -257,7 +222,7 @@ export const getAlerts = async (): Promise<IAlert[]> => {
 
 ---
 
-## 📱 Mobile Development (Expo)
+## Mobile Development (Expo)
 
 ### Khởi động
 
@@ -317,13 +282,13 @@ Mobile **KHÔNG** sử dụng `localhost`. Phải dùng IP máy của bạn!
 # macOS/Linux: ifconfig
 
 # mobile/.env
-EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
+EXPO_PUBLIC_BACKEND_API_URL=http://192.168.1.100:8000/api/v1
 EXPO_PUBLIC_MINIO_URL=http://192.168.1.100:9000
 ```
 
 ---
 
-## 📦 Shared Package
+## Shared Package
 
 Shared package chứa types, interfaces và constants dùng chung.
 
@@ -365,13 +330,13 @@ pnpm run build:shared
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 ### Cấu trúc files
 
 ```
-docker/.env.infrastructure    # Docker services
-backend/.env                  # Backend API
+.env                         # Docker services (root)
+backend/.env                 # Backend API
 web/.env.local               # Web frontend
 mobile/.env                  # Mobile app
 ```
@@ -380,7 +345,7 @@ mobile/.env                  # Mobile app
 
 ```bash
 # Copy tất cả file .env.example
-cp docker/.env.infrastructure.example docker/.env.infrastructure
+cp .env.example .env
 cp backend/.env.example backend/.env
 cp web/.env.local.example web/.env.local
 cp mobile/.env.example mobile/.env
@@ -394,7 +359,7 @@ DATABASE_URL=postgresql://admin:admin@localhost:5432/smart_forecast_db
 MONGO_URL=mongodb://admin:admin@localhost:27017/orion?authSource=admin
 
 # API Keys
-OPENWEATHER_API_KEY=your_api_key
+OPENWEATHERMAP_API_KEY=your_api_key
 JWT_SECRET=change_this_in_production
 
 # Services
@@ -414,13 +379,13 @@ NEXT_PUBLIC_MINIO_URL=http://localhost:9000
 
 ```bash
 # Thay YOUR_IP bằng IP máy của bạn
-EXPO_PUBLIC_API_URL=http://YOUR_IP:8000/api/v1
+EXPO_PUBLIC_BACKEND_API_URL=http://YOUR_IP:8000/api/v1
 EXPO_PUBLIC_MINIO_URL=http://YOUR_IP:9000
 ```
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Backend
 
@@ -449,7 +414,7 @@ pnpm run test:mobile
 
 ---
 
-## 📝 Code Style
+## Code Style
 
 ### ESLint & Prettier
 
@@ -488,7 +453,7 @@ chore/update-dependencies
 
 ---
 
-## 🔄 Common Workflows
+## Common Workflows
 
 ### Thêm dependency
 
@@ -531,7 +496,7 @@ docker compose exec mongodb mongosh
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Kiến trúc hệ thống](./architecture) - System architecture
 - [API Documentation](./api) - REST API endpoints

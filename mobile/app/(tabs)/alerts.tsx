@@ -50,7 +50,7 @@ export default function AlertsScreen() {
           <View>
             <Text style={styles.headerTitle}>Các cảnh báo</Text>
             <Text style={styles.headerSubtitle}>
-              {unreadCount > 0 ? `${unreadCount} unread` : 'Đã đọc hết!'}
+              {unreadCount > 0 ? `${unreadCount} chưa đọc` : 'Đã đọc hết!'}
             </Text>
           </View>
         </View>
@@ -92,10 +92,6 @@ export default function AlertsScreen() {
         )}
 
         <Pressable style={styles.infoCard}>
-          <Text>{expoPushToken}</Text>
-          <Text>{notification?.request.content.title}</Text>
-          {JSON.stringify(notification?.request.content.data, null, 2)}
-
           <Text style={styles.infoTitle}>Về các cảnh báo</Text>
           <Text style={styles.infoText}>Bạn sẽ nhận được cảnh báo tự động khi:</Text>
           <View style={styles.infoList}>

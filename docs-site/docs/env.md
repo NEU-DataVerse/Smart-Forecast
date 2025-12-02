@@ -3,19 +3,18 @@ sidebar_position: 9
 title: Biến môi trường
 ---
 
-# ⚙️ Biến môi trường
+# Biến môi trường
 
 Hướng dẫn cấu hình biến môi trường cho Smart Forecast.
 
 ---
 
-## 📁 Cấu trúc files
+## Cấu trúc files
 
 ```
 Smart-Forecast/
-├── docker/
-│   ├── .env.infrastructure         # Docker services
-│   └── .env.infrastructure.example
+├── .env                            # Docker services (root)
+├── .env.example
 ├── backend/
 │   ├── .env                        # Backend API
 │   └── .env.example
@@ -29,9 +28,9 @@ Smart-Forecast/
 
 ---
 
-## 🐳 Docker Infrastructure
+## Docker Infrastructure
 
-**File:** `docker/.env.infrastructure`
+**File:** `.env` (root)
 
 ```bash
 # ==========================================
@@ -74,7 +73,7 @@ ORION_LOG_LEVEL=DEBUG
 
 ---
 
-## 🔧 Backend
+## Backend
 
 **File:** `backend/.env`
 
@@ -104,7 +103,7 @@ ORION_LD_URL=http://localhost:1026
 # JWT Authentication
 # ==========================================
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
-JWT_EXPIRES_IN=7d
+JWT_EXPIRATION=7d
 
 # ==========================================
 # MinIO Object Storage
@@ -119,7 +118,7 @@ MINIO_BUCKET_NAME=smart-forecast
 # ==========================================
 # OpenWeatherMap API
 # ==========================================
-OPENWEATHER_API_KEY=your_openweathermap_api_key
+OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
 
 # ==========================================
 # Firebase Cloud Messaging
@@ -137,23 +136,23 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 ### Giải thích
 
-| Biến                  | Mô tả                        | Bắt buộc      |
-| --------------------- | ---------------------------- | ------------- |
-| `NODE_ENV`            | Môi trường chạy              | ✅            |
-| `PORT`                | Port backend API             | ✅            |
-| `DATABASE_URL`        | Connection string PostgreSQL | ✅            |
-| `MONGO_URL`           | Connection string MongoDB    | ✅            |
-| `ORION_LD_URL`        | URL Orion-LD Context Broker  | ✅            |
-| `JWT_SECRET`          | Secret key cho JWT           | ✅            |
-| `JWT_EXPIRES_IN`      | Thời gian hết hạn JWT        | ✅            |
-| `MINIO_*`             | Cấu hình MinIO               | ✅            |
-| `OPENWEATHER_API_KEY` | API key OpenWeatherMap       | ✅            |
-| `FIREBASE_*`          | Cấu hình Firebase FCM        | ❌ (optional) |
-| `GOOGLE_*`            | Cấu hình Google OAuth        | ❌ (optional) |
+| Biến                     | Mô tả                        | Bắt buộc      |
+| ------------------------ | ---------------------------- | ------------- |
+| `NODE_ENV`               | Môi trường chạy              | ✅            |
+| `PORT`                   | Port backend API             | ✅            |
+| `DATABASE_URL`           | Connection string PostgreSQL | ✅            |
+| `MONGO_URL`              | Connection string MongoDB    | ✅            |
+| `ORION_LD_URL`           | URL Orion-LD Context Broker  | ✅            |
+| `JWT_SECRET`             | Secret key cho JWT           | ✅            |
+| `JWT_EXPIRATION`         | Thời gian hết hạn JWT        | ✅            |
+| `MINIO_*`                | Cấu hình MinIO               | ✅            |
+| `OPENWEATHERMAP_API_KEY` | API key OpenWeatherMap       | ✅            |
+| `FIREBASE_*`             | Cấu hình Firebase FCM        | ❌ (optional) |
+| `GOOGLE_*`               | Cấu hình Google OAuth        | ❌ (optional) |
 
 ---
 
-## 🌐 Web Frontend
+## Web Frontend
 
 **File:** `web/.env.local`
 
@@ -194,7 +193,7 @@ Trong Next.js, chỉ những biến có prefix `NEXT_PUBLIC_` mới được exp
 
 ---
 
-## 📱 Mobile App
+## Mobile App
 
 **File:** `mobile/.env`
 
@@ -206,7 +205,7 @@ Trong Next.js, chỉ những biến có prefix `NEXT_PUBLIC_` mới được exp
 # Thay YOUR_IP bằng IP máy của bạn
 # Windows: ipconfig
 # macOS/Linux: ifconfig
-EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
+EXPO_PUBLIC_BACKEND_API_URL=http://192.168.1.100:8000/api/v1
 
 # ==========================================
 # MinIO Configuration
@@ -223,11 +222,11 @@ EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID=your-android-client-id.apps.googleuserconte
 
 ### Giải thích
 
-| Biến                    | Mô tả                   | Bắt buộc |
-| ----------------------- | ----------------------- | -------- |
-| `EXPO_PUBLIC_API_URL`   | URL Backend API         | ✅       |
-| `EXPO_PUBLIC_MINIO_URL` | URL MinIO               | ✅       |
-| `EXPO_PUBLIC_GOOGLE_*`  | Google OAuth Client IDs | ❌       |
+| Biến                          | Mô tả                   | Bắt buộc |
+| ----------------------------- | ----------------------- | -------- |
+| `EXPO_PUBLIC_BACKEND_API_URL` | URL Backend API         | ✅       |
+| `EXPO_PUBLIC_MINIO_URL`       | URL MinIO               | ✅       |
+| `EXPO_PUBLIC_GOOGLE_*`        | Google OAuth Client IDs | ❌       |
 
 :::warning Lưu ý quan trọng
 Mobile app chạy trên thiết bị riêng (điện thoại/emulator), **KHÔNG THỂ** truy cập `localhost` của máy development.
@@ -246,14 +245,14 @@ ifconfig
 Ví dụ: Nếu IP là `192.168.1.100`:
 
 ```bash
-EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
+EXPO_PUBLIC_BACKEND_API_URL=http://192.168.1.100:8000/api/v1
 ```
 
 :::
 
 ---
 
-## 🔐 API Keys cần thiết
+## API Keys cần thiết
 
 ### OpenWeatherMap API
 
@@ -261,7 +260,7 @@ EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 2. Lấy API key từ dashboard
 3. Thêm vào `backend/.env`:
    ```bash
-   OPENWEATHER_API_KEY=your_api_key
+   OPENWEATHERMAP_API_KEY=your_api_key
    ```
 
 ### Firebase Cloud Messaging (FCM)
@@ -284,9 +283,9 @@ EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 
 ---
 
-## 🔒 Security Best Practices
+## Security Best Practices
 
-### ✅ DO
+### DO
 
 - Sử dụng connection string thay vì raw credentials
 - Thay đổi `JWT_SECRET` trong production
@@ -294,7 +293,7 @@ EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 - Giới hạn CORS origins trong production
 - Rotate API keys định kỳ
 
-### ❌ DON'T
+### DON'T
 
 - Commit file `.env` vào Git
 - Sử dụng credentials mặc định trong production
@@ -317,7 +316,7 @@ EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 
 ---
 
-## 🚀 Production Configuration
+## Production Configuration
 
 ### Backend Production
 
@@ -345,7 +344,7 @@ NEXT_PUBLIC_MINIO_URL=https://s3.smartforecast.example.com
 
 ---
 
-## 📖 Tiếp theo
+## Tiếp theo
 
 - [Hướng dẫn phát triển](./dev-guide) - Development workflow
 - [Triển khai](./deployment) - Docker Compose setup

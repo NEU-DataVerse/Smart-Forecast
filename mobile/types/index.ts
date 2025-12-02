@@ -22,6 +22,108 @@ export interface EnvironmentData {
   timestamp: number;
 }
 
+// Air Quality Types from Backend API
+export interface Pollutants {
+  co?: number;
+  no?: number;
+  no2?: number;
+  o3?: number;
+  so2?: number;
+  pm25?: number;
+  pm10?: number;
+  nh3?: number;
+}
+
+export interface AQI {
+  openWeather: {
+    index: number;
+    level: string;
+  };
+  epaUS: {
+    index: number;
+    level: string;
+  };
+}
+
+export interface AirQualityData {
+  id: string;
+  stationId: string;
+  location: {
+    lat: number;
+    lon: number;
+  };
+  address?: string;
+  dateObserved: string;
+  pollutants: Pollutants;
+  aqi: AQI;
+}
+
+// Weather Types from Backend API
+export interface WeatherDataResponse {
+  id: string;
+  stationId: string;
+  location: {
+    lat: number;
+    lon: number;
+  };
+  address?: string;
+  dateObserved: string;
+  temperature: {
+    current?: number;
+    feelsLike?: number;
+    min?: number;
+    max?: number;
+  };
+  atmospheric: {
+    pressure?: number;
+    humidity?: number;
+    seaLevelPressure?: number;
+    groundLevelPressure?: number;
+  };
+  wind: {
+    speed?: number;
+    direction?: number;
+    gust?: number;
+  };
+  precipitation?: number;
+  visibility?: number;
+  cloudiness?: number;
+  weather: {
+    type?: string;
+    description?: string;
+    icon?: string;
+  };
+  sun?: {
+    sunrise?: string;
+    sunset?: string;
+  };
+  timezone?: number;
+}
+
+export interface NearestStationInfo {
+  code: string;
+  name: string;
+  distance: number; // in kilometers
+}
+
+export interface NearbyWeatherResponse {
+  nearestStation: NearestStationInfo;
+  current?: WeatherDataResponse;
+  forecast?: Array<WeatherDataResponse & { validFrom: string; validTo: string }>;
+  source: 'orion-ld';
+  timestamp: string;
+  validUntil: string;
+}
+
+export interface NearbyAirQualityResponse {
+  nearestStation: NearestStationInfo;
+  current?: AirQualityData;
+  forecast?: Array<AirQualityData & { validFrom?: string; validTo?: string }>;
+  source: 'orion-ld';
+  timestamp: string;
+  validUntil: string;
+}
+
 export interface Sensor {
   id: string;
   name: string;
