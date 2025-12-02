@@ -280,7 +280,7 @@ EXPO_PUBLIC_API_URL=http://192.168.1.100:8000/api/v1
 
 1. Vào [Google Cloud Console](https://console.cloud.google.com/)
 2. Tạo OAuth 2.0 Client IDs
-3. Xem chi tiết tại [Google OAuth Setup Guide](./google-oauth-setup)
+3. Xem chi tiết tại [Google OAuth Setup Guide](https://github.com/NEU-DataVerse/Smart-Forecast/blob/main/docs/GOOGLE_OAUTH_SETUP.md)
 
 ---
 

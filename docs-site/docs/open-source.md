@@ -199,6 +199,6 @@ MongoDB sử dụng SSPL (Server Side Public License). Tương tự Orion-LD, Mo
 
 ## 📖 Tiếp theo
 
-- [Đóng góp](../contributing) - Hướng dẫn đóng góp
-- [Kiến trúc hệ thống](./architecture) - System architecture
-- [Trang chủ](./index) - Quay về trang chủ
+- [Đóng góp](https://github.com/NEU-DataVerse/Smart-Forecast/blob/main/CONTRIBUTING.md) - Hướng dẫn đóng góp
+- [Kiến trúc hệ thống](./architecture.md) - System architecture
+- [Trang chủ](./) - Quay về trang chủ
