@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
+// eslint-disable-next-line import/no-unresolved
 import WebView from 'react-native-webview';
 import type { MapRegion, Sensor } from '@/types';
 
