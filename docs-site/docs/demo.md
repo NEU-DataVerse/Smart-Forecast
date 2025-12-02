@@ -3,6 +3,8 @@ sidebar_position: 12
 title: Demo
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Demo
 
 Xem demo và hướng dẫn nhanh về Smart Forecast.
@@ -23,72 +25,72 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
 
 #### Dashboard chính
 
-<figure>
-  <img src={require('@site/static/img/dashboard-web.png').default} alt="Dashboard" />
-  <figcaption>Trang Dashboard tổng quan - Hiển thị thông tin tổng hợp về trạm, cảnh báo, sự cố và chỉ số AQI</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/dashboard-web.png')} alt="Dashboard" className="screenshot" />
+  <figcaption className="screenshot-caption">Trang Dashboard tổng quan - Hiển thị thông tin tổng hợp về trạm, cảnh báo, sự cố và chỉ số AQI</figcaption>
 </figure>
 
 #### Quản lý cảnh báo
 
-<figure>
-  <img src={require('@site/static/img/alert-web.png').default} alt="Danh sách cảnh báo" />
-  <figcaption>Danh sách cảnh báo</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/alert-web.png')} alt="Danh sách cảnh báo" className="screenshot" />
+  <figcaption className="screenshot-caption">Danh sách cảnh báo</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/detail-alert-web.png').default} alt="Chi tiết cảnh báo" />
-  <figcaption>Chi tiết cảnh báo</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/detail-alert-web.png')} alt="Chi tiết cảnh báo" className="screenshot" />
+  <figcaption className="screenshot-caption">Chi tiết cảnh báo</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/map-alert-web.png').default} alt="Bản đồ hiển thị vị trí các cảnh báo" />
-  <figcaption>Bản đồ hiển thị vị trí các cảnh báo</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/map-alert-web.png')} alt="Bản đồ hiển thị vị trí các cảnh báo" className="screenshot" />
+  <figcaption className="screenshot-caption">Bản đồ hiển thị vị trí các cảnh báo</figcaption>
 </figure>
 
 #### Quản lý sự cố (Incidents)
 
-<figure>
-  <img src={require('@site/static/img/incident-web.png').default} alt="Quản lý sự cố từ người dân" />
-  <figcaption>Quản lý sự cố từ người dân</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/incident-web.png')} alt="Quản lý sự cố từ người dân" className="screenshot" />
+  <figcaption className="screenshot-caption">Quản lý sự cố từ người dân</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/statistic-incident-web.png').default} alt="Thống kê sự cố" />
-  <figcaption>Thống kê sự cố</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/statistic-incident-web.png')} alt="Thống kê sự cố" className="screenshot" />
+  <figcaption className="screenshot-caption">Thống kê sự cố</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/map-incident-web.png').default} alt="Bản đồ hiển thị vị trí các sự cố" />
-  <figcaption>Bản đồ hiển thị vị trí các sự cố</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/map-incident-web.png')} alt="Bản đồ hiển thị vị trí các sự cố" className="screenshot" />
+  <figcaption className="screenshot-caption">Bản đồ hiển thị vị trí các sự cố</figcaption>
 </figure>
 
 #### Quản lý trạm quan trắc (Stations)
 
-<figure>
-  <img src={require('@site/static/img/station-web.png').default} alt="Danh sách trạm quan trắc" />
-  <figcaption>Danh sách trạm quan trắc</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/station-web.png')} alt="Danh sách trạm quan trắc" className="screenshot" />
+  <figcaption className="screenshot-caption">Danh sách trạm quan trắc</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/create-station-web.png').default} alt="Tạo trạm mới" />
-  <figcaption>Tạo trạm mới</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/create-station-web.png')} alt="Tạo trạm mới" className="screenshot" />
+  <figcaption className="screenshot-caption">Tạo trạm mới</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/compare-station-web.png').default} alt="So sánh dữ liệu giữa các trạm" />
-  <figcaption>So sánh dữ liệu giữa các trạm</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/compare-station-web.png')} alt="So sánh dữ liệu giữa các trạm" className="screenshot" />
+  <figcaption className="screenshot-caption">So sánh dữ liệu giữa các trạm</figcaption>
 </figure>
 
 #### Biểu đồ và dữ liệu
 
-<figure>
-  <img src={require('@site/static/img/chart-web.png').default} alt="Biểu đồ dữ liệu môi trường" />
-  <figcaption>Biểu đồ dữ liệu môi trường</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/chart-web.png')} alt="Biểu đồ dữ liệu môi trường" className="screenshot" />
+  <figcaption className="screenshot-caption">Biểu đồ dữ liệu môi trường</figcaption>
 </figure>
 
-<figure>
-  <img src={require('@site/static/img/chart-history-web.png').default} alt="Lịch sử dữ liệu theo thời gian" />
-  <figcaption>Lịch sử dữ liệu theo thời gian</figcaption>
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/chart-history-web.png')} alt="Lịch sử dữ liệu theo thời gian" className="screenshot" />
+  <figcaption className="screenshot-caption">Lịch sử dữ liệu theo thời gian</figcaption>
 </figure>
 
 ### Mobile App
