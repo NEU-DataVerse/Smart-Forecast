@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { User, MapPin, Clock, FileText, LogOut } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
@@ -29,6 +29,7 @@ export default function ProfileScreen() {
           try {
             setIsSigningOut(true);
             await signOut();
+            router.replace('/login');
           } catch (error) {
             Alert.alert('Error', 'Failed to sign out');
             console.error(error);

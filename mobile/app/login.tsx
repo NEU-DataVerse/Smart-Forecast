@@ -37,33 +37,33 @@ export default function LoginScreen() {
           {/* Logo/Title Section */}
           <View style={styles.headerSection}>
             <Text style={styles.title}>Smart Forecast</Text>
-            <Text style={styles.subtitle}>Environmental Monitoring & Alerts</Text>
+            <Text style={styles.subtitle}>Gửi thông báo về môi trường và thời tiết</Text>
           </View>
 
           {/* Features Section */}
           <View style={styles.featuresSection}>
             <FeatureItem
               icon="🌍"
-              title="Real-time Monitoring"
-              description="Track air quality and weather"
+              title="Giám sát thời gian thực"
+              description="Theo dõi chất lượng không khí và thời tiết ngay lập tức"
             />
             <FeatureItem
               icon="⚠️"
-              title="Smart Alerts"
-              description="Get notified of hazards instantly"
+              title="Cảnh báo thông minh"
+              description="Nhận thông báo về các mối nguy ngay lập tức"
             />
             <FeatureItem
               icon="📊"
-              title="Analytics"
-              description="View detailed environmental data"
+              title="Phân tích chi tiết"
+              description="Xem dữ liệu môi trường chi tiết và xu hướng lịch sử"
             />
           </View>
 
           {/* Sign In Section */}
           <View style={styles.signInSection}>
-            <Text style={styles.signInTitle}>Get Started</Text>
+            <Text style={styles.signInTitle}>Bắt đầu</Text>
             <Text style={styles.signInDescription}>
-              Sign in with your Google account to access the app
+              Đăng nhập bằng tài khoản Google của bạn để truy cập ứng dụng
             </Text>
 
             <Pressable
