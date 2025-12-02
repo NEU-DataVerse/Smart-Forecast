@@ -194,23 +194,23 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ## API Sections
 
-| API                          | Mô tả                                         |
-| ---------------------------- | --------------------------------------------- |
-| [Weather](./weather)         | Dữ liệu thời tiết hiện tại, dự báo và lịch sử |
-| [Air Quality](./air-quality) | Chất lượng không khí và AQI                   |
-| [Alert](./alert)             | Quản lý cảnh báo và ngưỡng cảnh báo           |
-| [Incident](./incident)       | Báo cáo và xử lý sự cố                        |
-| [Stations](./stations)       | Quản lý trạm quan trắc                        |
-| [Ingestion](./ingestion)     | Thu thập dữ liệu từ nguồn bên ngoài           |
-| [Users](./users)             | Quản lý người dùng                            |
-| [Files](./files)             | Upload và quản lý files                       |
-| [Dashboard](./dashboard)     | Dữ liệu tổng hợp cho dashboard                |
-| [Reports](./reports)         | Xuất báo cáo PDF/CSV                          |
+| API                             | Mô tả                                         |
+| ------------------------------- | --------------------------------------------- |
+| [Weather](./weather.md)         | Dữ liệu thời tiết hiện tại, dự báo và lịch sử |
+| [Air Quality](./air-quality.md) | Chất lượng không khí và AQI                   |
+| [Alert](./alert.md)             | Quản lý cảnh báo và ngưỡng cảnh báo           |
+| [Incident](./incident.md)       | Báo cáo và xử lý sự cố                        |
+| [Stations](./stations.md)       | Quản lý trạm quan trắc                        |
+| [Ingestion](./ingestion.md)     | Thu thập dữ liệu từ nguồn bên ngoài           |
+| [Users](./users.md)             | Quản lý người dùng                            |
+| [Files](./files.md)             | Upload và quản lý files                       |
+| [Dashboard](./dashboard.md)     | Dữ liệu tổng hợp cho dashboard                |
+| [Reports](./reports.md)         | Xuất báo cáo PDF/CSV                          |
 
 ---
 
 ## Tiếp theo
 
-- [Data Models](../data-model) - NGSI-LD entities chi tiết
-- [Hướng dẫn phát triển](../dev-guide) - Development workflow
-- [Troubleshooting](../troubleshooting) - Xử lý lỗi
+- [Data Models](../data-model.md) - NGSI-LD entities chi tiết
+- [Hướng dẫn phát triển](../dev-guide.md) - Development workflow
+- [Troubleshooting](../troubleshooting.md) - Xử lý lỗi
