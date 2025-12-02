@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
+import type { IAlert, IAlertQueryParams, AlertLevel, AlertType } from '@smart-forecast/shared';
 
 // Backend API URL - use 10.0.2.2 for Android emulator to access host localhost
 const getBackendUrl = () => {
@@ -113,6 +114,60 @@ export const authApi = {
       return response.data;
     } catch (error) {
       console.error('Error with Google sign-in:', error);
+      throw error;
+    }
+  },
+};
+
+// Alert API types
+export interface AlertListResponse {
+  data: IAlert[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const alertApi = {
+  // Get active alerts (non-expired)
+  async getActiveAlerts(token?: string): Promise<IAlert[]> {
+    try {
+      const authToken = token || MOCK_TOKEN;
+      const response = await axios.get<IAlert[]>(`${BACKEND_URL}/alert/active`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching active alerts:', error);
+      throw error;
+    }
+  },
+
+  // Get alerts with filters and pagination
+  async getAlerts(params?: IAlertQueryParams, token?: string): Promise<AlertListResponse> {
+    try {
+      const authToken = token || MOCK_TOKEN;
+      const response = await axios.get<AlertListResponse>(`${BACKEND_URL}/alert`, {
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 20,
+          ...(params?.level && { level: params.level }),
+          ...(params?.type && { type: params.type }),
+          ...(params?.startDate && { startDate: params.startDate }),
+          ...(params?.endDate && { endDate: params.endDate }),
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching alerts:', error);
       throw error;
     }
   },

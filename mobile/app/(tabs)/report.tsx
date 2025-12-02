@@ -19,11 +19,7 @@ import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
 import { Incident } from '@/types';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-
-// TODO: Remove this mock token after testing
-const MOCK_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJlbWFpbCI6ImFkbWluQHNtYXJ0Zm9yZWNhc3QuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY0NjkxNjMyLCJleHAiOjE3NjUyOTY0MzJ9.CsCFj7nqu_R1cRk5vULIzXpKU5Oj0ntgJANxqCwTSdc';
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 // Map to backend IncidentType enum
 const INCIDENT_TYPES = [
@@ -37,7 +33,7 @@ export default function ReportScreen() {
   const { addIncident, location } = useAppStore();
   const { token: authToken } = useAuth();
   // Use mock token for testing, fallback to auth token
-  const token = MOCK_TOKEN || authToken;
+  const token = authToken;
   const [selectedType, setSelectedType] = useState<(typeof INCIDENT_TYPES)[number]['value'] | null>(
     null,
   );
@@ -46,51 +42,64 @@ export default function ReportScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const maxImages = 5;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập thư viện ảnh');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images' as any,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      const newUri = result.assets[0].uri;
-      if (imageUris.length < maxImages) {
-        setImageUris([...imageUris, newUri]);
-      } else {
-        Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập thư viện ảnh');
+        return;
       }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: 'images' as any,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        const newUri = result.assets[0].uri;
+        if (imageUris.length < maxImages) {
+          setImageUris([...imageUris, newUri]);
+        } else {
+          Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+        }
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Lỗi', 'Không thể chọn ảnh. Vui lòng thử lại.');
     }
   };
 
   const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập camera');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      const newUri = result.assets[0].uri;
-      if (imageUris.length < maxImages) {
-        setImageUris([...imageUris, newUri]);
-      } else {
-        Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập camera');
+        return;
       }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        const newUri = result.assets[0].uri;
+        if (imageUris.length < maxImages) {
+          setImageUris([...imageUris, newUri]);
+        } else {
+          Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+        }
+      }
+    } catch (error) {
+      console.error('Camera error:', error);
+      // Fallback to image library if camera fails
+      Alert.alert('Lỗi Camera', 'Không thể mở camera. Bạn có muốn chọn ảnh từ thư viện không?', [
+        { text: 'Hủy', style: 'cancel' },
+        { text: 'Chọn từ thư viện', onPress: pickImage },
+      ]);
     }
   };
 
