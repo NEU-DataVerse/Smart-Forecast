@@ -523,6 +523,6 @@ curl -X POST http://localhost:8000/api/v1/alerts \
 
 ## 📖 Tiếp theo
 
-- [Data Models](./data-model) - NGSI-LD entities chi tiết
-- [Hướng dẫn phát triển](./dev-guide) - Development workflow
-- [Troubleshooting](./troubleshooting) - Xử lý lỗi
+- [Data Models](./data-model.md) - NGSI-LD entities chi tiết
+- [Hướng dẫn phát triển](./dev-guide.md) - Development workflow
+- [Troubleshooting](./troubleshooting.md) - Xử lý lỗi
