@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="docs-site/static/img/logo.jpg" alt="Smart Forecast Logo" width="120"/>
+  <img src="docs-site/static/img/logo-1.png" alt="Smart Forecast Logo" width="240"/>
 </p>
-
-<h1 align="center">🌍 Smart Forecast</h1>
 
 <p align="center">
   <strong>Nền tảng giám sát và cảnh báo môi trường đô thị thông minh</strong>
@@ -88,18 +86,42 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 
 ## 📸 Screenshots
 
-<!-- TODO: Thêm ảnh chụp màn hình Dashboard, Mobile App, biểu đồ -->
+### 🖥️ Web Dashboard
 
 <p align="center">
-  <em>🚧 Đang cập nhật screenshots...</em>
+  <img src="docs-site/static/img/dashboard-web.png" alt="Dashboard" width="100%"/>
 </p>
+<p align="center"><em>Trang Dashboard tổng quan - Hiển thị thông tin trạm, cảnh báo, sự cố và chỉ số AQI</em></p>
 
-<!--
 <p align="center">
-  <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="45%"/>
-  <img src="docs/screenshots/mobile-app.png" alt="Mobile App" width="45%"/>
+  <img src="docs-site/static/img/alert-web.png" alt="Alerts Management" width="49%"/>
+  <img src="docs-site/static/img/incident-web.png" alt="Incidents Management" width="49%"/>
 </p>
--->
+<p align="center"><em>Quản lý cảnh báo (trái) và Quản lý sự cố (phải)</em></p>
+
+<p align="center">
+  <img src="docs-site/static/img/map-alert-web.png" alt="Map Alerts" width="49%"/>
+  <img src="docs-site/static/img/map-incident-web.png" alt="Map Incidents" width="49%"/>
+</p>
+<p align="center"><em>Bản đồ cảnh báo (trái) và Bản đồ sự cố (phải)</em></p>
+
+<p align="center">
+  <img src="docs-site/static/img/chart-web.png" alt="Charts" width="49%"/>
+  <img src="docs-site/static/img/chart-history-web.png" alt="History Charts" width="49%"/>
+</p>
+<p align="center"><em>Biểu đồ dữ liệu môi trường và lịch sử</em></p>
+
+<p align="center">
+  <img src="docs-site/static/img/station-web.png" alt="Stations" width="49%"/>
+  <img src="docs-site/static/img/compare-station-web.png" alt="Compare Stations" width="49%"/>
+</p>
+<p align="center"><em>Danh sách trạm quan trắc và so sánh dữ liệu giữa các trạm</em></p>
+
+### 📱 Mobile App
+
+<p align="center">
+  <em>🚧 Screenshots mobile app đang được cập nhật...</em>
+</p>
 
 ### 🎬 Demo Video
 
@@ -110,6 +132,10 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 ---
 
 ## 🏗️ Kiến trúc hệ thống
+
+<p align="center">
+  <img src="docs-site/static/img/architecture.png" alt="Smart Forecast Architecture" />
+</p>
 
 ```
                     ┌─────────────────────────────────────────┐
