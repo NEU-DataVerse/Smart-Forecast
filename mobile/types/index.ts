@@ -58,10 +58,61 @@ export interface AirQualityData {
   aqi: AQI;
 }
 
+// Weather Types from Backend API
+export interface WeatherDataResponse {
+  id: string;
+  stationId: string;
+  location: {
+    lat: number;
+    lon: number;
+  };
+  address?: string;
+  dateObserved: string;
+  temperature: {
+    current?: number;
+    feelsLike?: number;
+    min?: number;
+    max?: number;
+  };
+  atmospheric: {
+    pressure?: number;
+    humidity?: number;
+    seaLevelPressure?: number;
+    groundLevelPressure?: number;
+  };
+  wind: {
+    speed?: number;
+    direction?: number;
+    gust?: number;
+  };
+  precipitation?: number;
+  visibility?: number;
+  cloudiness?: number;
+  weather: {
+    type?: string;
+    description?: string;
+    icon?: string;
+  };
+  sun?: {
+    sunrise?: string;
+    sunset?: string;
+  };
+  timezone?: number;
+}
+
 export interface NearestStationInfo {
   code: string;
   name: string;
   distance: number; // in kilometers
+}
+
+export interface NearbyWeatherResponse {
+  nearestStation: NearestStationInfo;
+  current?: WeatherDataResponse;
+  forecast?: Array<WeatherDataResponse & { validFrom: string; validTo: string }>;
+  source: 'orion-ld';
+  timestamp: string;
+  validUntil: string;
 }
 
 export interface NearbyAirQualityResponse {

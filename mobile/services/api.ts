@@ -1,9 +1,6 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
-import { EnvironmentData, NearbyAirQualityResponse } from '@/types';
-
-const OPENWEATHER_API_KEY = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY || '';
-const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
+import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
 
 // Backend API URL - use 10.0.2.2 for Android emulator to access host localhost
 const getBackendUrl = () => {
@@ -22,32 +19,28 @@ const MOCK_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJlbWFpbCI6ImFkbWluQHNtYXJ0Zm9yZWNhc3QuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY0NjkxNjMyLCJleHAiOjE3NjUyOTY0MzJ9.CsCFj7nqu_R1cRk5vULIzXpKU5Oj0ntgJANxqCwTSdc';
 
 export const weatherApi = {
-  // Get weather data from OpenWeatherMap (temperature, humidity, wind, etc.)
-  async getEnvironmentData(lat: number, lon: number): Promise<EnvironmentData> {
+  // Get weather data from backend API (via Orion-LD)
+  async getNearbyWeather(
+    lat: number,
+    lon: number,
+    token?: string,
+    include: 'current' | 'forecast' | 'both' = 'current',
+  ): Promise<NearbyWeatherResponse> {
     try {
-      const weatherResponse = await axios.get(`${OPENWEATHER_BASE_URL}/weather`, {
+      const authToken = token || MOCK_TOKEN;
+      const response = await axios.get<NearbyWeatherResponse>(`${BACKEND_URL}/weather/nearby`, {
         params: {
           lat,
           lon,
-          appid: OPENWEATHER_API_KEY,
-          units: 'metric',
+          include,
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
-      const weatherData = weatherResponse.data;
-
-      return {
-        temperature: Math.round(weatherData.main.temp),
-        humidity: weatherData.main.humidity,
-        aqi: 1, // Default, will be overridden by backend air quality data
-        clouds: weatherData.clouds.all,
-        windSpeed: weatherData.wind.speed,
-        pressure: weatherData.main.pressure,
-        description: weatherData.weather[0]?.description || '',
-        icon: weatherData.weather[0]?.icon || '01d',
-        location: weatherData.name || 'Unknown',
-        timestamp: Date.now(),
-      };
+      return response.data;
     } catch (error) {
       console.error('Error fetching weather data:', error);
       throw error;

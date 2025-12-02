@@ -18,24 +18,24 @@ import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { weatherApi, airQualityApi } from '@/services/api';
 import EnvCard from '@/components/EnvCard';
-import { NearbyAirQualityResponse } from '@/types';
+import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
 
 export default function HomeScreen() {
-  const { location, setLocation, environmentData, setEnvironmentData } = useAppStore();
+  const { location, setLocation, setEnvironmentData } = useAppStore();
 
-  // Query for weather data from OpenWeatherMap
+  // Query for weather data from backend API
   const {
     data: weatherData,
     isLoading: isWeatherLoading,
     refetch: refetchWeather,
     isRefetching: isWeatherRefetching,
-  } = useQuery({
+  } = useQuery<NearbyWeatherResponse>({
     queryKey: ['weather', location],
     queryFn: async () => {
       if (!location) {
         throw new Error('Location not available');
       }
-      return await weatherApi.getEnvironmentData(location.latitude, location.longitude);
+      return await weatherApi.getNearbyWeather(location.latitude, location.longitude);
     },
     enabled: !!location,
     retry: 3,
@@ -69,9 +69,22 @@ export default function HomeScreen() {
     refetchAirQuality();
   };
 
+  // Update store when weather data changes
   useEffect(() => {
-    if (weatherData) {
-      setEnvironmentData(weatherData);
+    if (weatherData?.current) {
+      const current = weatherData.current;
+      setEnvironmentData({
+        temperature: Math.round(current.temperature.current ?? 0),
+        humidity: current.atmospheric.humidity ?? 0,
+        aqi: 1, // Will be overridden by air quality data
+        clouds: current.cloudiness ?? 0,
+        windSpeed: current.wind.speed ?? 0,
+        pressure: current.atmospheric.pressure ?? 0,
+        description: current.weather.description ?? '',
+        icon: current.weather.icon ?? '01d',
+        location: weatherData.nearestStation.name ?? 'Unknown',
+        timestamp: Date.now(),
+      });
     }
   }, [weatherData, setEnvironmentData]);
 
@@ -122,9 +135,13 @@ export default function HomeScreen() {
   };
 
   // Get AQI index from backend or fallback to weather data
-  const currentAQI = airQualityData?.current?.aqi?.openWeather?.index ?? environmentData?.aqi ?? 1;
+  const currentAQI = airQualityData?.current?.aqi?.openWeather?.index ?? 1;
 
-  if (isLoading && !environmentData) {
+  // Get current weather from backend response
+  const currentWeather = weatherData?.current;
+  const weatherStation = weatherData?.nearestStation;
+
+  if (isLoading && !currentWeather) {
     return (
       <View style={styles.loadingContainer}>
         <Stack.Screen options={{ headerShown: false }} />
@@ -134,9 +151,8 @@ export default function HomeScreen() {
     );
   }
 
-  const envData = environmentData || weatherData;
   const pollutants = airQualityData?.current?.pollutants;
-  const stationInfo = airQualityData?.nearestStation;
+  const airQualityStation = airQualityData?.nearestStation;
 
   return (
     <View style={styles.container}>
@@ -149,12 +165,14 @@ export default function HomeScreen() {
         style={styles.header}
       >
         <Text style={styles.headerTitle}>Smart Forecast</Text>
-        {envData && (
+        {currentWeather && (
           <>
-            <Text style={styles.locationText}>{envData.location}</Text>
+            <Text style={styles.locationText}>{weatherStation?.name ?? 'Unknown Location'}</Text>
             <View style={styles.mainTempContainer}>
-              <Text style={styles.mainTemp}>{envData.temperature}°</Text>
-              <Text style={styles.description}>{envData.description}</Text>
+              <Text style={styles.mainTemp}>
+                {Math.round(currentWeather.temperature.current ?? 0)}°
+              </Text>
+              <Text style={styles.description}>{currentWeather.weather.description ?? ''}</Text>
             </View>
           </>
         )}
@@ -171,16 +189,16 @@ export default function HomeScreen() {
           />
         }
       >
-        {envData && (
+        {currentWeather && (
           <>
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Air Quality</Text>
-                {stationInfo && (
+                {airQualityStation && (
                   <View style={styles.stationInfo}>
                     <MapPin size={12} color={Colors.text.secondary} />
                     <Text style={styles.stationText}>
-                      {stationInfo.name} ({stationInfo.distance.toFixed(1)} km)
+                      {airQualityStation.name} ({airQualityStation.distance.toFixed(1)} km)
                     </Text>
                   </View>
                 )}
@@ -213,7 +231,7 @@ export default function HomeScreen() {
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="Humidity"
-                    value={envData.humidity}
+                    value={currentWeather.atmospheric.humidity ?? '--'}
                     unit="%"
                     icon={<Droplets size={20} color={Colors.primary.blue} />}
                   />
@@ -222,12 +240,22 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Weather Details</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Weather Details</Text>
+                {weatherStation && (
+                  <View style={styles.stationInfo}>
+                    <MapPin size={12} color={Colors.text.secondary} />
+                    <Text style={styles.stationText}>
+                      {weatherStation.name} ({weatherStation.distance.toFixed(1)} km)
+                    </Text>
+                  </View>
+                )}
+              </View>
               <View style={styles.grid}>
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="Temperature"
-                    value={envData.temperature}
+                    value={Math.round(currentWeather.temperature.current ?? 0)}
                     unit="°C"
                     icon={<Thermometer size={20} color={Colors.primary.blue} />}
                   />
@@ -235,7 +263,7 @@ export default function HomeScreen() {
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="Wind Speed"
-                    value={envData.windSpeed.toFixed(1)}
+                    value={(currentWeather.wind.speed ?? 0).toFixed(1)}
                     unit="m/s"
                     icon={<Wind size={20} color={Colors.primary.blue} />}
                   />
@@ -243,7 +271,7 @@ export default function HomeScreen() {
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="Clouds"
-                    value={envData.clouds}
+                    value={currentWeather.cloudiness ?? '--'}
                     unit="%"
                     icon={<Cloud size={20} color={Colors.primary.blue} />}
                   />
@@ -251,7 +279,7 @@ export default function HomeScreen() {
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="Pressure"
-                    value={envData.pressure}
+                    value={currentWeather.atmospheric.pressure ?? '--'}
                     unit="hPa"
                     icon={<Gauge size={20} color={Colors.primary.blue} />}
                   />
