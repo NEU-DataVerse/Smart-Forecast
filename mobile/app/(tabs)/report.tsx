@@ -16,23 +16,35 @@ import * as Location from 'expo-location';
 import { Camera, MapPin, X } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
+import { useAuth } from '@/context/AuthContext';
 import { Incident } from '@/types';
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+// TODO: Remove this mock token after testing
+const MOCK_TOKEN =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJlbWFpbCI6ImFkbWluQHNtYXJ0Zm9yZWNhc3QuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY0NjkxNjMyLCJleHAiOjE3NjUyOTY0MzJ9.CsCFj7nqu_R1cRk5vULIzXpKU5Oj0ntgJANxqCwTSdc';
+
+// Map to backend IncidentType enum
 const INCIDENT_TYPES = [
-  { value: 'flood', label: 'Lũ lụt', color: '#3B82F6' },
-  { value: 'landslide', label: 'Sạt lở đất', color: '#8B4513' },
-  { value: 'pollution', label: 'Ô nhiễm', color: '#EF4444' },
-  { value: 'accident', label: 'Khác', color: '#F59E0B' },
+  { value: 'FLOODING', label: 'Lũ lụt', color: '#3B82F6' },
+  { value: 'LANDSLIDE', label: 'Sạt lở đất', color: '#8B4513' },
+  { value: 'AIR_POLLUTION', label: 'Ô nhiễm', color: '#EF4444' },
+  { value: 'OTHER', label: 'Khác', color: '#F59E0B' },
 ] as const;
 
 export default function ReportScreen() {
   const { addIncident, location } = useAppStore();
+  const { token: authToken } = useAuth();
+  // Use mock token for testing, fallback to auth token
+  const token = MOCK_TOKEN || authToken;
   const [selectedType, setSelectedType] = useState<(typeof INCIDENT_TYPES)[number]['value'] | null>(
     null,
   );
   const [description, setDescription] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageUris, setImageUris] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const maxImages = 5;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _pickImage = async () => {
@@ -50,7 +62,12 @@ export default function ReportScreen() {
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      const newUri = result.assets[0].uri;
+      if (imageUris.length < maxImages) {
+        setImageUris([...imageUris, newUri]);
+      } else {
+        Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+      }
     }
   };
 
@@ -68,7 +85,12 @@ export default function ReportScreen() {
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      const newUri = result.assets[0].uri;
+      if (imageUris.length < maxImages) {
+        setImageUris([...imageUris, newUri]);
+      } else {
+        Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+      }
     }
   };
 
@@ -80,6 +102,11 @@ export default function ReportScreen() {
 
     if (!description.trim()) {
       Alert.alert('Lỗi', 'Vui lòng cung cấp mô tả chi tiết về sự cố');
+      return;
+    }
+
+    if (!token) {
+      Alert.alert('Lỗi', 'Vui lòng đăng nhập để gửi báo cáo');
       return;
     }
 
@@ -101,11 +128,50 @@ export default function ReportScreen() {
         }
       }
 
+      // Create FormData for multipart/form-data request
+      const formData = new FormData();
+      formData.append('type', selectedType);
+      formData.append('description', description.trim());
+      formData.append('longitude', currentLocation.longitude.toString());
+      formData.append('latitude', currentLocation.latitude.toString());
+
+      // Append images
+      for (let i = 0; i < imageUris.length; i++) {
+        const uri = imageUris[i];
+        const filename = uri.split('/').pop() || `image_${i}.jpg`;
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+        formData.append('images', {
+          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+          name: filename,
+          type,
+        } as any);
+      }
+
+      // Send to backend API
+      const response = await fetch(`${API_URL}/incident`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Also save locally for offline access
       const incident: Incident = {
-        id: Date.now().toString(),
-        type: selectedType,
+        id: result.id || Date.now().toString(),
+        type: selectedType.toLowerCase() as any,
         description: description.trim(),
-        imageUri: imageUri || undefined,
+        imageUri: imageUris.length > 0 ? imageUris[0] : undefined,
         location: currentLocation,
         timestamp: Date.now(),
         status: 'pending',
@@ -119,13 +185,16 @@ export default function ReportScreen() {
           onPress: () => {
             setSelectedType(null);
             setDescription('');
-            setImageUri(null);
+            setImageUris([]);
           },
         },
       ]);
     } catch (error) {
       console.error('Error submitting incident:', error);
-      Alert.alert('Lỗi', 'Không thể gửi báo cáo sự cố. Vui lòng thử lại.');
+      Alert.alert(
+        'Lỗi',
+        error instanceof Error ? error.message : 'Không thể gửi báo cáo sự cố. Vui lòng thử lại.',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -186,22 +255,39 @@ export default function ReportScreen() {
 
         <Text style={styles.sectionTitle}>Ảnh minh chứng (Tùy chọn)</Text>
 
-        {imageUri ? (
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: imageUri }} style={styles.image} />
-            <Pressable style={styles.removeImageButton} onPress={() => setImageUri(null)}>
-              <X size={20} color={Colors.text.white} />
-            </Pressable>
+        {imageUris.length > 0 ? (
+          <View style={styles.imageGrid}>
+            {imageUris.map((uri, index) => (
+              <View key={index} style={styles.imageGridItem}>
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri }} style={styles.image} />
+                  <Pressable
+                    style={styles.removeImageButton}
+                    onPress={() => setImageUris(imageUris.filter((_, i) => i !== index))}
+                  >
+                    <X size={20} color={Colors.text.white} />
+                  </Pressable>
+                </View>
+              </View>
+            ))}
           </View>
-        ) : (
+        ) : null}
+
+        {imageUris.length < maxImages && (
           <View style={styles.imageButtons}>
             {Platform.OS !== 'web' && (
               <Pressable style={styles.imageButton} onPress={takePhoto}>
                 <Camera size={24} color={Colors.primary.blue} />
-                <Text style={styles.imageButtonText}>Take Photo</Text>
+                <Text style={styles.imageButtonText}>Chụp ảnh</Text>
               </Pressable>
             )}
           </View>
+        )}
+
+        {imageUris.length > 0 && (
+          <Text style={styles.imageCountText}>
+            {imageUris.length}/{maxImages} ảnh
+          </Text>
         )}
 
         <View style={styles.locationInfo}>
@@ -320,20 +406,37 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: 12,
     overflow: 'hidden',
+    marginBottom: 12,
+  },
+  imageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -6,
     marginBottom: 20,
+  },
+  imageGridItem: {
+    width: '50%',
+    paddingHorizontal: 6,
+    marginBottom: 12,
   },
   image: {
     width: '100%',
-    height: 200,
+    height: 150,
     borderRadius: 12,
   },
   removeImageButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: 8,
+    right: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     borderRadius: 20,
     padding: 8,
+  },
+  imageCountText: {
+    fontSize: 12,
+    color: Colors.text.secondary,
+    marginTop: -16,
+    marginBottom: 20,
   },
   locationInfo: {
     flexDirection: 'row',
