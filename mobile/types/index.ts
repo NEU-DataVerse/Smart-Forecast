@@ -3,6 +3,12 @@ export interface Location {
   longitude: number;
 }
 
+export interface MapRegion {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
 export interface EnvironmentData {
   temperature: number;
   humidity: number;
@@ -14,42 +20,6 @@ export interface EnvironmentData {
   icon: string;
   location: string;
   timestamp: number;
-}
-
-export interface AirQualityData {
-  id: string;
-  stationId: string;
-  location: {
-    lat: number;
-    lon: number;
-  };
-  address?: string;
-  dateObserved: string;
-  pollutants?: {
-    co?: number;
-    no?: number;
-    no2?: number;
-    o3?: number;
-    so2?: number;
-    pm25?: number;
-    pm10?: number;
-    nh3?: number;
-  };
-  aqi?: {
-    openWeather?: {
-      index: number;
-      level: string;
-    };
-    epaUS?: {
-      index: number;
-      level: string;
-    };
-  };
-  temperature?: number;
-  humidity?: number;
-  pressure?: number;
-  windSpeed?: number;
-  clouds?: number;
 }
 
 export interface Sensor {

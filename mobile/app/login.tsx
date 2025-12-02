@@ -1,44 +1,9 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  SafeAreaView,
-  Alert,
-  Pressable,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { Stack } from 'expo-router';
-import { useAuth } from '@/context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LoginScreen() {
-  const { signInWithGoogle, isSigningIn } = useAuth();
-  const [loginMessage, setLoginMessage] = React.useState<string | null>(null);
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoginMessage(null);
-      await signInWithGoogle();
-      // If we get here, login was successful
-      setLoginMessage(null);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Sign in failed. Please try again.';
-
-      // Check if this is a demo account fallback
-      if (errorMessage.includes('demo account')) {
-        setLoginMessage('Using demo account for testing...');
-        Alert.alert('Demo Mode', 'Google Sign-In unavailable. Using demo account for testing.');
-      } else {
-        Alert.alert('Sign In Failed', errorMessage);
-      }
-
-      console.error('Login error:', error);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen
@@ -78,32 +43,7 @@ export default function LoginScreen() {
           <View style={styles.signInSection}>
             <Text style={styles.signInTitle}>Get Started</Text>
             <Text style={styles.signInDescription}>
-              {Platform.OS === 'web'
-                ? 'Click Sign In to access the app (Demo mode on web)'
-                : 'Sign in with your Google account to access all features'}
-            </Text>
-
-            {loginMessage && (
-              <View style={styles.messageContainer}>
-                <Text style={styles.messageText}>{loginMessage}</Text>
-              </View>
-            )}
-
-            {isSigningIn ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#667eea" />
-                <Text style={styles.loadingText}>Signing in...</Text>
-              </View>
-            ) : (
-              <View style={styles.buttonContainer}>
-                <Pressable style={styles.googleButton} onPress={handleGoogleSignIn}>
-                  <Text style={styles.googleButtonText}>Sign in with Google</Text>
-                </Pressable>
-              </View>
-            )}
-
-            <Text style={styles.termsText}>
-              By signing in, you agree to our Terms of Service and Privacy Policy
+              Access the app to monitor environmental conditions
             </Text>
           </View>
         </View>
@@ -222,46 +162,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 16,
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFF',
-  },
-  buttonContainer: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  fallbackButton: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 16,
-    flexDirection: 'row',
-  },
-  fallbackButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  loadingContainer: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#667eea',
-    fontWeight: '600',
-  },
-  termsText: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.6)',
-    textAlign: 'center',
-    marginTop: 16,
-    paddingHorizontal: 10,
   },
 });

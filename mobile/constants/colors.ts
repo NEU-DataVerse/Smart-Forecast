@@ -18,7 +18,7 @@ export default {
     primary: '#F8FAFC',
     secondary: '#FFFFFF',
     card: '#FFFFFF',
-    cardPressed: 'grey',
+    default: '#F8FAFC',
   },
   status: {
     good: '#10B981',

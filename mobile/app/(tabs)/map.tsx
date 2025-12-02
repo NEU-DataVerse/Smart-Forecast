@@ -1,191 +1,140 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
-import { X } from 'lucide-react-native';
-import Colors from '@/constants/colors';
-import { useAppStore } from '@/store/appStore';
-import { getAQIColor, getStatusColor } from '@/utils/mapLayerOptimization';
-import { weatherApi } from '@/services/api';
-import { useQuery } from '@tanstack/react-query';
+// import Colors from '@/constants/colors'; // Giả sử bạn có file này
+// import { useAppStore } from '@/store/appStore'; // Giả sử bạn có store này
+import CityMap from '@/components/CityMap'; // Import component vừa tạo ở Bước 2
 
-// MapLibreGL requires conditional loading based on platform
-let MapLibreGL: any = null;
+// --- MOCK DATA & CONSTANTS (Để chạy demo, bạn có thể xóa phần này nếu đã có file thật) ---
+const Colors = {
+  primary: { blue: '#007AFF' },
+  text: { white: '#FFFFFF', primary: '#000000', secondary: '#666666', light: '#999999' },
+  background: { card: '#FFFFFF' },
+  status: { good: '#34C759', unhealthy: '#FF3B30' },
+  shadow: '#000',
+};
 
-if (Platform.OS !== 'web') {
-  MapLibreGL = require('@maplibre/maplibre-react-native').default;
-  MapLibreGL.setAccessToken(null); // No token needed for OSM
-}
+// Định nghĩa lại Type nếu chưa có
+type MapRegion = {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+};
+
+type Sensor = {
+  id: string;
+  name: string;
+  type: string;
+  location: { latitude: number; longitude: number };
+  lastReading: { aqi?: number; temperature?: number; humidity?: number };
+  status: 'active' | 'inactive';
+};
+
+// Mock Store Hook
+const useAppStore = () => ({
+  location: { latitude: 10.762622, longitude: 106.660172 }, // TP.HCM
+  sensors: [
+    {
+      id: 's1',
+      name: 'Sensor District 1',
+      type: 'air_quality',
+      location: { latitude: 10.7756, longitude: 106.7004 }, // Chợ Bến Thành
+      lastReading: { aqi: 45, temperature: 30, humidity: 65 },
+      status: 'active',
+    },
+    {
+      id: 's2',
+      name: 'Sensor District 5',
+      type: 'air_quality',
+      location: { latitude: 10.7546, longitude: 106.6664 },
+      lastReading: { aqi: 112, temperature: 31, humidity: 60 },
+      status: 'active',
+    },
+  ] as Sensor[],
+});
+// ---------------------------------------------------------------------------------
 
 export default function MapScreen() {
-  const { location, setSensors } = useAppStore();
+  const { location, sensors } = useAppStore();
   const [selectedSensor, setSelectedSensor] = useState<string | null>(null);
-  const [sensors, setSensorsLocal] = useState<any[]>([]);
 
-  const initialCoords = [location?.longitude || 106.6297, location?.latitude || 10.8231];
+  const initialRegion = useMemo<MapRegion>(
+    () => ({
+      latitude: location?.latitude ?? 10.8231,
+      longitude: location?.longitude ?? 106.6297,
+      latitudeDelta: 0.05, // Zoom gần hơn một chút để thấy rõ đường phố
+      longitudeDelta: 0.05,
+    }),
+    [location?.latitude, location?.longitude],
+  );
 
-  // Fetch nearest sensors from backend
-  const { data: fetchedSensors, isLoading } = useQuery({
-    queryKey: ['sensors', location],
-    queryFn: async () => {
-      if (!location) {
-        throw new Error('Location not available');
-      }
-      try {
-        return await weatherApi.getNearestStations(
-          location.latitude,
-          location.longitude,
-          10, // Get up to 10 nearest stations
-          50, // Within 50km radius
-        );
-      } catch (err) {
-        console.error('Error fetching sensors:', err);
-        throw err;
-      }
-    },
-    enabled: !!location,
-    retry: 2,
-  });
-
-  // Update local sensors and app store
-  useEffect(() => {
-    if (fetchedSensors && fetchedSensors.length > 0) {
-      setSensorsLocal(fetchedSensors);
-      setSensors(fetchedSensors);
-    }
-  }, [fetchedSensors, setSensors]);
+  const activeSensor = useMemo<Sensor | null>(() => {
+    if (!selectedSensor) return null;
+    return sensors.find((sensor) => sensor.id === selectedSensor) ?? null;
+  }, [selectedSensor, sensors]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="map-screen">
       <Stack.Screen
         options={{
-          title: 'Environmental Map',
-          headerStyle: {
-            backgroundColor: Colors.primary.blue,
-          },
+          title: 'Bản đồ OpenStreetMap',
+          headerStyle: { backgroundColor: Colors.primary.blue },
           headerTintColor: Colors.text.white,
         }}
       />
 
-      {Platform.OS === 'web' ? (
-        <View style={styles.webPlaceholder}>
-          <Text style={styles.placeholderText}>Map view is available on mobile devices</Text>
-          <Text style={styles.placeholderSubtext}>
-            Scan the QR code to view the map on your phone
-          </Text>
-        </View>
-      ) : isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary.blue} />
-          <Text style={styles.loadingText}>Loading sensors...</Text>
-        </View>
-      ) : (
-        <>
-          <MapLibreGL.MapView
-            style={styles.map}
-            styleURL="https://demotiles.maplibre.org/style.json"
-          >
-            <MapLibreGL.Camera zoomLevel={12} centerCoordinate={initialCoords} />
+      <CityMap
+        initialRegion={initialRegion}
+        sensors={sensors}
+        onSensorSelect={(sensorId) => {
+          console.log('MapScreen sensor selected', sensorId);
+          setSelectedSensor(sensorId);
+        }}
+      />
 
-            {sensors.map((sensor) => {
-              const aqi = sensor.lastReading?.aqi || 0;
-              const markerColor = aqi > 0 ? getAQIColor(aqi) : getStatusColor(sensor.status);
+      {activeSensor && (
+        <View style={styles.infoPanel} testID="sensor-info-panel">
+          <ScrollView>
+            <Text style={styles.infoTitle}>{activeSensor.name}</Text>
+            <Text style={styles.infoSubtitle}>
+              {activeSensor.type.replace('_', ' ').toUpperCase()}
+            </Text>
 
-              return (
-                <MapLibreGL.PointAnnotation
-                  key={sensor.id}
-                  id={sensor.id}
-                  coordinate={[sensor.longitude, sensor.latitude]}
-                  onSelected={() => setSelectedSensor(sensor.id)}
-                >
-                  <View
-                    style={[
-                      styles.marker,
-                      {
-                        backgroundColor: markerColor,
-                        borderColor: markerColor,
-                      },
-                    ]}
-                  />
-                </MapLibreGL.PointAnnotation>
-              );
-            })}
-          </MapLibreGL.MapView>
-
-          {selectedSensor && (
-            <View style={styles.infoPanel}>
-              {(() => {
-                const sensor = sensors.find((s) => s.id === selectedSensor);
-                if (!sensor) return null;
-                const aqi = sensor.lastReading.aqi || 0;
-                return (
-                  <>
-                    <View style={styles.infoPanelHeader}>
-                      <View style={styles.infoPanelTitleContainer}>
-                        <Text style={styles.infoTitle}>{sensor.name}</Text>
-                        <Text style={styles.infoSubtitle}>
-                          {sensor.type.replace('_', ' ').toUpperCase()}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => setSelectedSensor(null)}
-                        style={styles.closeButton}
-                      >
-                        <X size={24} color={Colors.text.light} />
-                      </TouchableOpacity>
-                    </View>
-
-                    <ScrollView>
-                      <View style={styles.infoGrid}>
-                        {aqi > 0 && (
-                          <View style={styles.infoItem}>
-                            <Text style={styles.infoLabel}>AQI</Text>
-                            <Text style={[styles.infoValue, { color: getAQIColor(aqi) }]}>
-                              {aqi}
-                            </Text>
-                          </View>
-                        )}
-                        {sensor.lastReading.temperature && (
-                          <View style={styles.infoItem}>
-                            <Text style={styles.infoLabel}>Temperature</Text>
-                            <Text style={styles.infoValue}>{sensor.lastReading.temperature}°C</Text>
-                          </View>
-                        )}
-                        {sensor.lastReading.humidity && (
-                          <View style={styles.infoItem}>
-                            <Text style={styles.infoLabel}>Humidity</Text>
-                            <Text style={styles.infoValue}>{sensor.lastReading.humidity}%</Text>
-                          </View>
-                        )}
-                      </View>
-
-                      <View
-                        style={[
-                          styles.statusBadge,
-                          {
-                            backgroundColor:
-                              sensor.status === 'active'
-                                ? getStatusColor('active')
-                                : getStatusColor('inactive'),
-                          },
-                        ]}
-                      >
-                        <Text style={styles.statusText}>{sensor.status.toUpperCase()}</Text>
-                      </View>
-                    </ScrollView>
-                  </>
-                );
-              })()}
+            <View style={styles.infoGrid}>
+              {activeSensor.lastReading.aqi !== undefined && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>AQI</Text>
+                  <Text style={styles.infoValue}>{activeSensor.lastReading.aqi}</Text>
+                </View>
+              )}
+              {activeSensor.lastReading.temperature !== undefined && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Temp</Text>
+                  <Text style={styles.infoValue}>{activeSensor.lastReading.temperature}°C</Text>
+                </View>
+              )}
+              {activeSensor.lastReading.humidity !== undefined && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Humidity</Text>
+                  <Text style={styles.infoValue}>{activeSensor.lastReading.humidity}%</Text>
+                </View>
+              )}
             </View>
-          )}
-        </>
+
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor:
+                    activeSensor.status === 'active' ? Colors.status.good : Colors.status.unhealthy,
+                },
+              ]}
+            >
+              <Text style={styles.statusText}>{activeSensor.status.toUpperCase()}</Text>
+            </View>
+          </ScrollView>
+        </View>
       )}
     </View>
   );
@@ -194,51 +143,6 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background.primary,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: Colors.text.secondary,
-  },
-  marker: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  webPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background.primary,
-    padding: 40,
-  },
-  placeholderText: {
-    fontSize: 18,
-    fontWeight: '600' as const,
-    color: Colors.text.primary,
-    marginTop: 24,
-    textAlign: 'center',
-  },
-  placeholderSubtext: {
-    fontSize: 14,
-    color: Colors.text.secondary,
-    marginTop: 8,
-    textAlign: 'center',
   },
   infoPanel: {
     position: 'absolute',
@@ -249,38 +153,23 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    maxHeight: 300,
+    paddingBottom: 40, // Thêm padding đáy cho an toàn trên iPhone X+
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
   },
-  infoPanelHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  infoPanelTitleContainer: {
-    flex: 1,
-    marginRight: 12,
-  },
-  closeButton: {
-    padding: 8,
-    marginRight: -8,
-    marginTop: -8,
-  },
   infoTitle: {
     fontSize: 20,
-    fontWeight: '700' as const,
+    fontWeight: '700',
     color: Colors.text.primary,
     marginBottom: 4,
   },
   infoSubtitle: {
     fontSize: 14,
     color: Colors.text.secondary,
-    marginBottom: 0,
+    marginBottom: 16,
   },
   infoGrid: {
     flexDirection: 'row',
@@ -298,7 +187,7 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 18,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: Colors.text.primary,
   },
   statusBadge: {
@@ -309,7 +198,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: Colors.text.white,
   },
 });

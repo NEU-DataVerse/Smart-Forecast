@@ -34,6 +34,7 @@ export default function ReportScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {

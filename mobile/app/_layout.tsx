@@ -31,7 +31,7 @@ const queryClient = new QueryClient({
 });
 
 function RootLayoutNav() {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading } = useAuth();
   const router = useRouter();
   const [splashHidden, setSplashHidden] = React.useState(false);
 
@@ -48,22 +48,17 @@ function RootLayoutNav() {
           setSplashHidden(true);
         }
 
-        // Navigate based on auth state - this will re-run whenever isAuthenticated changes
-        if (!isAuthenticated) {
-          router.replace('/login');
-        } else {
-          router.replace('/(tabs)');
-        }
+        // Always go to tabs (no login needed)
+        router.replace('/(tabs)');
       }
     };
 
     handleNavigation();
-  }, [isLoading, isAuthenticated, router, splashHidden]);
+  }, [isLoading, router, splashHidden]);
 
   return (
     <NotificationProvider>
       <Stack screenOptions={{ headerBackTitle: 'Back' }}>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>

@@ -33,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/images/android-icon-background.png',
       backgroundColor: '#ffffff',
     },
-    package: 'app.smartforecastapp',
+    package: 'app.smartforecast',
     permissions: [
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.ACCESS_FINE_LOCATION',
@@ -76,15 +76,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     router: {},
     eas: {
-      projectId: '5d231caf-e8ca-4ed0-9407-f7484b998f80',
+      projectId: '969918ff-0991-4f7c-8b36-2dcac7babc47',
     },
   },
   env: {
-    EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     EXPO_PUBLIC_BACKEND_API_URL: process.env.EXPO_PUBLIC_BACKEND_API_URL,
-    EXPO_PUBLIC_OPENWEATHER_API_KEY: process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY,
+    EXPO_PUBLIC_MINIO_URL: process.env.EXPO_PUBLIC_MINIO_URL,
   },
-  owner: 'nguyenthanhdatvn2005',
+  owner: 'nguyenthanhdatndc',
 });
