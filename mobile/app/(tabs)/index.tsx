@@ -25,13 +25,13 @@ export default function HomeScreen() {
   const { location, setLocation, setEnvironmentData } = useAppStore();
   const { token } = useAuth();
 
-  // Memoize location key to prevent unnecessary refetches
+  // Ghi nhớ location key để tránh refetch không cần thiết
   const locationKey = useMemo(
     () => (location ? [location.latitude, location.longitude] : null),
     [location?.latitude, location?.longitude],
   );
 
-  // Query for weather data from backend API
+  // Query lấy dữ liệu thời tiết từ backend API
   const {
     data: weatherData,
     isLoading: isWeatherLoading,
@@ -41,7 +41,7 @@ export default function HomeScreen() {
     queryKey: ['weather', locationKey],
     queryFn: async () => {
       if (!location) {
-        throw new Error('Location not available');
+        throw new Error('Không có vị trí');
       }
       return await weatherApi.getNearbyWeather(
         location.latitude,
@@ -54,7 +54,7 @@ export default function HomeScreen() {
     retryDelay: 1000,
   });
 
-  // Query for air quality data from backend API
+  // Query lấy dữ liệu chất lượng không khí từ backend API
   const {
     data: airQualityData,
     isLoading: isAirQualityLoading,
@@ -64,7 +64,7 @@ export default function HomeScreen() {
     queryKey: ['airQuality', locationKey],
     queryFn: async () => {
       if (!location) {
-        throw new Error('Location not available');
+        throw new Error('Không có vị trí');
       }
       return await airQualityApi.getNearbyAirQuality(
         location.latitude,
@@ -85,20 +85,20 @@ export default function HomeScreen() {
     refetchAirQuality();
   };
 
-  // Update store when weather data changes
+  // Cập nhật store khi dữ liệu thời tiết thay đổi
   useEffect(() => {
     if (weatherData?.current) {
       const current = weatherData.current;
       setEnvironmentData({
         temperature: Math.round(current.temperature.current ?? 0),
         humidity: current.atmospheric.humidity ?? 0,
-        aqi: 1, // Will be overridden by air quality data
+        aqi: 1, // Sẽ được ghi đè bởi dữ liệu chất lượng không khí
         clouds: current.cloudiness ?? 0,
         windSpeed: current.wind.speed ?? 0,
         pressure: current.atmospheric.pressure ?? 0,
         description: current.weather.description ?? '',
         icon: current.weather.icon ?? '01d',
-        location: weatherData.nearestStation.name ?? 'Unknown',
+        location: weatherData.nearestStation.name ?? 'Không xác định',
         timestamp: Date.now(),
       });
     }
@@ -109,7 +109,7 @@ export default function HomeScreen() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          console.log('Location permission denied');
+          console.log('Quyền truy cập vị trí bị từ chối');
           setLocation({ latitude: 10.8231, longitude: 106.6297 });
           return;
         }
@@ -120,7 +120,7 @@ export default function HomeScreen() {
           longitude: loc.coords.longitude,
         });
       } catch (error) {
-        console.error('Error getting location:', error);
+        console.error('Lỗi khi lấy vị trí:', error);
         setLocation({ latitude: 10.8231, longitude: 106.6297 });
       }
     };

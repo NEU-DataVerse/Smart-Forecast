@@ -14,7 +14,7 @@ export const getBackendUrl = (): string | undefined => {
 const BACKEND_URL = getBackendUrl();
 
 export const weatherApi = {
-  // Get weather data from backend API (via Orion-LD)
+  // Lấy dữ liệu thời tiết từ backend API (qua Orion-LD)
   async getNearbyWeather(
     lat: number,
     lon: number,
@@ -36,14 +36,14 @@ export const weatherApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error('Lỗi khi lấy dữ liệu thời tiết:', error);
       throw error;
     }
   },
 };
 
 export const airQualityApi = {
-  // Get nearby air quality data from backend API
+  // Lấy dữ liệu chất lượng không khí gần đây từ backend API
   async getNearbyAirQuality(
     lat: number,
     lon: number,
@@ -67,13 +67,13 @@ export const airQualityApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching air quality data:', error);
+      console.error('Lỗi khi lấy dữ liệu chất lượng không khí:', error);
       throw error;
     }
   },
 };
 
-// Auth API response types
+// Kiểu dữ liệu Auth API
 export interface AuthUser {
   id: string;
   email: string;
@@ -89,7 +89,7 @@ export interface GoogleAuthResponse {
 }
 
 export const authApi = {
-  // Google Sign-In - send idToken to backend for verification
+  // Đăng nhập Google - gửi idToken đến backend để xác thực
   async googleSignIn(idToken: string): Promise<GoogleAuthResponse> {
     try {
       const response = await axios.post<GoogleAuthResponse>(
@@ -105,13 +105,13 @@ export const authApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error with Google sign-in:', error);
+      console.error('Lỗi đăng nhập Google:', error);
       throw error;
     }
   },
 };
 
-// Alert API types
+// Kiểu dữ liệu Alert API
 export interface AlertListResponse {
   data: IAlert[];
   total: number;
@@ -120,7 +120,7 @@ export interface AlertListResponse {
 }
 
 export const alertApi = {
-  // Get active alerts (non-expired)
+  // Lấy cảnh báo đang hoạt động (chưa hết hạn)
   async getActiveAlerts(token?: string): Promise<IAlert[]> {
     try {
       const response = await axios.get<IAlert[]>(`${BACKEND_URL}/alert/active`, {
@@ -132,12 +132,12 @@ export const alertApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching active alerts:', error);
+      console.error('Lỗi khi lấy cảnh báo đang hoạt động:', error);
       throw error;
     }
   },
 
-  // Get alerts with filters and pagination
+  // Lấy cảnh báo với bộ lọc và phân trang
   async getAlerts(params?: IAlertQueryParams, token?: string): Promise<AlertListResponse> {
     try {
       const response = await axios.get<AlertListResponse>(`${BACKEND_URL}/alert`, {
@@ -157,13 +157,13 @@ export const alertApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching alerts:', error);
+      console.error('Lỗi khi lấy danh sách cảnh báo:', error);
       throw error;
     }
   },
 };
 
-// Incident API types
+// Kiểu dữ liệu Incident API
 export interface IncidentListResponse {
   data: IIncident[];
   total: number;
@@ -172,7 +172,7 @@ export interface IncidentListResponse {
 }
 
 export const incidentApi = {
-  // Get current user's incidents
+  // Lấy sự cố của người dùng hiện tại
   async getMyIncidents(
     params?: IIncidentQueryParams,
     token?: string,
@@ -195,12 +195,12 @@ export const incidentApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching user incidents:', error);
+      console.error('Lỗi khi lấy sự cố của người dùng:', error);
       throw error;
     }
   },
 
-  // Get all incidents with filters
+  // Lấy tất cả sự cố với bộ lọc
   async getIncidents(params?: IIncidentQueryParams, token?: string): Promise<IncidentListResponse> {
     try {
       const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident`, {
@@ -221,7 +221,7 @@ export const incidentApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching incidents:', error);
+      console.error('Lỗi khi lấy danh sách sự cố:', error);
       throw error;
     }
   },

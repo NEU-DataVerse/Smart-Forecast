@@ -8,13 +8,13 @@ import { useEffect } from 'react';
 const ALERTS_CACHE_KEY = 'cached_alerts';
 const ACTIVE_ALERTS_CACHE_KEY = 'cached_active_alerts';
 
-// Cache config
-const STALE_TIME = 30 * 1000; // 30 seconds
-const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
-const POLLING_INTERVAL = 60 * 1000; // 1 minute
+// Cấu hình cache
+const STALE_TIME = 30 * 1000; // 30 giây
+const CACHE_TIME = 5 * 60 * 1000; // 5 phút
+const POLLING_INTERVAL = 60 * 1000; // 1 phút
 
 /**
- * Hook to fetch active alerts with caching and polling
+ * Hook lấy cảnh báo đang hoạt động với cache và polling
  */
 export function useActiveAlerts() {
   const { token } = useAuth();
@@ -24,7 +24,7 @@ export function useActiveAlerts() {
     queryKey: ['alerts', 'active'],
     queryFn: async () => {
       const data = await alertApi.getActiveAlerts(token ?? undefined);
-      // Cache to AsyncStorage for offline access
+      // Lưu cache vào AsyncStorage để truy cập offline
       await AsyncStorage.setItem(ACTIVE_ALERTS_CACHE_KEY, JSON.stringify(data));
       return data;
     },
@@ -32,14 +32,14 @@ export function useActiveAlerts() {
     gcTime: CACHE_TIME,
     refetchInterval: POLLING_INTERVAL,
     refetchIntervalInBackground: false,
-    // Load from cache on initial load
+    // Tải từ cache khi khởi động
     placeholderData: () => {
       const cached = queryClient.getQueryData<IAlert[]>(['alerts', 'active']);
       return cached;
     },
   });
 
-  // Load cached data on mount
+  // Tải dữ liệu cache khi mount
   useEffect(() => {
     const loadCachedData = async () => {
       try {
@@ -49,7 +49,7 @@ export function useActiveAlerts() {
           queryClient.setQueryData(['alerts', 'active'], parsedData);
         }
       } catch (error) {
-        console.error('Error loading cached alerts:', error);
+        console.error('Lỗi khi tải cache cảnh báo:', error);
       }
     };
     loadCachedData();
@@ -59,7 +59,7 @@ export function useActiveAlerts() {
 }
 
 /**
- * Hook to fetch paginated alerts with filters
+ * Hook lấy cảnh báo phân trang với bộ lọc
  */
 export function useAlerts(params?: IAlertQueryParams) {
   const { token } = useAuth();
@@ -69,7 +69,7 @@ export function useAlerts(params?: IAlertQueryParams) {
     queryKey: ['alerts', 'list', params],
     queryFn: async () => {
       const data = await alertApi.getAlerts(params, token ?? undefined);
-      // Cache first page to AsyncStorage
+      // Lưu cache trang đầu tiên vào AsyncStorage
       if (!params?.page || params.page === 1) {
         await AsyncStorage.setItem(ALERTS_CACHE_KEY, JSON.stringify(data));
       }
@@ -81,7 +81,7 @@ export function useAlerts(params?: IAlertQueryParams) {
     refetchIntervalInBackground: false,
   });
 
-  // Load cached data on mount (for first page only)
+  // Tải dữ liệu cache khi mount (chỉ cho trang đầu)
   useEffect(() => {
     const loadCachedData = async () => {
       if (!params?.page || params.page === 1) {
@@ -92,7 +92,7 @@ export function useAlerts(params?: IAlertQueryParams) {
             queryClient.setQueryData(['alerts', 'list', params], parsedData);
           }
         } catch (error) {
-          console.error('Error loading cached alerts:', error);
+          console.error('Lỗi khi tải cache cảnh báo:', error);
         }
       }
     };
@@ -103,7 +103,7 @@ export function useAlerts(params?: IAlertQueryParams) {
 }
 
 /**
- * Hook to manually refresh alerts
+ * Hook làm mới cảnh báo thủ công
  */
 export function useRefreshAlerts() {
   const queryClient = useQueryClient();
