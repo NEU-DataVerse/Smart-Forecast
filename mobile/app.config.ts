@@ -34,7 +34,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#ffffff',
     },
     package: 'app.smartforecast',
-    usesCleartextTraffic: true,
     permissions: [
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.ACCESS_FINE_LOCATION',
@@ -80,9 +79,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: {
       projectId: '969918ff-0991-4f7c-8b36-2dcac7babc47',
     },
-  },
-  env: {
-    EXPO_PUBLIC_BACKEND_API_URL: process.env.EXPO_PUBLIC_BACKEND_API_URL,
+    EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL,
     EXPO_PUBLIC_MINIO_URL: process.env.EXPO_PUBLIC_MINIO_URL,
   },
   owner: 'nguyenthanhdatndc',

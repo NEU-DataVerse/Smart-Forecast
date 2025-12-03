@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,12 +16,20 @@ import { useQuery } from '@tanstack/react-query';
 
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
+import { useAuth } from '@/context/AuthContext';
 import { weatherApi, airQualityApi } from '@/services/api';
 import EnvCard from '@/components/EnvCard';
 import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
 
 export default function HomeScreen() {
   const { location, setLocation, setEnvironmentData } = useAppStore();
+  const { token } = useAuth();
+
+  // Memoize location key to prevent unnecessary refetches
+  const locationKey = useMemo(
+    () => (location ? [location.latitude, location.longitude] : null),
+    [location?.latitude, location?.longitude],
+  );
 
   // Query for weather data from backend API
   const {
@@ -30,14 +38,18 @@ export default function HomeScreen() {
     refetch: refetchWeather,
     isRefetching: isWeatherRefetching,
   } = useQuery<NearbyWeatherResponse>({
-    queryKey: ['weather', location],
+    queryKey: ['weather', locationKey],
     queryFn: async () => {
       if (!location) {
         throw new Error('Location not available');
       }
-      return await weatherApi.getNearbyWeather(location.latitude, location.longitude);
+      return await weatherApi.getNearbyWeather(
+        location.latitude,
+        location.longitude,
+        token ?? undefined,
+      );
     },
-    enabled: !!location,
+    enabled: !!location && !!token,
     retry: 3,
     retryDelay: 1000,
   });
@@ -49,14 +61,18 @@ export default function HomeScreen() {
     refetch: refetchAirQuality,
     isRefetching: isAirQualityRefetching,
   } = useQuery<NearbyAirQualityResponse>({
-    queryKey: ['airQuality', location],
+    queryKey: ['airQuality', locationKey],
     queryFn: async () => {
       if (!location) {
         throw new Error('Location not available');
       }
-      return await airQualityApi.getNearbyAirQuality(location.latitude, location.longitude);
+      return await airQualityApi.getNearbyAirQuality(
+        location.latitude,
+        location.longitude,
+        token ?? undefined,
+      );
     },
-    enabled: !!location,
+    enabled: !!location && !!token,
     retry: 3,
     retryDelay: 1000,
   });

@@ -24,11 +24,11 @@ import {
 } from '@smart-forecast/shared';
 
 // MinIO URL from environment
-const MINIO_URL = process.env.EXPO_PUBLIC_MINIO_URL || 'http://localhost:9000';
+const MINIO_URL = process.env.EXPO_PUBLIC_MINIO_URL;
 
 // Helper to convert localhost URLs to proper MinIO URL
 const getImageUrl = (url: string): string => {
-  if (!url) return url;
+  if (!url || !MINIO_URL) return url;
   // Replace localhost:9000 or 127.0.0.1:9000 with MINIO_URL
   return url
     .replace(/http:\/\/localhost:9000/g, MINIO_URL)

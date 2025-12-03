@@ -1,30 +1,17 @@
 import axios from 'axios';
-import { Platform } from 'react-native';
 import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
 import type {
   IAlert,
   IAlertQueryParams,
-  AlertLevel,
-  AlertType,
   IIncident,
   IIncidentQueryParams,
 } from '@smart-forecast/shared';
 
-// Backend API URL - use 10.0.2.2 for Android emulator to access host localhost
-const getBackendUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl) return envUrl;
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:8000/api/v1';
-  }
-  return 'http://localhost:8000/api/v1';
+export const getBackendUrl = (): string | undefined => {
+  return process.env.EXPO_PUBLIC_API_URL;
 };
 
 const BACKEND_URL = getBackendUrl();
-
-// TODO: Remove this mock token after implementing proper auth
-const MOCK_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJlbWFpbCI6ImFkbWluQHNtYXJ0Zm9yZWNhc3QuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY0NjkxNjMyLCJleHAiOjE3NjUyOTY0MzJ9.CsCFj7nqu_R1cRk5vULIzXpKU5Oj0ntgJANxqCwTSdc';
 
 export const weatherApi = {
   // Get weather data from backend API (via Orion-LD)
@@ -35,7 +22,6 @@ export const weatherApi = {
     include: 'current' | 'forecast' | 'both' = 'current',
   ): Promise<NearbyWeatherResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<NearbyWeatherResponse>(`${BACKEND_URL}/weather/nearby`, {
         params: {
           lat,
@@ -44,7 +30,7 @@ export const weatherApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
@@ -64,7 +50,6 @@ export const airQualityApi = {
     token?: string,
   ): Promise<NearbyAirQualityResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<NearbyAirQualityResponse>(
         `${BACKEND_URL}/air-quality/nearby`,
         {
@@ -75,7 +60,7 @@ export const airQualityApi = {
           },
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer ${authToken}`,
+            ...(token && { Authorization: `Bearer ${token}` }),
           },
         },
       );
@@ -138,11 +123,10 @@ export const alertApi = {
   // Get active alerts (non-expired)
   async getActiveAlerts(token?: string): Promise<IAlert[]> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<IAlert[]>(`${BACKEND_URL}/alert/active`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
@@ -156,7 +140,6 @@ export const alertApi = {
   // Get alerts with filters and pagination
   async getAlerts(params?: IAlertQueryParams, token?: string): Promise<AlertListResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<AlertListResponse>(`${BACKEND_URL}/alert`, {
         params: {
           page: params?.page ?? 1,
@@ -168,7 +151,7 @@ export const alertApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
@@ -195,7 +178,6 @@ export const incidentApi = {
     token?: string,
   ): Promise<IncidentListResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident/my-reports`, {
         params: {
           page: params?.page ?? 1,
@@ -207,7 +189,7 @@ export const incidentApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
@@ -221,7 +203,6 @@ export const incidentApi = {
   // Get all incidents with filters
   async getIncidents(params?: IIncidentQueryParams, token?: string): Promise<IncidentListResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident`, {
         params: {
           page: params?.page ?? 1,
@@ -234,7 +215,7 @@ export const incidentApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 

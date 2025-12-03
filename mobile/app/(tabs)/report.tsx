@@ -20,8 +20,9 @@ import { Camera, MapPin, X, RefreshCw, WifiOff } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
+import { getBackendUrl } from '@/services/api';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = getBackendUrl();
 
 // Offline queue constants
 const PENDING_INCIDENTS_KEY = 'pending_incidents';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Bell, X } from 'lucide-react-native';
 import Colors from '@/constants/colors';
@@ -10,7 +10,7 @@ interface AlertCardProps {
   onDismiss?: () => void;
 }
 
-export default function AlertCard({ alert, onPress, onDismiss }: AlertCardProps) {
+const AlertCard = memo(function AlertCard({ alert, onPress, onDismiss }: AlertCardProps) {
   const severityColor = {
     low: Colors.status.good,
     medium: Colors.status.moderate,
@@ -59,7 +59,7 @@ export default function AlertCard({ alert, onPress, onDismiss }: AlertCardProps)
       )}
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -129,3 +129,5 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 });
+
+export default AlertCard;

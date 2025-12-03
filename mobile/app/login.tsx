@@ -26,7 +26,7 @@ export default function LoginScreen() {
     try {
       await signInWithGoogle();
       router.replace('/(tabs)');
-    } catch (error) {
+    } catch {
       // Error is already handled in AuthContext
       console.log('Sign in failed');
     }

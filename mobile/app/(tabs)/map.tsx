@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-nati
 import { Stack } from 'expo-router';
 import { AlertTriangle, X, Clock, Info, MapPin } from 'lucide-react-native';
 import AlertMap from '@/components/AlertMap';
+import Colors from '@/constants/colors';
 import { useActiveAlerts, useRefreshAlerts } from '@/hooks/useAlerts';
 import {
   IAlert,
@@ -10,13 +11,6 @@ import {
   AlertLevelLabels,
   AlertTypeLabels,
 } from '@smart-forecast/shared';
-
-const Colors = {
-  primary: { blue: '#007AFF' },
-  text: { white: '#FFFFFF', primary: '#000000', secondary: '#666666', light: '#999999' },
-  background: { primary: '#F5F5F5', card: '#FFFFFF' },
-  shadow: '#000',
-};
 
 type MapRegion = {
   latitude: number;
