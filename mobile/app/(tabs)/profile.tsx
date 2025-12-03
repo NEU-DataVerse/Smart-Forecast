@@ -80,17 +80,17 @@ export default function ProfileScreen() {
   }, [fetchIncidents]);
 
   const handleSignOut = async () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', onPress: () => {} },
+    Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn đăng xuất không?', [
+      { text: 'Hủy', onPress: () => {} },
       {
-        text: 'Sign Out',
+        text: 'Đăng xuất',
         onPress: async () => {
           try {
             setIsSigningOut(true);
             await signOut();
             router.replace('/login');
           } catch (error) {
-            Alert.alert('Error', 'Failed to sign out');
+            Alert.alert('Lỗi', 'Không thể đăng xuất');
             console.error(error);
           } finally {
             setIsSigningOut(false);
@@ -138,7 +138,7 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'Profile',
+          title: 'Hồ sơ',
           headerStyle: {
             backgroundColor: Colors.primary.blue,
           },
@@ -162,10 +162,25 @@ export default function ProfileScreen() {
           <View style={styles.avatarContainer}>
             <User size={40} color={Colors.text.white} />
           </View>
-          <Text style={styles.profileName}>{user?.fullName || 'User'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Người dùng'}</Text>
           <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
         </View>
-
+        <View style={styles.section}>
+          <Pressable
+            style={[styles.signOutButton, isSigningOut && styles.signOutButtonDisabled]}
+            onPress={handleSignOut}
+            disabled={isSigningOut}
+          >
+            {isSigningOut ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <>
+                <LogOut size={20} color="#FFF" />
+                <Text style={styles.signOutText}>Đăng xuất</Text>
+              </>
+            )}
+          </Pressable>
+        </View>
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{incidents.length}</Text>
@@ -274,23 +289,6 @@ export default function ProfileScreen() {
               ))}
             </>
           )}
-        </View>
-
-        <View style={styles.section}>
-          <Pressable
-            style={[styles.signOutButton, isSigningOut && styles.signOutButtonDisabled]}
-            onPress={handleSignOut}
-            disabled={isSigningOut}
-          >
-            {isSigningOut ? (
-              <ActivityIndicator size="small" color="#FFF" />
-            ) : (
-              <>
-                <LogOut size={20} color="#FFF" />
-                <Text style={styles.signOutText}>Sign Out</Text>
-              </>
-            )}
-          </Pressable>
         </View>
       </ScrollView>
     </View>

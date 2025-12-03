@@ -146,7 +146,7 @@ export default function HomeScreen() {
       <View style={styles.loadingContainer}>
         <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator size="large" color={Colors.primary.blue} />
-        <Text style={styles.loadingText}>Loading environmental data...</Text>
+        <Text style={styles.loadingText}>Đang tải dữ liệu môi trường...</Text>
       </View>
     );
   }
@@ -167,7 +167,9 @@ export default function HomeScreen() {
         <Text style={styles.headerTitle}>Smart Forecast</Text>
         {currentWeather && (
           <>
-            <Text style={styles.locationText}>{weatherStation?.name ?? 'Unknown Location'}</Text>
+            <Text style={styles.locationText}>
+              {weatherStation?.name ?? 'Vị trí không xác định'}
+            </Text>
             <View style={styles.mainTempContainer}>
               <Text style={styles.mainTemp}>
                 {Math.round(currentWeather.temperature.current ?? 0)}°
@@ -193,7 +195,7 @@ export default function HomeScreen() {
           <>
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Air Quality</Text>
+                <Text style={styles.sectionTitle}>Chất lượng không khí</Text>
                 {airQualityStation && (
                   <View style={styles.stationInfo}>
                     <MapPin size={12} color={Colors.text.secondary} />
@@ -230,7 +232,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Humidity"
+                    title="Độ ẩm"
                     value={currentWeather.atmospheric.humidity ?? '--'}
                     unit="%"
                     icon={<Droplets size={20} color={Colors.primary.blue} />}
@@ -241,7 +243,7 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Weather Details</Text>
+                <Text style={styles.sectionTitle}>Chi tiết thời tiết</Text>
                 {weatherStation && (
                   <View style={styles.stationInfo}>
                     <MapPin size={12} color={Colors.text.secondary} />
@@ -254,7 +256,7 @@ export default function HomeScreen() {
               <View style={styles.grid}>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Temperature"
+                    title="Nhiệt độ"
                     value={Math.round(currentWeather.temperature.current ?? 0)}
                     unit="°C"
                     icon={<Thermometer size={20} color={Colors.primary.blue} />}
@@ -262,7 +264,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Wind Speed"
+                    title="Tốc độ gió"
                     value={(currentWeather.wind.speed ?? 0).toFixed(1)}
                     unit="m/s"
                     icon={<Wind size={20} color={Colors.primary.blue} />}
@@ -270,7 +272,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Clouds"
+                    title="Mây"
                     value={currentWeather.cloudiness ?? '--'}
                     unit="%"
                     icon={<Cloud size={20} color={Colors.primary.blue} />}
@@ -278,7 +280,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Pressure"
+                    title="Áp suất"
                     value={currentWeather.atmospheric.pressure ?? '--'}
                     unit="hPa"
                     icon={<Gauge size={20} color={Colors.primary.blue} />}
