@@ -44,7 +44,7 @@ export default function LoginScreen() {
         {/* Logo/Title Section */}
         <View style={styles.headerSection}>
           <Image
-            source={require('@/assets/images/logo-1.png')}
+            source={require('@/assets/images/logo-smartforecast.png')}
             style={styles.logo}
             resizeMode="contain"
           />
