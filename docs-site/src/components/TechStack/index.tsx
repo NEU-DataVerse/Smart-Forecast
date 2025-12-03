@@ -66,7 +66,7 @@ export default function TechStack(): ReactNode {
       <div className="container">
         <div className={styles.sectionHeader}>
           <Heading as="h2" className={styles.sectionTitle}>
-            🛠️ Công nghệ sử dụng
+            Công nghệ sử dụng
           </Heading>
           <p className={styles.sectionSubtitle}>
             Xây dựng trên nền tảng công nghệ hiện đại và mạnh mẽ

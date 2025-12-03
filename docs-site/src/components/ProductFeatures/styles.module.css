@@ -1,0 +1,149 @@
+.section {
+  padding: 4rem 0;
+  background: linear-gradient(
+    180deg,
+    var(--ifm-background-surface-color) 0%,
+    var(--ifm-background-color) 100%
+  );
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ifm-heading-color);
+}
+
+.productSection {
+  margin-bottom: 5rem;
+}
+
+.productSection:last-child {
+  margin-bottom: 0;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.productGrid.reversed {
+  direction: rtl;
+}
+
+.productGrid.reversed > * {
+  direction: ltr;
+}
+
+@media (max-width: 996px) {
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productGrid.reversed {
+    direction: ltr;
+  }
+
+  .mockupContainer {
+    order: -1;
+  }
+}
+
+.mockupContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mockupImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.productContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.productBadge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 9999px;
+  width: fit-content;
+}
+
+.productBadge.badgeIndigo {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+[data-theme='dark'] .productBadge {
+  background: #1e40af;
+  color: #dbeafe;
+}
+
+[data-theme='dark'] .productBadge.badgeIndigo {
+  background: #3730a3;
+  color: #e0e7ff;
+}
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.featureCard {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.featureContent {
+  flex: 1;
+}
+
+.featureTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ifm-heading-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.featureDescription {
+  color: var(--ifm-color-emphasis-700);
+  margin: 0 0 0.25rem 0;
+  line-height: 1.6;
+}
+
+.featureRole {
+  font-size: 0.875rem;
+  color: var(--ifm-color-primary);
+  font-weight: 500;
+}
+
+.ctaContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+@media (max-width: 576px) {
+  .ctaContainer .button {
+    width: 100%;
+    text-align: center;
+  }
+}

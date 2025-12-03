@@ -1,72 +1,112 @@
 .hero {
   position: relative;
-  min-height: 500px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   overflow: hidden;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
 }
 
-.heroBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-}
-
-.heroBannerImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.heroOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(63, 177, 114, 0.8) 0%, rgba(51, 188, 158, 0.6) 80%);
-}
-
-[data-theme='dark'] .heroOverlay {
-  background: linear-gradient(135deg, rgba(37, 194, 160, 0.8) 0%, rgba(46, 133, 85, 0.6) 100%);
+[data-theme='dark'] .hero {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
 
 .heroContent {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem 3rem;
+}
+
+.heroBannerContainer {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 2rem 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+.heroBannerImage {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .heroBannerImage {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .heroText {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme='dark'] .heroBadge {
+  background: #1e40af;
+  color: #bfdbfe;
+}
+
+.heroBadgeDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #2563eb;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+[data-theme='dark'] .heroBadgeDot {
+  background: #60a5fa;
+}
+
 .heroTitle {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 1rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  color: #0f172a;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+[data-theme='dark'] .heroTitle {
+  color: #f1f5f9;
+}
+
+.heroHighlight {
+  color: #2563eb;
+}
+
+[data-theme='dark'] .heroHighlight {
+  color: #60a5fa;
 }
 
 .heroTagline {
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-size: 1.25rem;
+  color: #475569;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+  line-height: 1.75;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.heroSlogan {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-style: italic;
-  margin-bottom: 2rem;
+[data-theme='dark'] .heroTagline {
+  color: #94a3b8;
 }
 
 .heroButtons {
@@ -77,51 +117,67 @@
 }
 
 .heroButtons .button--primary {
-  background-color: #ffffff;
-  color: #2e8555;
+  background-color: #2563eb;
+  color: #ffffff;
   border: none;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
 
 .heroButtons .button--primary:hover {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #25c2a0;
+  background-color: #1d4ed8;
+  color: #ffffff;
+  transform: scale(1.03);
 }
 
 .heroButtons .button--secondary {
+  background-color: #0f172a;
   color: #ffffff;
-  border-color: #ffffff;
+  border: 2px solid #0f172a;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
 }
 
 .heroButtons .button--secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #1e293b;
+  border-color: #1e293b;
   color: #ffffff;
+  transform: scale(1.03);
+}
+
+[data-theme='dark'] .heroButtons .button--secondary {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme='dark'] .heroButtons .button--secondary:hover {
+  background-color: #334155;
+  border-color: #475569;
 }
 
 @media screen and (max-width: 996px) {
-  .hero {
-    min-height: 400px;
-  }
-
   .heroContent {
-    padding: 2rem 1rem;
+    padding: 4rem 1.5rem 2rem;
   }
 
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
   }
 
   .heroTagline {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
-  .heroSlogan {
-    font-size: 1rem;
+  .heroBannerContainer {
+    padding: 0 1.5rem 2rem;
   }
 }
 
 @media screen and (max-width: 576px) {
+  .heroContent {
+    padding: 3rem 1rem 1.5rem;
+  }
+
   .heroTitle {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .heroTagline {
@@ -135,6 +191,14 @@
 
   .heroButtons .button {
     width: 100%;
-    max-width: 280px;
+    max-width: 300px;
+  }
+
+  .heroBannerContainer {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .heroBannerImage {
+    border-radius: 12px;
   }
 }

@@ -2,8 +2,10 @@ import type { ReactNode } from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HeroSection from '@site/src/components/HeroSection';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import ProblemSolution from '@site/src/components/ProblemSolution';
+import ProductFeatures from '@site/src/components/ProductFeatures';
 import ScreenshotCarousel from '@site/src/components/ScreenshotCarousel';
+import OpenSourceCommunity from '@site/src/components/OpenSourceCommunity';
 import TechStack from '@site/src/components/TechStack';
 
 export default function Home(): ReactNode {
@@ -15,8 +17,10 @@ export default function Home(): ReactNode {
     >
       <HeroSection />
       <main>
-        <HomepageFeatures />
+        <ProblemSolution />
+        <ProductFeatures />
         <ScreenshotCarousel />
+        <OpenSourceCommunity />
         <TechStack />
       </main>
     </Layout>
