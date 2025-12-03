@@ -6,12 +6,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'smart-forecast',
   version: '1.0.0',
   orientation: 'portrait',
-  icon: './assets/images/icon.png',
+  icon: './assets/images/logo-smartforecast.png',
   scheme: 'smart-forecast-app',
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
   splash: {
-    image: './assets/images/splash-icon.png',
+    image: './assets/images/logo-smartforecast.png',
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
@@ -30,7 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     adaptiveIcon: {
-      foregroundImage: './assets/images/android-icon-background.png',
+      foregroundImage: './assets/images/logo-smartforecast.png',
       backgroundColor: '#ffffff',
     },
     package: 'app.smartforecast',
@@ -49,7 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     googleServicesFile: './google-services.json',
   },
   web: {
-    favicon: './assets/images/favicon.png',
+    favicon: './assets/images/logo-smartforecast.png',
   },
   plugins: [
     'expo-router',
