@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Colors from '@/constants/colors';
 
@@ -11,7 +11,7 @@ interface EnvCardProps {
   onPress?: () => void;
 }
 
-export default function EnvCard({ title, value, unit, icon, status, onPress }: EnvCardProps) {
+const EnvCard = memo(function EnvCard({ title, value, unit, icon, status, onPress }: EnvCardProps) {
   const statusColor = status ? Colors.status[status] : Colors.primary.blue;
 
   return (
@@ -30,7 +30,7 @@ export default function EnvCard({ title, value, unit, icon, status, onPress }: E
       {status && <View style={[styles.statusBar, { backgroundColor: statusColor }]} />}
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -87,3 +87,5 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 16,
   },
 });
+
+export default EnvCard;

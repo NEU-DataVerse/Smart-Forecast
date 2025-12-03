@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,47 +16,63 @@ import { useQuery } from '@tanstack/react-query';
 
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
+import { useAuth } from '@/context/AuthContext';
 import { weatherApi, airQualityApi } from '@/services/api';
 import EnvCard from '@/components/EnvCard';
 import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
 
 export default function HomeScreen() {
   const { location, setLocation, setEnvironmentData } = useAppStore();
+  const { token } = useAuth();
 
-  // Query for weather data from backend API
+  // Ghi nhớ location key để tránh refetch không cần thiết
+  const locationKey = useMemo(
+    () => (location ? [location.latitude, location.longitude] : null),
+    [location?.latitude, location?.longitude],
+  );
+
+  // Query lấy dữ liệu thời tiết từ backend API
   const {
     data: weatherData,
     isLoading: isWeatherLoading,
     refetch: refetchWeather,
     isRefetching: isWeatherRefetching,
   } = useQuery<NearbyWeatherResponse>({
-    queryKey: ['weather', location],
+    queryKey: ['weather', locationKey],
     queryFn: async () => {
       if (!location) {
-        throw new Error('Location not available');
+        throw new Error('Không có vị trí');
       }
-      return await weatherApi.getNearbyWeather(location.latitude, location.longitude);
+      return await weatherApi.getNearbyWeather(
+        location.latitude,
+        location.longitude,
+        token ?? undefined,
+      );
     },
-    enabled: !!location,
+    enabled: !!location && !!token,
     retry: 3,
     retryDelay: 1000,
   });
 
-  // Query for air quality data from backend API
+  // Query lấy dữ liệu chất lượng không khí từ backend API
   const {
     data: airQualityData,
     isLoading: isAirQualityLoading,
     refetch: refetchAirQuality,
     isRefetching: isAirQualityRefetching,
   } = useQuery<NearbyAirQualityResponse>({
-    queryKey: ['airQuality', location],
+    queryKey: ['airQuality', locationKey],
     queryFn: async () => {
       if (!location) {
-        throw new Error('Location not available');
+        throw new Error('Không có vị trí');
       }
-      return await airQualityApi.getNearbyAirQuality(location.latitude, location.longitude);
+      return await airQualityApi.getNearbyAirQuality(
+        location.latitude,
+        location.longitude,
+        token ?? undefined,
+      );
     },
-    enabled: !!location,
+    enabled: !!location && !!token,
     retry: 3,
     retryDelay: 1000,
   });
@@ -69,20 +85,20 @@ export default function HomeScreen() {
     refetchAirQuality();
   };
 
-  // Update store when weather data changes
+  // Cập nhật store khi dữ liệu thời tiết thay đổi
   useEffect(() => {
     if (weatherData?.current) {
       const current = weatherData.current;
       setEnvironmentData({
         temperature: Math.round(current.temperature.current ?? 0),
         humidity: current.atmospheric.humidity ?? 0,
-        aqi: 1, // Will be overridden by air quality data
+        aqi: 1, // Sẽ được ghi đè bởi dữ liệu chất lượng không khí
         clouds: current.cloudiness ?? 0,
         windSpeed: current.wind.speed ?? 0,
         pressure: current.atmospheric.pressure ?? 0,
         description: current.weather.description ?? '',
         icon: current.weather.icon ?? '01d',
-        location: weatherData.nearestStation.name ?? 'Unknown',
+        location: weatherData.nearestStation.name ?? 'Không xác định',
         timestamp: Date.now(),
       });
     }
@@ -93,7 +109,7 @@ export default function HomeScreen() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          console.log('Location permission denied');
+          console.log('Quyền truy cập vị trí bị từ chối');
           setLocation({ latitude: 10.8231, longitude: 106.6297 });
           return;
         }
@@ -104,7 +120,7 @@ export default function HomeScreen() {
           longitude: loc.coords.longitude,
         });
       } catch (error) {
-        console.error('Error getting location:', error);
+        console.error('Lỗi khi lấy vị trí:', error);
         setLocation({ latitude: 10.8231, longitude: 106.6297 });
       }
     };
@@ -146,7 +162,7 @@ export default function HomeScreen() {
       <View style={styles.loadingContainer}>
         <Stack.Screen options={{ headerShown: false }} />
         <ActivityIndicator size="large" color={Colors.primary.blue} />
-        <Text style={styles.loadingText}>Loading environmental data...</Text>
+        <Text style={styles.loadingText}>Đang tải dữ liệu môi trường...</Text>
       </View>
     );
   }
@@ -167,7 +183,9 @@ export default function HomeScreen() {
         <Text style={styles.headerTitle}>Smart Forecast</Text>
         {currentWeather && (
           <>
-            <Text style={styles.locationText}>{weatherStation?.name ?? 'Unknown Location'}</Text>
+            <Text style={styles.locationText}>
+              {weatherStation?.name ?? 'Vị trí không xác định'}
+            </Text>
             <View style={styles.mainTempContainer}>
               <Text style={styles.mainTemp}>
                 {Math.round(currentWeather.temperature.current ?? 0)}°
@@ -193,7 +211,7 @@ export default function HomeScreen() {
           <>
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Air Quality</Text>
+                <Text style={styles.sectionTitle}>Chất lượng không khí</Text>
                 {airQualityStation && (
                   <View style={styles.stationInfo}>
                     <MapPin size={12} color={Colors.text.secondary} />
@@ -230,7 +248,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Humidity"
+                    title="Độ ẩm"
                     value={currentWeather.atmospheric.humidity ?? '--'}
                     unit="%"
                     icon={<Droplets size={20} color={Colors.primary.blue} />}
@@ -241,7 +259,7 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Weather Details</Text>
+                <Text style={styles.sectionTitle}>Chi tiết thời tiết</Text>
                 {weatherStation && (
                   <View style={styles.stationInfo}>
                     <MapPin size={12} color={Colors.text.secondary} />
@@ -254,7 +272,7 @@ export default function HomeScreen() {
               <View style={styles.grid}>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Temperature"
+                    title="Nhiệt độ"
                     value={Math.round(currentWeather.temperature.current ?? 0)}
                     unit="°C"
                     icon={<Thermometer size={20} color={Colors.primary.blue} />}
@@ -262,7 +280,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Wind Speed"
+                    title="Tốc độ gió"
                     value={(currentWeather.wind.speed ?? 0).toFixed(1)}
                     unit="m/s"
                     icon={<Wind size={20} color={Colors.primary.blue} />}
@@ -270,7 +288,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Clouds"
+                    title="Mây"
                     value={currentWeather.cloudiness ?? '--'}
                     unit="%"
                     icon={<Cloud size={20} color={Colors.primary.blue} />}
@@ -278,7 +296,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.gridItem}>
                   <EnvCard
-                    title="Pressure"
+                    title="Áp suất"
                     value={currentWeather.atmospheric.pressure ?? '--'}
                     unit="hPa"
                     icon={<Gauge size={20} color={Colors.primary.blue} />}

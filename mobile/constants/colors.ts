@@ -1,6 +1,6 @@
 export default {
   primary: {
-    blue: '#4A90E2',
+    blue: '#007AFF',
     lightBlue: '#7CB8F7',
     darkBlue: '#2E5C8A',
   },
@@ -13,12 +13,14 @@ export default {
     secondary: '#6B7280',
     white: '#FFFFFF',
     light: '#9CA3AF',
+    black: '#000000',
   },
   background: {
     primary: '#F8FAFC',
     secondary: '#FFFFFF',
     card: '#FFFFFF',
     default: '#F8FAFC',
+    cardPressed: '#F0F0F0',
   },
   status: {
     good: '#10B981',

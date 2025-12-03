@@ -241,12 +241,6 @@ importers:
       '@expo/vector-icons':
         specifier: ^15.0.3
         version: 15.0.3(expo-font@14.0.9(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      '@maplibre/maplibre-react-native':
-        specifier: ^10.4.1
-        version: 10.4.1(@expo/config-plugins@54.0.2)(@types/geojson@7946.0.16)(@types/react@19.1.17)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      '@nkzw/create-context-hook':
-        specifier: ^1.1.0
-        version: 1.1.0(react@19.1.0)
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))
@@ -256,24 +250,15 @@ importers:
       '@smart-forecast/shared':
         specifier: workspace:*
         version: link:../shared
-      '@stardazed/streams-text-encoding':
-        specifier: ^1.0.2
-        version: 1.0.2
       '@tanstack/react-query':
         specifier: ^5.83.0
         version: 5.90.11(react@19.1.0)
-      '@ungap/structured-clone':
-        specifier: ^1.3.0
-        version: 1.3.0
       axios:
         specifier: ^1.13.2
         version: 1.13.2
       expo:
         specifier: ~54.0.25
         version: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-blur:
-        specifier: ~15.0.7
-        version: 15.0.7(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-constants:
         specifier: ~18.0.10
         version: 18.0.10(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))
@@ -289,12 +274,6 @@ importers:
       expo-font:
         specifier: ~14.0.9
         version: 14.0.9(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-haptics:
-        specifier: ~15.0.7
-        version: 15.0.7(expo@54.0.25)
-      expo-image:
-        specifier: ~3.0.10
-        version: 3.0.10(expo@54.0.25)(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-image-picker:
         specifier: ~17.0.8
         version: 17.0.8(expo@54.0.25)
@@ -319,9 +298,6 @@ importers:
       expo-status-bar:
         specifier: ~3.0.8
         version: 3.0.8(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-symbols:
-        specifier: ~1.0.7
-        version: 1.0.7(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))
       expo-system-ui:
         specifier: ~6.0.8
         version: 6.0.8(expo@54.0.25)(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))
@@ -343,9 +319,6 @@ importers:
       react-native-gesture-handler:
         specifier: ~2.28.0
         version: 2.28.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      react-native-maps:
-        specifier: 1.20.1
-        version: 1.20.1(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       react-native-reanimated:
         specifier: ^4.1.5
         version: 4.1.5(@babel/core@7.28.5)(react-native-worklets@0.5.1(@babel/core@7.28.5)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -2744,22 +2717,6 @@ packages:
     resolution: {integrity: sha512-TUM5JD40H2mgtVXl5IwWz03BuQabw8oZQLJTmPpJA0YTYF+B+oZppy5lNMO6bMvHzB+/5mxqW9VLG3wFdeqtOw==}
     hasBin: true
 
-  '@maplibre/maplibre-react-native@10.4.1':
-    resolution: {integrity: sha512-A2iGzAJXDZcdFBqLn69uf2G0Pr4zSX6Qgbh40uaG6msUh/g7pt6H6Iv2nhDhMKfEVyi8C/ZblyG+qGfzTreCSA==}
-    peerDependencies:
-      '@expo/config-plugins': '>=7'
-      '@types/geojson': ^7946.0.0
-      '@types/react': '>=16.6.1'
-      react: '>=16.6.1'
-      react-native: '>=0.59.9'
-    peerDependenciesMeta:
-      '@expo/config-plugins':
-        optional: true
-      '@types/geojson':
-        optional: true
-      '@types/react':
-        optional: true
-
   '@maplibre/mlt@1.1.0':
     resolution: {integrity: sha512-anR8WxKIgZUJQLlZtID0v06wd9Q//9K/6lLLU3dOzmeO/xLEzAwmEqP24jEnEUBcnZGkM4vidz9H6Q4guNAAlw==}
 
@@ -2971,11 +2928,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
-
-  '@nkzw/create-context-hook@1.1.0':
-    resolution: {integrity: sha512-yGs96IvwCE6U0k42P0W+59gUbgb497wZjxn1oKIcwcVa4OnyuBScIAUvKDvMRXaidGKhoXVUkkhUiTZcXIuuzw==}
-    peerDependencies:
-      react: ^18 || ^19
 
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
@@ -3759,9 +3711,6 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@stardazed/streams-text-encoding@1.0.2':
-    resolution: {integrity: sha512-f2Z15BId3t44a/u21yYSGXFAkCyKocmAyduoAy7swnZ4xIfbaZlOWsgly/jDNNOuj6hYQN72UaBRe3Z/tOHfqg==}
-
   '@streamparser/json@0.0.6':
     resolution: {integrity: sha512-vL9EVn/v+OhZ+Wcs6O4iKE9EUpwHUqHmCtNUMWjqp+6dr85+XPOSGTEsqYNq1Vn04uk9SWlOVmx9J48ggJVT2Q==}
 
@@ -3976,24 +3925,6 @@ packages:
 
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
-
-  '@turf/distance@7.3.1':
-    resolution: {integrity: sha512-DK//doTGgYYjBkcWUywAe7wbZYcdP97hdEJ6rXYVYRoULwGGR3lhY96GNjozg6gaW9q2eSNYnZLpcL5iFVHqgw==}
-
-  '@turf/helpers@7.3.1':
-    resolution: {integrity: sha512-zkL34JVhi5XhsuMEO0MUTIIFEJ8yiW1InMu4hu/oRqamlY4mMoZql0viEmH6Dafh/p+zOl8OYvMJ3Vm3rFshgg==}
-
-  '@turf/invariant@7.3.1':
-    resolution: {integrity: sha512-IdZJfDjIDCLH+Gu2yLFoSM7H23sdetIo5t4ET1/25X8gi3GE2XSqbZwaGjuZgNh02nisBewLqNiJs2bo+hrqZA==}
-
-  '@turf/length@7.3.1':
-    resolution: {integrity: sha512-QOr4qS3yi6qWIfQ/KLcy4rDLdemGCYpqz2YDh29R46seE+arSvlBI0KXvI36rPzgEMcUbQuVQyO65sOSqPaEjQ==}
-
-  '@turf/meta@7.3.1':
-    resolution: {integrity: sha512-NWsfOE5RVtWpLQNkfOF/RrYvLRPwwruxhZUV0UFIzHqfiRJ50aO9Y6uLY4bwCUe2TumLJQSR4yaoA72Rmr2mnQ==}
-
-  '@turf/nearest-point-on-line@7.3.1':
-    resolution: {integrity: sha512-FialyHfXXZWLayKQcUtdOtKv3ulOQ9FSI45kSmkDl8b96+VFWHX983Pc94tTrSTSg89+XX7MDr6gRl0yowmF4Q==}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -5677,10 +5608,6 @@ packages:
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
 
-  debounce@2.2.0:
-    resolution: {integrity: sha512-Xks6RUDLZFdz8LIdR6q0MTH44k7FikOmnh5xkSjMig6ch45afc8sjTjRQf3P6ax8dMgcQrYO/AR2RGWURrruqw==}
-    engines: {node: '>=18'}
-
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -6276,13 +6203,6 @@ packages:
       react: '*'
       react-native: '*'
 
-  expo-blur@15.0.7:
-    resolution: {integrity: sha512-SugQQbQd+zRPy8z2G5qDD4NqhcD7srBF7fN7O7yq6q7ZFK59VWvpDxtMoUkmSfdxgqONsrBN/rLdk00USADrMg==}
-    peerDependencies:
-      expo: '*'
-      react: '*'
-      react-native: '*'
-
   expo-constants@18.0.10:
     resolution: {integrity: sha512-Rhtv+X974k0Cahmvx6p7ER5+pNhBC0XbP1lRviL2J1Xl4sT2FBaIuIxF/0I0CbhOsySf0ksqc5caFweAy9Ewiw==}
     peerDependencies:
@@ -6327,11 +6247,6 @@ packages:
       react: '*'
       react-native: '*'
 
-  expo-haptics@15.0.7:
-    resolution: {integrity: sha512-7flWsYPrwjJxZ8x82RiJtzsnk1Xp9ahnbd9PhCy3NnsemyMApoWIEUr4waPqFr80DtiLZfhD9VMLL1CKa8AImQ==}
-    peerDependencies:
-      expo: '*'
-
   expo-image-loader@6.0.0:
     resolution: {integrity: sha512-nKs/xnOGw6ACb4g26xceBD57FKLFkSwEUTDXEDF3Gtcu3MqF3ZIYd3YM+sSb1/z9AKV1dYT7rMSGVNgsveXLIQ==}
     peerDependencies:
@@ -6341,17 +6256,6 @@ packages:
     resolution: {integrity: sha512-489ByhVs2XPoAu9zodivAKLv7hG4S/FOe8hO/C2U6jVxmRjpAKakKNjMml0IwWjf1+c/RYBqm1XxKaZ+vq/fDQ==}
     peerDependencies:
       expo: '*'
-
-  expo-image@3.0.10:
-    resolution: {integrity: sha512-i4qNCEf9Ur7vDqdfDdFfWnNCAF2efDTdahuDy9iELPS2nzMKBLeeGA2KxYEPuRylGCS96Rwm+SOZJu6INc2ADQ==}
-    peerDependencies:
-      expo: '*'
-      react: '*'
-      react-native: '*'
-      react-native-web: '*'
-    peerDependenciesMeta:
-      react-native-web:
-        optional: true
 
   expo-json-utils@0.15.0:
     resolution: {integrity: sha512-duRT6oGl80IDzH2LD2yEFWNwGIC2WkozsB6HF3cDYNoNNdUvFk6uN3YiwsTsqVM/D0z6LEAQ01/SlYvN+Fw0JQ==}
@@ -6449,12 +6353,6 @@ packages:
     resolution: {integrity: sha512-L248XKPhum7tvREoS1VfE0H6dPCaGtoUWzRsUv7hGKdiB4cus33Rc0sxkWkoQ77wE8stlnUlL5lvmT0oqZ3ZBw==}
     peerDependencies:
       react: '*'
-      react-native: '*'
-
-  expo-symbols@1.0.7:
-    resolution: {integrity: sha512-ZqFUeTXbwO6BrE00n37wTXYfJmsjFrfB446jeB9k9w7aA8a6eugNUIzNsUIUfbFWoOiY4wrGmpLSLPBwk4PH+g==}
-    peerDependencies:
-      expo: '*'
       react-native: '*'
 
   expo-system-ui@6.0.8:
@@ -9788,17 +9686,6 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
-
-  react-native-maps@1.20.1:
-    resolution: {integrity: sha512-NZI3B5Z6kxAb8gzb2Wxzu/+P2SlFIg1waHGIpQmazDSCRkNoHNY4g96g+xS0QPSaG/9xRBbDNnd2f2/OW6t6LQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      react: '>= 17.0.1'
-      react-native: '>= 0.64.3'
-      react-native-web: '>= 0.11'
-    peerDependenciesMeta:
-      react-native-web:
-        optional: true
 
   react-native-reanimated@4.1.5:
     resolution: {integrity: sha512-UA6VUbxwhRjEw2gSNrvhkusUq3upfD3Cv+AnB07V+kC8kpvwRVI+ivwY95ePbWNFkFpP+Y2Sdw1WHpHWEV+P2Q==}
@@ -14965,20 +14852,6 @@ snapshots:
       rw: 1.3.3
       tinyqueue: 3.0.0
 
-  '@maplibre/maplibre-react-native@10.4.1(@expo/config-plugins@54.0.2)(@types/geojson@7946.0.16)(@types/react@19.1.17)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@turf/distance': 7.3.1
-      '@turf/helpers': 7.3.1
-      '@turf/length': 7.3.1
-      '@turf/nearest-point-on-line': 7.3.1
-      debounce: 2.2.0
-      react: 19.1.0
-      react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
-    optionalDependencies:
-      '@expo/config-plugins': 54.0.2
-      '@types/geojson': 7946.0.16
-      '@types/react': 19.1.17
-
   '@maplibre/mlt@1.1.0':
     dependencies:
       '@mapbox/point-geometry': 1.1.0
@@ -15216,10 +15089,6 @@ snapshots:
 
   '@next/swc-win32-x64-msvc@15.5.6':
     optional: true
-
-  '@nkzw/create-context-hook@1.1.0(react@19.1.0)':
-    dependencies:
-      react: 19.1.0
 
   '@noble/hashes@1.8.0': {}
 
@@ -16065,8 +15934,6 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@stardazed/streams-text-encoding@1.0.2': {}
-
   '@streamparser/json@0.0.6': {}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.28.5)':
@@ -16272,46 +16139,6 @@ snapshots:
   '@tsconfig/node14@1.0.3': {}
 
   '@tsconfig/node16@1.0.4': {}
-
-  '@turf/distance@7.3.1':
-    dependencies:
-      '@turf/helpers': 7.3.1
-      '@turf/invariant': 7.3.1
-      '@types/geojson': 7946.0.16
-      tslib: 2.8.1
-
-  '@turf/helpers@7.3.1':
-    dependencies:
-      '@types/geojson': 7946.0.16
-      tslib: 2.8.1
-
-  '@turf/invariant@7.3.1':
-    dependencies:
-      '@turf/helpers': 7.3.1
-      '@types/geojson': 7946.0.16
-      tslib: 2.8.1
-
-  '@turf/length@7.3.1':
-    dependencies:
-      '@turf/distance': 7.3.1
-      '@turf/helpers': 7.3.1
-      '@turf/meta': 7.3.1
-      '@types/geojson': 7946.0.16
-      tslib: 2.8.1
-
-  '@turf/meta@7.3.1':
-    dependencies:
-      '@turf/helpers': 7.3.1
-      '@types/geojson': 7946.0.16
-
-  '@turf/nearest-point-on-line@7.3.1':
-    dependencies:
-      '@turf/distance': 7.3.1
-      '@turf/helpers': 7.3.1
-      '@turf/invariant': 7.3.1
-      '@turf/meta': 7.3.1
-      '@types/geojson': 7946.0.16
-      tslib: 2.8.1
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -18252,8 +18079,6 @@ snapshots:
 
   debounce@1.2.1: {}
 
-  debounce@2.2.0: {}
-
   debug@2.6.9:
     dependencies:
       ms: 2.0.0
@@ -18966,12 +18791,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  expo-blur@15.0.7(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
-    dependencies:
-      expo: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
-      react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
-
   expo-constants@18.0.10(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)):
     dependencies:
       '@expo/config': 12.0.10
@@ -19026,10 +18845,6 @@ snapshots:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
 
-  expo-haptics@15.0.7(expo@54.0.25):
-    dependencies:
-      expo: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-
   expo-image-loader@6.0.0(expo@54.0.25):
     dependencies:
       expo: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -19038,14 +18853,6 @@ snapshots:
     dependencies:
       expo: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-image-loader: 6.0.0(expo@54.0.25)
-
-  expo-image@3.0.10(expo@54.0.25)(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
-    dependencies:
-      expo: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
-      react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
-    optionalDependencies:
-      react-native-web: 0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   expo-json-utils@0.15.0: {}
 
@@ -19168,12 +18975,6 @@ snapshots:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
       react-native-is-edge-to-edge: 1.2.1(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-
-  expo-symbols@1.0.7(expo@54.0.25)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)):
-    dependencies:
-      expo: 54.0.25(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.15)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
-      sf-symbols-typescript: 2.1.0
 
   expo-system-ui@6.0.8(expo@54.0.25)(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)):
     dependencies:
@@ -23564,14 +23365,6 @@ snapshots:
     dependencies:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
-
-  react-native-maps@1.20.1(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
-    dependencies:
-      '@types/geojson': 7946.0.16
-      react: 19.1.0
-      react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
-    optionalDependencies:
-      react-native-web: 0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   react-native-reanimated@4.1.5(@babel/core@7.28.5)(react-native-worklets@0.5.1(@babel/core@7.28.5)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:
