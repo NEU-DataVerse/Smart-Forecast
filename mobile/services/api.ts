@@ -245,3 +245,55 @@ export const incidentApi = {
     }
   },
 };
+
+/**
+ * User API - Profile and settings
+ */
+export const userApi = {
+  /**
+   * Update push notification token (Expo Push Token)
+   * Sends the token to backend for push notifications
+   */
+  async updatePushToken(pushToken: string, token?: string): Promise<void> {
+    try {
+      const authToken = token || MOCK_TOKEN;
+      await axios.put(
+        `${BACKEND_URL}/users/fcm-token`,
+        { fcmToken: pushToken },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        },
+      );
+      console.log('✅ Push token updated successfully');
+    } catch (error) {
+      console.error('❌ Error updating push token:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update user location for geo-targeted alerts
+   */
+  async updateLocation(location: { lat: number; lon: number }, token?: string): Promise<void> {
+    try {
+      const authToken = token || MOCK_TOKEN;
+      await axios.put(
+        `${BACKEND_URL}/users/location`,
+        { location },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+        },
+      );
+      console.log('✅ User location updated successfully');
+    } catch (error) {
+      console.error('❌ Error updating location:', error);
+      throw error;
+    }
+  },
+};

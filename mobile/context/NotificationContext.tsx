@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
+import { userApi } from '@/services/api';
 
 type NotificationSubscription =
   | ReturnType<typeof Notifications.addNotificationReceivedListener>
@@ -36,7 +37,19 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(
-      (token) => setExpoPushToken(token),
+      async (token) => {
+        setExpoPushToken(token);
+
+        // Send token to backend for push notifications
+        if (token) {
+          try {
+            await userApi.updatePushToken(token);
+            console.log('📱 Push token synced with backend');
+          } catch (err) {
+            console.warn('Failed to sync push token with backend:', err);
+          }
+        }
+      },
       (error) => setError(error),
     );
 
