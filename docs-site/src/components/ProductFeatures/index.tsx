@@ -77,7 +77,7 @@ export default function ProductFeatures(): ReactNode {
           <div className={styles.productGrid}>
             <div className={styles.mockupContainer}>
               <img
-                src={useBaseUrl('/img/mobile-mockup.png')}
+                src={useBaseUrl('/img/map-alert-web.png')}
                 alt="Smart ForeCast Mobile App UI"
                 className={styles.mockupImage}
                 loading="lazy"
@@ -94,7 +94,7 @@ export default function ProductFeatures(): ReactNode {
 
               <div className={styles.ctaContainer}>
                 <Link className="button button--primary button--lg" to="#mobile-download">
-                  📥 Tải Ứng dụng trên Google Play
+                  📥 Tải Ứng dụng
                 </Link>
               </div>
             </div>
@@ -122,13 +122,13 @@ export default function ProductFeatures(): ReactNode {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  ⭐ Đóng góp cho Hệ thống Quản trị
+                  ⭐ Đóng góp cho Hệ thống
                 </Link>
               </div>
             </div>
             <div className={styles.mockupContainer}>
               <img
-                src={useBaseUrl('/img/web-mockup.png')}
+                src={useBaseUrl('/img/dashboard-web.png')}
                 alt="Smart ForeCast Web Dashboard UI"
                 className={styles.mockupImage}
                 loading="lazy"

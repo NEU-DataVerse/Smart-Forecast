@@ -1,45 +1,42 @@
 .hero {
   position: relative;
-  min-height: 600px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   overflow: hidden;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
 }
 
-.heroBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-}
-
-.heroBannerImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.heroOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(239, 246, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-}
-
-[data-theme='dark'] .heroOverlay {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+[data-theme='dark'] .hero {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
 
 .heroContent {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 6rem 2rem 4rem;
+  padding: 5rem 2rem 3rem;
+}
+
+.heroBannerContainer {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 2rem 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+.heroBannerImage {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .heroBannerImage {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .heroText {
@@ -157,12 +154,8 @@
 }
 
 @media screen and (max-width: 996px) {
-  .hero {
-    min-height: 500px;
-  }
-
   .heroContent {
-    padding: 4rem 1.5rem 3rem;
+    padding: 4rem 1.5rem 2rem;
   }
 
   .heroTitle {
@@ -172,9 +165,17 @@
   .heroTagline {
     font-size: 1.1rem;
   }
+
+  .heroBannerContainer {
+    padding: 0 1.5rem 2rem;
+  }
 }
 
 @media screen and (max-width: 576px) {
+  .heroContent {
+    padding: 3rem 1rem 1.5rem;
+  }
+
   .heroTitle {
     font-size: 1.75rem;
   }
@@ -191,5 +192,13 @@
   .heroButtons .button {
     width: 100%;
     max-width: 300px;
+  }
+
+  .heroBannerContainer {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .heroBannerImage {
+    border-radius: 12px;
   }
 }

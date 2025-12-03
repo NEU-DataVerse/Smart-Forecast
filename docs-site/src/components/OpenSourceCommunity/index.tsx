@@ -90,10 +90,9 @@ export default function OpenSourceCommunity(): ReactNode {
           </Heading>
         </div>
 
-        {/* 1. Triết lý */}
         <div className={styles.subsection}>
           <Heading as="h3" className={styles.subsectionTitle}>
-            🌐 Triết lý phát triển nguồn mở
+            Triết lý phát triển nguồn mở
           </Heading>
           <div className={styles.principleGrid}>
             {principles.map((principle, idx) => (
@@ -102,27 +101,10 @@ export default function OpenSourceCommunity(): ReactNode {
           </div>
         </div>
 
-        {/* 2. Công nghệ Cốt lõi */}
-        <div className={styles.subsection}>
-          <Heading as="h3" className={styles.subsectionTitle}>
-            📊 Công nghệ cốt lõi
-          </Heading>
-          <p className={styles.subsectionDescription}>
-            Nếu bạn có kinh nghiệm với các công nghệ dưới đây, bạn hoàn toàn có thể bắt đầu đóng góp
-            và tham gia cùng đội ngũ phát triển:
-          </p>
-          <div className={styles.techGrid}>
-            {techItems.map((tech, idx) => (
-              <TechBadge key={idx} {...tech} />
-            ))}
-          </div>
-        </div>
-
-        {/* 3. Chứng thực & Đảm bảo + 4. Cách thức Tham gia */}
         <div className={styles.twoColumnGrid}>
           <div className={styles.infoCard}>
             <Heading as="h3" className={styles.infoTitle}>
-              🛡️ Chứng thực & Đảm bảo
+              Chứng thực & Đảm bảo
             </Heading>
             <ul className={styles.infoList}>
               <li>
@@ -146,7 +128,7 @@ export default function OpenSourceCommunity(): ReactNode {
 
           <div className={styles.infoCard}>
             <Heading as="h3" className={styles.infoTitle}>
-              ⭐ Cách thức tham gia và cộng tác
+              Cách thức tham gia và cộng tác
             </Heading>
             <p className={styles.infoText}>Chúng tôi chào đón mọi cấp độ đóng góp:</p>
             <ul className={styles.infoList}>

@@ -19,14 +19,13 @@ export default function ProblemSolution(): ReactNode {
         {/* Problem Section */}
         <div className={styles.gridContainer}>
           <Heading as="h3" className={styles.gridTitle}>
-            ❌ Thách thức hiện tại
+            Thách thức hiện tại
           </Heading>
 
           <div className={styles.cardGrid}>
             {/* User Problem */}
             <div className={styles.problemCard}>
               <div className={styles.cardHeader}>
-                <span className={styles.cardIcon}>👥</span>
                 <Heading as="h4" className={styles.cardTitle}>
                   Người dùng
                 </Heading>
@@ -44,7 +43,6 @@ export default function ProblemSolution(): ReactNode {
             {/* Admin Problem */}
             <div className={styles.problemCard}>
               <div className={styles.cardHeader}>
-                <span className={styles.cardIcon}>🛡️</span>
                 <Heading as="h4" className={styles.cardTitle}>
                   Quản trị viên
                 </Heading>
@@ -64,14 +62,13 @@ export default function ProblemSolution(): ReactNode {
         {/* Solution Section */}
         <div className={styles.gridContainer}>
           <Heading as="h3" className={styles.gridTitle}>
-            ✅ Smart ForeCast: Cầu nối số hóa
+            Smart ForeCast: Cầu nối số hóa
           </Heading>
 
           <div className={styles.cardGrid}>
             {/* User Solution */}
             <div className={styles.solutionCard}>
               <div className={styles.cardHeader}>
-                <span className={styles.cardIcon}>📱</span>
                 <Heading as="h4" className={styles.cardTitle}>
                   Người dùng
                 </Heading>
@@ -89,7 +86,6 @@ export default function ProblemSolution(): ReactNode {
             {/* Admin Solution */}
             <div className={styles.solutionCard}>
               <div className={styles.cardHeader}>
-                <span className={styles.cardIcon}>🖥️</span>
                 <Heading as="h4" className={styles.cardTitle}>
                   Quản trị viên
                 </Heading>
