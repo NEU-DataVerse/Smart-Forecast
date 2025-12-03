@@ -12,6 +12,7 @@ import { AlertEntity } from './entities/alert.entity';
 import { AlertThresholdEntity } from './entities/alert-threshold.entity';
 import { FirebaseService } from './services/firebase.service';
 import { FcmService } from './services/fcm.service';
+import { ExpoPushService } from './services/expo-push.service';
 import { User } from '../user/entities/user.entity';
 import { UserModule } from '../user/user.module';
 import { WeatherModule } from '../weather/weather.module';
@@ -34,7 +35,8 @@ import { AirQualityModule } from '../air-quality/air-quality.module';
     FcmCleanupScheduler,
     FirebaseService,
     FcmService,
+    ExpoPushService,
   ],
-  exports: [AlertService, AlertThresholdService, FcmService],
+  exports: [AlertService, AlertThresholdService, FcmService, ExpoPushService],
 })
 export class AlertModule {}
