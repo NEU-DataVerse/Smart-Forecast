@@ -22,23 +22,34 @@ export default function HeroSection(): ReactNode {
 
       <div className={clsx('container', styles.heroContent)}>
         <div className={styles.heroText}>
+          <div className={styles.heroBadge}>
+            <span className={styles.heroBadgeDot}></span>
+            Dự án Nguồn mở vì cộng đồng
+          </div>
+
           <Heading as="h1" className={styles.heroTitle}>
-            {siteConfig.title}
+            Dự án Nguồn mở <span className={styles.heroHighlight}>Smart Forecast</span>
+            <br />
+            Nền tảng Đô thị thông minh
           </Heading>
-          <p className={styles.heroTagline}>{siteConfig.tagline}</p>
-          <p className={styles.heroSlogan}>"Khi dữ liệu mở trở thành cảnh báo sớm cho cộng đồng"</p>
+
+          <p className={styles.heroTagline}>
+            Nền tảng Nguồn mở áp dụng Dữ liệu mở liên kết (LOD) để chuyển đổi số, cung cấp Giao diện
+            Quản trị phản ứng khẩn cấp (Web) và cảnh báo thiên tai tức thời cho Người dân (Mobile
+            App).
+          </p>
 
           <div className={styles.heroButtons}>
-            <Link className="button button--primary button--lg" to="/docs">
-              Bắt đầu khám phá
-            </Link>
             <Link
-              className="button button--outline button--secondary button--lg"
+              className="button button--secondary button--lg"
               href="https://github.com/NEU-DataVerse/Smart-Forecast"
               target="_blank"
               rel="noopener noreferrer"
             >
-              ⭐ GitHub
+              ⭐ Xem mã nguồn
+            </Link>
+            <Link className="button button--primary button--lg" to="#mobile-download">
+              📱 Tải ứng dụng Mobile
             </Link>
           </div>
         </div>
