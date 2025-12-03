@@ -61,13 +61,11 @@ function RootLayoutNav() {
   }, [isLoading, isAuthenticated, router, splashHidden]);
 
   return (
-    <NotificationProvider>
-      <Stack screenOptions={{ headerBackTitle: 'Back' }}>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </NotificationProvider>
+    <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }
 
@@ -78,7 +76,9 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <StatusBar style="light" />
           <AuthProvider>
-            <RootLayoutNav />
+            <NotificationProvider>
+              <RootLayoutNav />
+            </NotificationProvider>
           </AuthProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>

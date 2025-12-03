@@ -226,3 +226,29 @@ export const incidentApi = {
     }
   },
 };
+
+// User API
+export const userApi = {
+  // Cập nhật FCM token (ExponentPushToken) để nhận push notifications
+  async updateFcmToken(fcmToken: string, token: string): Promise<{ message: string }> {
+    try {
+      const response = await axios.put<{ message: string }>(
+        `${BACKEND_URL}/users/fcm-token`,
+        { fcmToken },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log('✅ FCM token updated successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Lỗi khi cập nhật FCM token:', error);
+      throw error;
+    }
+  },
+};
