@@ -107,6 +107,10 @@ services:
       - NODE_ENV=production
       - PORT=8000
       - API_PREFIX=api/v1
+      # CORS - additional origins (comma-separated)
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
+      # Database sync - set to true on first run to create tables
+      - DB_SYNC=${DB_SYNC:-false}
       # Database connections (use container hostnames)
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - MONGO_URL=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/orion?authSource=admin
@@ -144,7 +148,7 @@ services:
     networks:
       - smart-forecast-net
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/v1/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -176,3 +180,34 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+  # ===== DATABASE SEED (One-time run) =====
+  # Usage: docker compose run --rm seed
+  # Or with options: docker compose run --rm seed force
+
+  seed:
+    profiles: ['seed']
+    container_name: seed
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - MONGO_URL=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/orion?authSource=admin
+      - ORION_LD_URL=http://orion:1026
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - MINIO_USE_SSL=false
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-incidents}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - smart-forecast-net
+    entrypoint: ['node', 'dist/database/seeds/seed.js']
+    command: []
