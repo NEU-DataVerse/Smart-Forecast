@@ -1,0 +1,496 @@
+# ============================================
+# Smart Forecast - Release Workflow
+# ============================================
+# Workflow này tự động build và release khi tạo Git tag dạng "v*"
+#
+# Output:
+#   - backend-dist.zip: NestJS backend (dist + package.json + node_modules)
+#   - web-dist.zip: Next.js web app (standalone build)
+#   - smart-forecast-*.apk: Android APK từ EAS Build
+#
+# GitHub Secrets cần thiết:
+#   - EXPO_TOKEN (bắt buộc): Token từ expo.dev để build mobile
+#   - NEXT_PUBLIC_API_URL (optional): Production API URL cho web
+#   - NEXT_PUBLIC_MINIO_URL (optional): Production MinIO URL cho web
+#
+# Lưu ý: Backend không cần secrets khi build - người dùng sẽ tự
+# tạo file .env khi deploy với các biến như DATABASE_URL, JWT_SECRET, etc.
+# ============================================
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Permissions cần thiết để tạo release và upload artifacts
+permissions:
+  contents: write
+
+# Ngăn chặn multiple releases chạy đồng thời
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # ============================================
+  # Job 1: Build Shared Package
+  # ============================================
+  # Shared package chứa types và constants dùng chung
+  # Cần build trước vì backend và web depend on nó
+  build-shared:
+    name: 📦 Build Shared Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔨 Build shared package
+        run: pnpm --filter shared build
+
+      - name: 💾 Cache shared build output
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            shared/dist
+            node_modules
+            backend/node_modules
+            web/node_modules
+            mobile/node_modules
+            docs-site/node_modules
+          key: shared-build-${{ github.sha }}
+
+  # ============================================
+  # Job 2: Build Backend (NestJS)
+  # ============================================
+  # Build NestJS backend và đóng gói với production dependencies
+  build-backend:
+    name: 🖥️ Build Backend
+    runs-on: ubuntu-latest
+    needs: build-shared
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Restore shared build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            shared/dist
+            node_modules
+            backend/node_modules
+            web/node_modules
+            mobile/node_modules
+            docs-site/node_modules
+          key: shared-build-${{ github.sha }}
+
+      - name: 🔨 Build backend
+        run: pnpm --filter backend build
+
+      - name: 📦 Create production deployment package
+        run: |
+          # Tạo thư mục deployment
+          mkdir -p backend-deploy
+
+          # Copy dist output
+          cp -r backend/dist backend-deploy/
+
+          # Copy package.json (cần thiết để biết dependencies)
+          cp backend/package.json backend-deploy/
+
+          # Copy shared dist (backend cần import từ shared)
+          mkdir -p backend-deploy/shared
+          cp -r shared/dist backend-deploy/shared/
+          cp shared/package.json backend-deploy/shared/
+
+          # Tạo production node_modules bằng pnpm deploy
+          cd backend
+          pnpm deploy --prod ../backend-deploy/node_modules_temp
+          cd ..
+
+          # Move node_modules vào đúng vị trí
+          mv backend-deploy/node_modules_temp/node_modules backend-deploy/
+          rm -rf backend-deploy/node_modules_temp
+
+          # Tạo file README hướng dẫn deploy
+          cat > backend-deploy/README.md << 'EOF'
+          # Smart Forecast Backend Deployment
+
+          ## Cách sử dụng
+
+          1. Giải nén file này
+          2. Tạo file `.env` với các biến môi trường (xem `.env.example` trong repo)
+          3. Chạy: `node dist/main.js`
+
+          ## Biến môi trường bắt buộc
+
+          ```env
+          NODE_ENV=production
+          PORT=8000
+          DATABASE_URL=postgresql://...
+          JWT_SECRET=your_secret_key
+          OPENWEATHERMAP_API_KEY=your_api_key
+          ```
+
+          Xem chi tiết tại: https://github.com/NEU-DataVerse/Smart-Forecast
+          EOF
+
+      - name: 📦 Create zip archive
+        run: |
+          cd backend-deploy
+          zip -r ../backend-dist.zip .
+          cd ..
+
+      - name: 📤 Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dist
+          path: backend-dist.zip
+          retention-days: 1
+
+  # ============================================
+  # Job 3: Build Web (Next.js)
+  # ============================================
+  # Build Next.js với standalone output mode
+  build-web:
+    name: 🌐 Build Web
+    runs-on: ubuntu-latest
+    needs: build-shared
+    env:
+      # Sử dụng secrets nếu có, nếu không dùng placeholder
+      # Người dùng có thể override khi deploy bằng cách set biến môi trường
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1' }}
+      NEXT_PUBLIC_MINIO_URL: ${{ secrets.NEXT_PUBLIC_MINIO_URL || 'http://localhost:9000' }}
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Restore shared build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            shared/dist
+            node_modules
+            backend/node_modules
+            web/node_modules
+            mobile/node_modules
+            docs-site/node_modules
+          key: shared-build-${{ github.sha }}
+
+      - name: 🔨 Build web
+        run: pnpm --filter web build
+
+      - name: 📦 Create deployment package
+        run: |
+          # Tạo thư mục deployment
+          mkdir -p web-deploy
+
+          # Next.js standalone output chứa tất cả cần thiết để chạy
+          if [ -d "web/.next/standalone" ]; then
+            cp -r web/.next/standalone/* web-deploy/
+          else
+            # Fallback nếu không dùng standalone mode
+            cp -r web/.next web-deploy/
+            cp web/package.json web-deploy/
+          fi
+
+          # Copy static files
+          if [ -d "web/.next/static" ]; then
+            mkdir -p web-deploy/.next/static
+            cp -r web/.next/static/* web-deploy/.next/static/
+          fi
+
+          # Copy public folder
+          if [ -d "web/public" ]; then
+            cp -r web/public web-deploy/
+          fi
+
+          # Copy shared dist
+          mkdir -p web-deploy/shared
+          cp -r shared/dist web-deploy/shared/
+          cp shared/package.json web-deploy/shared/
+
+          # Tạo file README hướng dẫn deploy
+          cat > web-deploy/README.md << 'EOF'
+          # Smart Forecast Web Deployment
+
+          ## Cách sử dụng (Standalone Mode)
+
+          1. Giải nén file này
+          2. Set biến môi trường:
+             ```bash
+             export NEXT_PUBLIC_API_URL=https://your-api-url/api/v1
+             export NEXT_PUBLIC_MINIO_URL=https://your-minio-url
+             export PORT=3000
+             ```
+          3. Chạy: `node server.js`
+
+          ## Hoặc sử dụng Docker
+
+          ```dockerfile
+          FROM node:20-alpine
+          WORKDIR /app
+          COPY . .
+          ENV PORT=3000
+          EXPOSE 3000
+          CMD ["node", "server.js"]
+          ```
+
+          Xem chi tiết tại: https://github.com/NEU-DataVerse/Smart-Forecast
+          EOF
+
+      - name: 📦 Create zip archive
+        run: |
+          cd web-deploy
+          zip -r ../web-dist.zip .
+          cd ..
+
+      - name: 📤 Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web-dist.zip
+          retention-days: 1
+
+  # ============================================
+  # Job 4: Build Mobile (Expo EAS)
+  # ============================================
+  # Build Android APK sử dụng EAS Build cloud service
+  build-mobile:
+    name: 📱 Build Mobile
+    runs-on: ubuntu-latest
+    needs: build-shared
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Restore shared build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            shared/dist
+            node_modules
+            backend/node_modules
+            web/node_modules
+            mobile/node_modules
+            docs-site/node_modules
+          key: shared-build-${{ github.sha }}
+
+      - name: 🔧 Setup EAS CLI
+        run: npm install -g eas-cli
+
+      - name: 🔐 Login to Expo
+        run: eas login --token ${{ secrets.EXPO_TOKEN }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📱 Build Android APK (Production)
+        working-directory: mobile
+        run: |
+          # Build APK với profile production
+          # --non-interactive: không hỏi interactive prompts
+          # --wait: đợi build hoàn thành
+          # --json: output dạng JSON để parse
+          eas build \
+            --platform android \
+            --profile production \
+            --non-interactive \
+            --wait \
+            --json > build-result.json 2>&1 || true
+
+          # Kiểm tra kết quả
+          if [ -f build-result.json ]; then
+            cat build-result.json
+          fi
+
+      - name: 📥 Download APK from EAS
+        working-directory: mobile
+        run: |
+          # Parse build URL từ kết quả
+          BUILD_URL=$(cat build-result.json | jq -r '.[0].artifacts.buildUrl // empty')
+
+          if [ -z "$BUILD_URL" ]; then
+            echo "❌ Không tìm thấy build URL. Kiểm tra build-result.json:"
+            cat build-result.json
+            exit 1
+          fi
+
+          echo "📥 Downloading APK from: $BUILD_URL"
+
+          # Download APK
+          curl -L -o smart-forecast-${{ github.ref_name }}.apk "$BUILD_URL"
+
+          # Verify file
+          ls -la smart-forecast-*.apk
+
+      - name: 📤 Upload mobile artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-apk
+          path: mobile/smart-forecast-*.apk
+          retention-days: 1
+
+  # ============================================
+  # Job 5: Build Docs Site (Docusaurus)
+  # ============================================
+  # Validate docs build - không upload vào release
+  build-docs:
+    name: 📚 Build Docs
+    runs-on: ubuntu-latest
+    needs: build-shared
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Restore shared build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            shared/dist
+            node_modules
+            backend/node_modules
+            web/node_modules
+            mobile/node_modules
+            docs-site/node_modules
+          key: shared-build-${{ github.sha }}
+
+      - name: 🔨 Build docs site
+        run: pnpm --filter @smart-forecast/docs build
+
+      - name: ✅ Docs build successful
+        run: echo "Docs site build completed successfully. Deployment is handled by docs-deploy.yml workflow."
+
+  # ============================================
+  # Job 6: Create GitHub Release
+  # ============================================
+  # Tạo GitHub Release và upload tất cả artifacts
+  create-release:
+    name: 🚀 Create Release
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-web, build-mobile, build-docs]
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-dist
+          path: ./release-assets
+
+      - name: 📥 Download web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: ./release-assets
+
+      - name: 📥 Download mobile artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mobile-apk
+          path: ./release-assets
+
+      - name: 📋 List release assets
+        run: |
+          echo "📦 Release assets:"
+          ls -la ./release-assets/
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Smart Forecast ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          generate_release_notes: true
+          files: |
+            ./release-assets/backend-dist.zip
+            ./release-assets/web-dist.zip
+            ./release-assets/smart-forecast-*.apk
+          body: |
+            ## 🎉 Smart Forecast ${{ github.ref_name }}
+
+            ### 📦 Artifacts
+
+            | File | Mô tả |
+            |------|-------|
+            | `backend-dist.zip` | NestJS backend (dist + dependencies) |
+            | `web-dist.zip` | Next.js web app (standalone build) |
+            | `smart-forecast-*.apk` | Android APK |
+
+            ### 🚀 Hướng dẫn Deploy
+
+            #### Backend
+            1. Giải nén `backend-dist.zip`
+            2. Tạo file `.env` với các biến môi trường cần thiết
+            3. Chạy: `node dist/main.js`
+
+            #### Web
+            1. Giải nén `web-dist.zip`
+            2. Set biến môi trường `NEXT_PUBLIC_API_URL` và `NEXT_PUBLIC_MINIO_URL`
+            3. Chạy: `node server.js`
+
+            #### Mobile
+            - Cài đặt trực tiếp file APK trên thiết bị Android
+
+            📖 Xem chi tiết tại [Deployment Guide](https://github.com/NEU-DataVerse/Smart-Forecast/blob/main/docs-site/docs/deployment.md)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

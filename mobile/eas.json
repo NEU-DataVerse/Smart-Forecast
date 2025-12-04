@@ -9,10 +9,24 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://staging.your-domain.com/api/v1",
+        "EXPO_PUBLIC_MINIO_URL": "https://staging.your-domain.com:8002"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.your-domain.com/api/v1",
+        "EXPO_PUBLIC_MINIO_URL": "https://storage.your-domain.com"
+      }
     }
   },
   "submit": {

@@ -516,6 +516,126 @@ docker compose up -d
 
 ---
 
+## Triển khai từ GitHub Release
+
+Ngoài việc build từ source với Docker, bạn có thể triển khai trực tiếp từ các artifacts trong [GitHub Releases](https://github.com/NEU-DataVerse/Smart-Forecast/releases).
+
+### Artifacts có sẵn
+
+| File                   | Mô tả                                         |
+| ---------------------- | --------------------------------------------- |
+| `backend-dist.zip`     | NestJS backend đã build (dist + dependencies) |
+| `web-dist.zip`         | Next.js web app (standalone build)            |
+| `smart-forecast-*.apk` | Android APK                                   |
+
+### Triển khai Backend
+
+```bash
+# 1. Download và giải nén
+wget https://github.com/NEU-DataVerse/Smart-Forecast/releases/latest/download/backend-dist.zip
+unzip backend-dist.zip -d backend
+
+# 2. Tạo file .env
+cat > backend/.env << 'EOF'
+NODE_ENV=production
+PORT=8000
+DATABASE_URL=postgresql://admin:password@localhost:5432/smart_forecast_db
+MONGO_URL=mongodb://admin:password@localhost:27017/orion?authSource=admin
+ORION_LD_URL=http://localhost:1026
+JWT_SECRET=your_very_secure_jwt_secret_key_change_this_in_production
+JWT_EXPIRATION=7d
+OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=your_minio_password
+MINIO_USE_SSL=false
+MINIO_BUCKET_NAME=incidents
+EOF
+
+# 3. Khởi động
+cd backend
+node dist/main.js
+```
+
+:::tip Sử dụng PM2
+Để chạy backend như service:
+
+```bash
+npm install -g pm2
+pm2 start dist/main.js --name smart-forecast-backend
+pm2 save
+pm2 startup
+```
+
+:::
+
+### Triển khai Web
+
+```bash
+# 1. Download và giải nén
+wget https://github.com/NEU-DataVerse/Smart-Forecast/releases/latest/download/web-dist.zip
+unzip web-dist.zip -d web
+
+# 2. Set biến môi trường và khởi động
+cd web
+export NEXT_PUBLIC_API_URL=http://YOUR_SERVER_IP:8000/api/v1
+export NEXT_PUBLIC_MINIO_URL=http://YOUR_SERVER_IP:8002
+export PORT=3000
+node server.js
+```
+
+Hoặc sử dụng Docker:
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY . .
+ENV PORT=3000
+ENV NEXT_PUBLIC_API_URL=http://YOUR_SERVER_IP:8000/api/v1
+ENV NEXT_PUBLIC_MINIO_URL=http://YOUR_SERVER_IP:8002
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+### Cài đặt Mobile App
+
+1. Download file `smart-forecast-*.apk` từ [Releases](https://github.com/NEU-DataVerse/Smart-Forecast/releases)
+2. Cho phép cài đặt từ nguồn không xác định trên thiết bị Android
+3. Cài đặt file APK
+
+:::warning Lưu ý
+APK được build với URLs production mặc định. Nếu bạn self-host, cần fork repo và build lại với URLs của bạn trong `mobile/eas.json`.
+:::
+
+### Biến môi trường cần thiết
+
+#### Backend (bắt buộc)
+
+| Biến                     | Mô tả                                                       |
+| ------------------------ | ----------------------------------------------------------- |
+| `DATABASE_URL`           | PostgreSQL connection string                                |
+| `JWT_SECRET`             | Secret key cho JWT (≥32 ký tự)                              |
+| `OPENWEATHERMAP_API_KEY` | API key từ [OpenWeatherMap](https://openweathermap.org/api) |
+
+#### Backend (optional)
+
+| Biến                    | Mô tả                                        |
+| ----------------------- | -------------------------------------------- |
+| `FIREBASE_PROJECT_ID`   | Firebase project ID (cho push notifications) |
+| `FIREBASE_PRIVATE_KEY`  | Firebase service account private key         |
+| `FIREBASE_CLIENT_EMAIL` | Firebase service account email               |
+| `GOOGLE_CLIENT_ID`      | Google OAuth Client ID (cho mobile login)    |
+
+#### Web
+
+| Biến                    | Mô tả                 |
+| ----------------------- | --------------------- |
+| `NEXT_PUBLIC_API_URL`   | URL của backend API   |
+| `NEXT_PUBLIC_MINIO_URL` | URL của MinIO storage |
+
+---
+
 ## Tiếp theo
 
 - [API Documentation](./api) - REST API endpoints
