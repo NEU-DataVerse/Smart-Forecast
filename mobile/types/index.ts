@@ -155,17 +155,16 @@ export interface Alert {
   read: boolean;
 }
 
-export interface Incident {
-  id: string;
-  type: 'flood' | 'landslide' | 'pollution' | 'accident';
-  description: string;
-  imageUri?: string;
-  location: Location;
-  locationName?: string;
-  timestamp: number;
-  status: 'pending' | 'verified' | 'resolved';
-  userId?: string;
-}
+// Re-export incident types from shared package
+export {
+  IncidentType,
+  IncidentStatus,
+  IncidentTypeLabels,
+  IncidentTypeColors,
+  IncidentTypeIcons,
+  IncidentStatusLabels,
+} from '@smart-forecast/shared';
+export type { IIncident, IActiveIncident, IIncidentSummary } from '@smart-forecast/shared';
 
 export interface User {
   id: string;
