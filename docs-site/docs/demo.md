@@ -93,95 +93,75 @@ Video demo đang được chuẩn bị. Vui lòng quay lại sau!
   <figcaption className="screenshot-caption">Lịch sử dữ liệu theo thời gian</figcaption>
 </figure>
 
-### Mobile App
+### Ứng dụng di động (Mobile App)
 
-:::info Ảnh Mobile App sắp có
-Ảnh chụp màn hình ứng dụng Mobile đang được cập nhật. Dưới đây là mô tả giao diện:
-:::
+#### Onboarding & Đăng nhập
 
-#### Màn hình chính
-
-<div className="mobile-placeholder">
-  <strong>Mobile Home Screen</strong>
-  <p>Hiển thị thời tiết, AQI và cảnh báo</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/onboarding-1-app.jpg')} alt="Onboarding 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Giới thiệu theo dõi thời tiết</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/onboarding-2-app.jpg')} alt="Onboarding 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Giới thiệu cảnh báo</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/onboarding-3-app.jpg')} alt="Onboarding 3" className="screenshot" />
+    <figcaption className="screenshot-caption">Giới thiệu báo cáo sự cố</figcaption>
+  </figure>
 </div>
 
-```
-┌─────────────────────────────┐
-│ ☀️ Good Morning            │
-│    Hanoi, Vietnam           │
-├─────────────────────────────┤
-│                             │
-│        ☀️ 25°C              │
-│       Clear Sky             │
-│                             │
-│   💨 12 km/h  💧 75%        │
-│                             │
-├─────────────────────────────┤
-│  Air Quality                │
-│  ┌─────────────────────────┐│
-│  │  AQI: 85                ││
-│  │  🟡 Moderate            ││
-│  │                         ││
-│  │  PM2.5: 35 µg/m³        ││
-│  │  PM10:  65 µg/m³        ││
-│  └─────────────────────────┘│
-├─────────────────────────────┤
-│  ⚠️ Active Alerts (2)       │
-│  ┌─────────────────────────┐│
-│  │ 🌧️ Heavy Rain Expected  ││
-│  │    Today afternoon      ││
-│  ├─────────────────────────┤│
-│  │ ⚡ Thunderstorm Warning ││
-│  │    Valid until 8PM      ││
-│  └─────────────────────────┘│
-├─────────────────────────────┤
-│  🏠    🗺️    📝    👤       │
-│ Home   Map  Report Profile  │
-└─────────────────────────────┘
-```
+#### Trang chủ & Đăng nhập
 
-#### Báo cáo sự cố
-
-<div className="mobile-placeholder">
-  <strong>Report Incident Screen</strong>
-  <p>Form báo cáo sự cố với ảnh và GPS</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/login-google-app.jpg')} alt="Đăng nhập Google" className="screenshot" />
+    <figcaption className="screenshot-caption">Đăng nhập Google</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/home-1-app.jpg')} alt="Trang chủ 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Trang chủ - Thời tiết</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/home-2-app.jpg')} alt="Trang chủ 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Trang chủ - Dự báo</figcaption>
+  </figure>
 </div>
 
-```
-┌─────────────────────────────┐
-│ ← Report Incident           │
-├─────────────────────────────┤
-│                             │
-│  Type of Incident           │
-│  ┌─────────────────────────┐│
-│  │ 🌊 Flood   │ 🔥 Fire    ││
-│  │ ────────  │           ││
-│  │ 🏭 Pollution │ 📋 Other ││
-│  └─────────────────────────┘│
-│                             │
-│  Photos (0/5)               │
-│  ┌─────────────────────────┐│
-│  │    📷 Add Photo         ││
-│  └─────────────────────────┘│
-│                             │
-│  Description                │
-│  ┌─────────────────────────┐│
-│  │                         ││
-│  │ Describe the incident...││
-│  │                         ││
-│  └─────────────────────────┘│
-│                             │
-│  Location 📍 Auto-detected  │
-│  123 Cau Giay, Hanoi        │
-│                             │
-│  ┌─────────────────────────┐│
-│  │     Submit Report       ││
-│  └─────────────────────────┘│
-└─────────────────────────────┘
-```
+#### Báo cáo sự cố & Bản đồ
 
-<!-- TODO: Thêm mobile screenshots khi có ảnh -->
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/incident-1-app.jpg')} alt="Báo cáo sự cố 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Form báo cáo sự cố</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/incident-2-app.jpg')} alt="Báo cáo sự cố 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Danh sách sự cố</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/map-alert-1-app.jpg')} alt="Bản đồ cảnh báo 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Bản đồ cảnh báo</figcaption>
+  </figure>
+</div>
+
+#### Bản đồ, Thông báo & Hồ sơ
+
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/map-alert-2-app.jpg')} alt="Bản đồ cảnh báo 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Chi tiết cảnh báo</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/notification-app.jpg')} alt="Thông báo" className="screenshot" />
+    <figcaption className="screenshot-caption">Cài đặt thông báo</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/profile-app.jpg')} alt="Hồ sơ cá nhân" className="screenshot" />
+    <figcaption className="screenshot-caption">Hồ sơ cá nhân</figcaption>
+  </figure>
+</div>
 
 ---
 

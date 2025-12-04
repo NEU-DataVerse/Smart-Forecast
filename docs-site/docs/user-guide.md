@@ -190,50 +190,43 @@ pnpm run dev:mobile
 - iOS: App Store (coming soon)
 - Android: Google Play (coming soon)
 
-### Đăng nhập/Đăng ký
+### Màn hình giới thiệu & Đăng nhập
 
-1. Mở app
-2. Chọn **Đăng nhập** hoặc **Đăng ký**
-3. Đăng nhập với email/mật khẩu hoặc Google
+Khi mở app lần đầu, bạn sẽ thấy màn hình giới thiệu các tính năng chính:
 
-### Màn hình chính
-
-:::info Ảnh Mobile App sắp có
-Ảnh chụp màn hình ứng dụng Mobile đang được cập nhật. Dưới đây là mô tả giao diện:
-:::
-
-<div className="mobile-placeholder">
-  <strong>Mobile Home Screen</strong>
-  <p>Hiển thị thời tiết, AQI và cảnh báo</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/onboarding-1-app.jpg')} alt="Onboarding 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Giới thiệu theo dõi thời tiết</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/onboarding-2-app.jpg')} alt="Onboarding 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Giới thiệu cảnh báo</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/onboarding-3-app.jpg')} alt="Onboarding 3" className="screenshot" />
+    <figcaption className="screenshot-caption">Giới thiệu báo cáo sự cố</figcaption>
+  </figure>
 </div>
 
-```
-┌─────────────────────────────┐
-│  Smart Forecast     📍 HN  │
-├─────────────────────────────┤
-│                              │
-│  ☀️ 25°C                    │
-│  Trời nắng                  │
-│  Độ ẩm: 75%                 │
-│                              │
-│  ┌─────────────────────────┐│
-│  │  AQI: 85 - Moderate     ││
-│  │  PM2.5: 35 µg/m³        ││
-│  └─────────────────────────┘│
-│                              │
-│  ⚠️ Cảnh báo (2)            │
-│  ┌─────────────────────────┐│
-│  │ 🌧️ Mưa lớn chiều nay    ││
-│  │ ⚡ Cảnh báo giông sét     ││
-│  └─────────────────────────┘│
-│                              │
-├─────────────────────────────┤
-│  🏠    🗺️    📝    👤      │
-│ Home   Map  Report Profile  │
-└─────────────────────────────┘
-```
+### Trang chủ
 
-<!-- TODO: Thêm mobile home screenshot khi có ảnh -->
+Sau khi đăng nhập với tài khoản Google, bạn sẽ thấy màn hình chính:
+
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/login-google-app.jpg')} alt="Đăng nhập Google" className="screenshot" />
+    <figcaption className="screenshot-caption">Đăng nhập Google</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/home-1-app.jpg')} alt="Trang chủ 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Trang chủ - Thời tiết</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/home-2-app.jpg')} alt="Trang chủ 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Trang chủ - Dự báo</figcaption>
+  </figure>
+</div>
 
 ### Chức năng chính
 
@@ -266,36 +259,52 @@ pnpm run dev:mobile
 5. Vị trí tự động lấy GPS hoặc chọn trên bản đồ
 6. Nhấn **Gửi báo cáo**
 
-<div className="mobile-placeholder">
-  <strong>Report Incident Screen</strong>
-  <p>Form báo cáo sự cố với ảnh và GPS</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/incident-1-app.jpg')} alt="Báo cáo sự cố 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Form báo cáo sự cố</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/incident-2-app.jpg')} alt="Báo cáo sự cố 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Danh sách sự cố</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/map-alert-1-app.jpg')} alt="Bản đồ cảnh báo 1" className="screenshot" />
+    <figcaption className="screenshot-caption">Bản đồ cảnh báo</figcaption>
+  </figure>
 </div>
-
-<!-- TODO: Thêm mobile report screenshot khi có ảnh -->
 
 **Theo dõi báo cáo:**
 
 - Xem trạng thái: Đang chờ, Đang xử lý, Đã giải quyết
 - Nhận thông báo khi có cập nhật
 
-#### 5. Bản đồ
+#### 5. Bản đồ, Thông báo & Hồ sơ
 
-- Xem vị trí các trạm quan trắc
-- Xem vị trí sự cố đã báo cáo
-- Chất lượng không khí theo khu vực
-
-<div className="mobile-placeholder">
-  <strong>Map Screen</strong>
-  <p>Bản đồ trạm quan trắc và sự cố</p>
+<div className="screenshot-gallery">
+  <figure>
+    <img src={useBaseUrl('/img/map-alert-2-app.jpg')} alt="Bản đồ cảnh báo 2" className="screenshot" />
+    <figcaption className="screenshot-caption">Chi tiết cảnh báo</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/notification-app.jpg')} alt="Thông báo" className="screenshot" />
+    <figcaption className="screenshot-caption">Cài đặt thông báo</figcaption>
+  </figure>
+  <figure>
+    <img src={useBaseUrl('/img/profile-app.jpg')} alt="Hồ sơ cá nhân" className="screenshot" />
+    <figcaption className="screenshot-caption">Hồ sơ cá nhân</figcaption>
+  </figure>
 </div>
 
-<!-- TODO: Thêm mobile map screenshot khi có ảnh -->
+**Cài đặt thông báo:**
 
-#### 6. Cài đặt
+- Bật/tắt thông báo đẩy
+- Chọn loại thông báo muốn nhận
 
-- Bật/tắt thông báo
-- Chọn ngôn ngữ
-- Quản lý tài khoản
+**Quản lý hồ sơ:**
+
+- Xem thông tin tài khoản
+- Đăng xuất
 
 ---
 
