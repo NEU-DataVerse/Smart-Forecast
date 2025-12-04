@@ -10,8 +10,8 @@ const config = getDefaultConfig(projectRoot);
 // Set EXPO_ROUTER_APP_ROOT for expo-router
 process.env.EXPO_ROUTER_APP_ROOT = 'app';
 
-// Only watch the shared package in addition to the project
-config.watchFolders = [sharedPackage];
+// Watch folders for the monorepo
+config.watchFolders = [monorepoRoot];
 
 // Let Metro know where to resolve packages from
 config.resolver.nodeModulesPaths = [
@@ -19,10 +19,10 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// Disable hierarchical lookup to prevent issues with pnpm
-config.resolver.disableHierarchicalLookup = true;
+// Enable symlink support for pnpm
+config.resolver.unstable_enableSymlinks = true;
 
-// Force resolving shared package from the monorepo
+// Extra node modules for monorepo shared package
 config.resolver.extraNodeModules = {
   '@smart-forecast/shared': sharedPackage,
 };

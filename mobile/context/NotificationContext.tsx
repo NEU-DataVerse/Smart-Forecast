@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
 import { useAuth } from './AuthContext';
 import { userApi } from '@/services/api';
+import { useAppStore } from '@/store/appStore';
 
 type NotificationSubscription =
   | ReturnType<typeof Notifications.addNotificationReceivedListener>
@@ -42,18 +43,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   // Register for push notifications
   useEffect(() => {
     registerForPushNotificationsAsync().then(
-      async (token) => {
+      (token) => {
         setExpoPushToken(token);
-
-        // Send token to backend for push notifications
-        if (token) {
-          try {
-            await userApi.updatePushToken(token);
-            console.log('📱 Push token synced with backend');
-          } catch (err) {
-            console.warn('Failed to sync push token with backend:', err);
-          }
-        }
+        // Token will be sent to backend in the second useEffect when user is authenticated
       },
       (error) => setError(error),
     );
@@ -61,6 +53,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       console.log('🔔 Notification Received: ', notification);
       setNotification(notification);
+      handleNotificationAndAddToStore(notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -69,7 +62,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         JSON.stringify(response, null, 2),
         JSON.stringify(response.notification.request.content.data, null, 2),
       );
-      // Handle the notification response here
+      // Add to store when user taps notification
+      handleNotificationAndAddToStore(response.notification);
     });
 
     return () => {
@@ -114,3 +108,45 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     </NotificationContext.Provider>
   );
 };
+
+/**
+ * Handle incoming notification and add to alerts store
+ */
+function handleNotificationAndAddToStore(notification: Notifications.Notification) {
+  const { content } = notification.request;
+  const { addAlert } = useAppStore.getState();
+
+  // Map notification type to valid Alert type
+  const rawType = (content.data?.type as string) || 'weather';
+  const validTypes = ['aqi', 'flood', 'landslide', 'weather'] as const;
+  const alertType: 'aqi' | 'flood' | 'landslide' | 'weather' = validTypes.includes(
+    rawType as (typeof validTypes)[number],
+  )
+    ? (rawType as (typeof validTypes)[number])
+    : 'weather';
+
+  // Map severity
+  const rawSeverity = (content.data?.severity as string) || 'medium';
+  const validSeverities = ['low', 'medium', 'high', 'critical'] as const;
+  const severity: 'low' | 'medium' | 'high' | 'critical' = validSeverities.includes(
+    rawSeverity as (typeof validSeverities)[number],
+  )
+    ? (rawSeverity as (typeof validSeverities)[number])
+    : 'medium';
+
+  const location = (content.data?.location as string) || 'Unknown Location';
+
+  const newAlert = {
+    id: notification.request.identifier,
+    type: alertType,
+    title: content.title || 'New Alert',
+    message: content.body || '',
+    severity: severity,
+    timestamp: Date.now(),
+    location: location,
+    read: false,
+  };
+
+  console.log('📥 Adding alert to store:', newAlert);
+  addAlert(newAlert);
+}

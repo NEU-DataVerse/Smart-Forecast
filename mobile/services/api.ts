@@ -227,9 +227,15 @@ export const incidentApi = {
   },
 };
 
-// User API
+/**
+ * User API - Profile, Push Token and Location
+ */
 export const userApi = {
-  // Cập nhật FCM token (ExponentPushToken) để nhận push notifications
+  /**
+   * Update FCM/Expo Push token to receive push notifications
+   * @param fcmToken - Expo Push Token (ExponentPushToken[xxx])
+   * @param token - JWT auth token (required)
+   */
   async updateFcmToken(fcmToken: string, token: string): Promise<{ message: string }> {
     try {
       const response = await axios.put<{ message: string }>(
@@ -251,56 +257,49 @@ export const userApi = {
       throw error;
     }
   },
-};
 
-/**
- * User API - Profile and settings
- */
-export const userApi = {
   /**
-   * Update push notification token (Expo Push Token)
-   * Sends the token to backend for push notifications
+   * Update push notification token (alias for updateFcmToken)
+   * @param pushToken - Expo Push Token
+   * @param token - JWT auth token (required)
    */
-  async updatePushToken(pushToken: string, token?: string): Promise<void> {
-    try {
-      const authToken = token || MOCK_TOKEN;
-      await axios.put(
-        `${BACKEND_URL}/users/fcm-token`,
-        { fcmToken: pushToken },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-          },
-        },
-      );
-      console.log('✅ Push token updated successfully');
-    } catch (error) {
-      console.error('❌ Error updating push token:', error);
-      throw error;
+  async updatePushToken(pushToken: string, token: string): Promise<void> {
+    if (!token) {
+      throw new Error('Auth token is required to update push token');
     }
+    await axios.put(
+      `${BACKEND_URL}/users/fcm-token`,
+      { fcmToken: pushToken },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log('✅ Push token updated successfully');
   },
 
   /**
    * Update user location for geo-targeted alerts
+   * @param location - User's current location {lat, lon}
+   * @param token - JWT auth token (required)
    */
-  async updateLocation(location: { lat: number; lon: number }, token?: string): Promise<void> {
-    try {
-      const authToken = token || MOCK_TOKEN;
-      await axios.put(
-        `${BACKEND_URL}/users/location`,
-        { location },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-          },
-        },
-      );
-      console.log('✅ User location updated successfully');
-    } catch (error) {
-      console.error('❌ Error updating location:', error);
-      throw error;
+  async updateLocation(location: { lat: number; lon: number }, token: string): Promise<void> {
+    if (!token) {
+      throw new Error('Auth token is required to update location');
     }
+    // Backend expects PATCH with { latitude, longitude }
+    await axios.patch(
+      `${BACKEND_URL}/users/location`,
+      { latitude: location.lat, longitude: location.lon },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log('✅ User location updated successfully');
   },
 };
