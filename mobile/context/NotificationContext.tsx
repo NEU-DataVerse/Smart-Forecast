@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
 import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
 import { useAuth } from './AuthContext';
 import { userApi } from '@/services/api';
 import { useAppStore } from '@/store/appStore';
+import type { GeoPolygon } from '@/types';
 
 type NotificationSubscription =
   | ReturnType<typeof Notifications.addNotificationReceivedListener>
@@ -36,6 +38,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const [fcmTokenSent, setFcmTokenSent] = useState(false);
 
   const { token: authToken, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { setPendingAlertId } = useAppStore();
 
   const notificationListener = useRef<NotificationSubscription | null>(null);
   const responseListener = useRef<NotificationSubscription | null>(null);
@@ -64,6 +68,20 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       );
       // Add to store when user taps notification
       handleNotificationAndAddToStore(response.notification);
+
+      // Navigate to map tab with alert focus
+      const data = response.notification.request.content.data;
+      const alertId = (data?.alertId as string) || '';
+      // Use notification identifier as fallback if alertId is empty
+      const effectiveAlertId =
+        alertId.length > 0 ? alertId : response.notification.request.identifier;
+
+      console.log('🗺️ Navigating to map with alertId:', effectiveAlertId);
+      setPendingAlertId(effectiveAlertId);
+      // Use setTimeout to ensure navigation happens after app is ready
+      setTimeout(() => {
+        router.push('/(tabs)/map');
+      }, 100);
     });
 
     return () => {
@@ -136,14 +154,26 @@ function handleNotificationAndAddToStore(notification: Notifications.Notificatio
 
   const location = (content.data?.location as string) || 'Unknown Location';
 
+  // Parse area from notification data
+  let area: GeoPolygon | undefined;
+  const rawArea = content.data?.area as string | undefined;
+  if (rawArea && rawArea.length > 0) {
+    try {
+      area = JSON.parse(rawArea) as GeoPolygon;
+    } catch (e) {
+      console.warn('Failed to parse area from notification:', e);
+    }
+  }
+
   const newAlert = {
-    id: notification.request.identifier,
+    id: (content.data?.alertId as string) || notification.request.identifier,
     type: alertType,
     title: content.title || 'New Alert',
     message: content.body || '',
     severity: severity,
     timestamp: Date.now(),
     location: location,
+    area: area,
     read: false,
   };
 

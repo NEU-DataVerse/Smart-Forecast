@@ -21,6 +21,11 @@ interface AppStore {
 
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+
+  // Pending alert navigation (from notification tap)
+  pendingAlertId: string | null;
+  setPendingAlertId: (alertId: string | null) => void;
+  clearPendingAlertId: () => void;
 }
 
 export const useAppStore = create<AppStore>((set) => ({
@@ -84,4 +89,9 @@ export const useAppStore = create<AppStore>((set) => ({
 
   isLoading: false,
   setIsLoading: (loading) => set({ isLoading: loading }),
+
+  // Pending alert navigation (from notification tap)
+  pendingAlertId: null,
+  setPendingAlertId: (alertId) => set({ pendingAlertId: alertId }),
+  clearPendingAlertId: () => set({ pendingAlertId: null }),
 }));

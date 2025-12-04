@@ -8,9 +8,12 @@ import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import * as Notifications from 'expo-notifications';
+
+const ONBOARDING_KEY = 'hasSeenOnboarding';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -44,10 +47,25 @@ function RootLayoutNav() {
   const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   const [splashHidden, setSplashHidden] = React.useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = React.useState<boolean | null>(null);
+
+  // Check onboarding status
+  React.useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const seen = await AsyncStorage.getItem(ONBOARDING_KEY);
+        setHasSeenOnboarding(seen === 'true');
+      } catch {
+        setHasSeenOnboarding(true); // Default to true on error
+      }
+    };
+    checkOnboarding();
+  }, []);
 
   React.useEffect(() => {
     const handleNavigation = async () => {
-      if (!isLoading) {
+      // Wait for both auth and onboarding check
+      if (!isLoading && hasSeenOnboarding !== null) {
         // Hide splash screen once on first load
         if (!splashHidden) {
           try {
@@ -58,8 +76,10 @@ function RootLayoutNav() {
           setSplashHidden(true);
         }
 
-        // Navigate based on auth state
-        if (isAuthenticated) {
+        // Navigate based on onboarding and auth state
+        if (!hasSeenOnboarding) {
+          router.replace('/onboarding');
+        } else if (isAuthenticated) {
           router.replace('/(tabs)');
         } else {
           router.replace('/login');
@@ -68,10 +88,11 @@ function RootLayoutNav() {
     };
 
     handleNavigation();
-  }, [isLoading, isAuthenticated, router, splashHidden]);
+  }, [isLoading, isAuthenticated, hasSeenOnboarding, router, splashHidden]);
 
   return (
     <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
@@ -91,6 +112,7 @@ export default function RootLayout() {
           <AuthProvider>
             <NotificationProvider>
               <RootLayoutNav />
+              <Toast />
             </NotificationProvider>
           </AuthProvider>
         </SafeAreaProvider>

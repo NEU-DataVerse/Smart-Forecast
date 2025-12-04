@@ -138,6 +138,11 @@ export interface Sensor {
   };
 }
 
+export interface GeoPolygon {
+  type: 'Polygon';
+  coordinates: number[][][];
+}
+
 export interface Alert {
   id: string;
   type: 'aqi' | 'flood' | 'landslide' | 'weather';
@@ -146,6 +151,7 @@ export interface Alert {
   severity: 'low' | 'medium' | 'high' | 'critical';
   timestamp: number;
   location?: string;
+  area?: GeoPolygon;
   read: boolean;
 }
 
