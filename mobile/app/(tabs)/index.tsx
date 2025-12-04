@@ -6,28 +6,26 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Location from 'expo-location';
-import { Thermometer, Droplets, Wind, Cloud, Activity, Gauge, MapPin } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@tanstack/react-query';
 
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
 import { weatherApi, airQualityApi, userApi } from '@/services/api';
-import EnvCard from '@/components/EnvCard';
 import HourlyForecastCard from '@/components/HourlyForecastCard';
 import ForecastSection from '@/components/ForecastSection';
+import { WeatherHeader, AirQualitySection, WeatherDetailsSection } from '@/components/home';
 import {
   NearbyAirQualityResponse,
   NearbyWeatherResponse,
   WeatherDataResponse,
   AirQualityData,
 } from '@/types';
-import { formatForecastTime, getAQIStatus, groupForecastByDay, limitArray } from '@/utils/forecast';
+import { formatForecastTime, groupForecastByDay, limitArray } from '@/utils/forecast';
+import { getEPAAQIForecastStatus } from '@/utils/aqi';
 
 // Types for forecast items
 type WeatherForecastItem = WeatherDataResponse & { validFrom: string; validTo: string };
@@ -106,7 +104,7 @@ export default function HomeScreen() {
       setEnvironmentData({
         temperature: Math.round(current.temperature.current ?? 0),
         humidity: current.atmospheric.humidity ?? 0,
-        aqi: 1, // Sẽ được ghi đè bởi dữ liệu chất lượng không khí
+        aqi: airQualityData?.current?.aqi?.epaUS?.index ?? 0,
         clouds: current.cloudiness ?? 0,
         windSpeed: current.wind.speed ?? 0,
         pressure: current.atmospheric.pressure ?? 0,
@@ -116,7 +114,7 @@ export default function HomeScreen() {
         timestamp: Date.now(),
       });
     }
-  }, [weatherData, setEnvironmentData]);
+  }, [weatherData, airQualityData, setEnvironmentData]);
 
   useEffect(() => {
     const requestLocation = async () => {
@@ -147,7 +145,6 @@ export default function HomeScreen() {
             console.log('📍 User location synced to backend');
           } catch (error) {
             console.error('❌ Failed to sync location to backend:', error);
-            // Không throw error - vẫn tiếp tục sử dụng app với vị trí local
           }
         }
       } catch (error) {
@@ -174,13 +171,14 @@ export default function HomeScreen() {
   );
 
   const renderAirQualityForecastItem = useCallback(({ item }: { item: AirQualityForecastItem }) => {
-    const aqiIndex = item.aqi?.openWeather?.index ?? 1;
+    // Sử dụng EPA US AQI thay vì OpenWeather
+    const aqiIndex = item.aqi?.epaUS?.index ?? 0;
     return (
       <HourlyForecastCard
         time={formatForecastTime(item.validFrom || item.dateObserved, 'hourly')}
         value={aqiIndex}
         unit="AQI"
-        status={getAQIStatus(aqiIndex)}
+        status={getEPAAQIForecastStatus(aqiIndex)}
         type="air-quality"
       />
     );
@@ -189,44 +187,23 @@ export default function HomeScreen() {
   // Process forecast data
   const weatherForecast = useMemo(() => {
     if (!weatherData?.forecast) return [];
-    // Group by day and limit to 7 days
     return limitArray(groupForecastByDay(weatherData.forecast), 7) as WeatherForecastItem[];
   }, [weatherData?.forecast]);
 
   const airQualityForecast = useMemo(() => {
     if (!airQualityData?.forecast) return [];
-    // Limit to 12 entries (3h intervals = ~36 hours)
     return limitArray(airQualityData.forecast, 12) as AirQualityForecastItem[];
   }, [airQualityData?.forecast]);
 
-  const getLocalAQIStatus = (aqi: number): 'good' | 'moderate' | 'unhealthy' | 'hazardous' => {
-    if (aqi <= 1) return 'good';
-    if (aqi <= 2) return 'moderate';
-    if (aqi <= 3) return 'unhealthy';
-    return 'hazardous';
-  };
-
-  const getLocalAQILabel = (aqi: number): string => {
-    // Use level from backend if available
-    if (airQualityData?.current?.aqi?.openWeather?.level) {
-      return airQualityData.current.aqi.openWeather.level;
-    }
-    const status = getLocalAQIStatus(aqi);
-    const labels = {
-      good: 'Good',
-      moderate: 'Moderate',
-      unhealthy: 'Unhealthy',
-      hazardous: 'Hazardous',
-    };
-    return labels[status];
-  };
-
-  // Get AQI index from backend or fallback to weather data
-  const currentAQI = airQualityData?.current?.aqi?.openWeather?.index ?? 1;
-
-  // Get current weather from backend response
+  // Get current data from backend response
   const currentWeather = weatherData?.current;
   const weatherStation = weatherData?.nearestStation;
+  const airQualityStation = airQualityData?.nearestStation;
+  const currentAirQuality = airQualityData?.current;
+
+  // EPA US AQI index and level
+  const currentAQI = currentAirQuality?.aqi?.epaUS?.index ?? 0;
+  const currentAQILevel = currentAirQuality?.aqi?.epaUS?.level;
 
   if (isLoading && !currentWeather) {
     return (
@@ -238,34 +215,17 @@ export default function HomeScreen() {
     );
   }
 
-  const pollutants = airQualityData?.current?.pollutants;
-  const airQualityStation = airQualityData?.nearestStation;
-
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <LinearGradient
-        colors={[Colors.gradient.start, Colors.gradient.end]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
-        <Text style={styles.headerTitle}>Smart Forecast</Text>
-        {currentWeather && (
-          <>
-            <Text style={styles.locationText}>
-              {weatherStation?.name ?? 'Vị trí không xác định'}
-            </Text>
-            <View style={styles.mainTempContainer}>
-              <Text style={styles.mainTemp}>
-                {Math.round(currentWeather.temperature.current ?? 0)}°
-              </Text>
-              <Text style={styles.description}>{currentWeather.weather.description ?? ''}</Text>
-            </View>
-          </>
-        )}
-      </LinearGradient>
+      <WeatherHeader
+        stationName={weatherStation?.name}
+        temperature={
+          currentWeather ? Math.round(currentWeather.temperature.current ?? 0) : undefined
+        }
+        description={currentWeather?.weather.description}
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -280,103 +240,21 @@ export default function HomeScreen() {
       >
         {currentWeather && (
           <>
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Chất lượng không khí</Text>
-                {airQualityStation && (
-                  <View style={styles.stationInfo}>
-                    <MapPin size={12} color={Colors.text.secondary} />
-                    <Text style={styles.stationText}>
-                      {airQualityStation.name} ({airQualityStation.distance.toFixed(1)} km)
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <View style={styles.grid}>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="AQI"
-                    value={getLocalAQILabel(currentAQI)}
-                    icon={
-                      <Activity size={20} color={Colors.status[getLocalAQIStatus(currentAQI)]} />
-                    }
-                    status={getLocalAQIStatus(currentAQI)}
-                  />
-                </View>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="PM2.5"
-                    value={pollutants?.pm25?.toFixed(1) ?? '--'}
-                    unit="μg/m³"
-                    icon={<Activity size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="PM10"
-                    value={pollutants?.pm10?.toFixed(1) ?? '--'}
-                    unit="μg/m³"
-                    icon={<Activity size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="Độ ẩm"
-                    value={currentWeather.atmospheric.humidity ?? '--'}
-                    unit="%"
-                    icon={<Droplets size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-              </View>
-            </View>
+            <AirQualitySection
+              aqiIndex={currentAQI}
+              aqiLevel={currentAQILevel}
+              pollutants={currentAirQuality?.pollutants}
+              humidity={currentWeather.atmospheric.humidity}
+              stationInfo={airQualityStation}
+            />
 
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Chi tiết thời tiết</Text>
-                {weatherStation && (
-                  <View style={styles.stationInfo}>
-                    <MapPin size={12} color={Colors.text.secondary} />
-                    <Text style={styles.stationText}>
-                      {weatherStation.name} ({weatherStation.distance.toFixed(1)} km)
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <View style={styles.grid}>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="Nhiệt độ"
-                    value={Math.round(currentWeather.temperature.current ?? 0)}
-                    unit="°C"
-                    icon={<Thermometer size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="Tốc độ gió"
-                    value={(currentWeather.wind.speed ?? 0).toFixed(1)}
-                    unit="m/s"
-                    icon={<Wind size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="Mây"
-                    value={currentWeather.cloudiness ?? '--'}
-                    unit="%"
-                    icon={<Cloud size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-                <View style={styles.gridItem}>
-                  <EnvCard
-                    title="Áp suất"
-                    value={currentWeather.atmospheric.pressure ?? '--'}
-                    unit="hPa"
-                    icon={<Gauge size={20} color={Colors.primary.blue} />}
-                  />
-                </View>
-              </View>
-            </View>
+            <WeatherDetailsSection
+              temperature={currentWeather.temperature.current}
+              windSpeed={currentWeather.wind.speed}
+              cloudiness={currentWeather.cloudiness}
+              pressure={currentWeather.atmospheric.pressure}
+              stationInfo={weatherStation}
+            />
 
             {/* Weather Forecast Section */}
             <ForecastSection
@@ -418,76 +296,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.text.secondary,
   },
-  header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: Colors.text.white,
-    marginBottom: 8,
-  },
-  locationText: {
-    fontSize: 16,
-    color: Colors.text.white,
-    opacity: 0.9,
-    marginBottom: 20,
-  },
-  mainTempContainer: {
-    alignItems: 'center',
-  },
-  mainTemp: {
-    fontSize: 72,
-    fontWeight: '300' as const,
-    color: Colors.text.white,
-    letterSpacing: -2,
-  },
-  description: {
-    fontSize: 20,
-    color: Colors.text.white,
-    opacity: 0.9,
-    textTransform: 'capitalize' as const,
-    marginTop: 8,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 20,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600' as const,
-    color: Colors.text.primary,
-  },
-  stationInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  stationText: {
-    fontSize: 12,
-    color: Colors.text.secondary,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -6,
-  },
-  gridItem: {
-    width: '50%',
-    paddingHorizontal: 6,
-    marginBottom: 12,
   },
 });

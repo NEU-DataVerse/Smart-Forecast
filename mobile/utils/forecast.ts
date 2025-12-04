@@ -1,4 +1,8 @@
 import type { ForecastStatus } from '@/components/HourlyForecastCard';
+import { getEPAAQIForecastStatus, getEPAAQILabelVi } from '@/utils/aqi';
+
+// Re-export AQI functions from aqi.ts for backward compatibility
+export { getEPAAQIForecastStatus as getAQIStatus, getEPAAQILabelVi as getAQILabel };
 
 /**
  * Format forecast time from ISO string to display label
@@ -42,34 +46,6 @@ export function formatForecastTime(
   } catch {
     return '--';
   }
-}
-
-/**
- * Get AQI status from index value
- * OpenWeather AQI: 1=Good, 2=Fair, 3=Moderate, 4=Poor, 5=Very Poor
- * EPA US AQI: 0-50=Good, 51-100=Moderate, 101-150=Unhealthy for Sensitive, 151-200=Unhealthy, 201-300=Very Unhealthy, 301+=Hazardous
- */
-export function getAQIStatus(aqiIndex: number): ForecastStatus {
-  if (aqiIndex <= 1) return 'good';
-  if (aqiIndex <= 2) return 'moderate';
-  if (aqiIndex <= 3) return 'unhealthy';
-  return 'hazardous';
-}
-
-/**
- * Get AQI label from index
- */
-export function getAQILabel(aqiIndex: number, level?: string): string {
-  if (level) return level;
-
-  const statusLabels: Record<ForecastStatus, string> = {
-    good: 'Tốt',
-    moderate: 'Trung bình',
-    unhealthy: 'Kém',
-    hazardous: 'Nguy hại',
-  };
-
-  return statusLabels[getAQIStatus(aqiIndex)];
 }
 
 /**
