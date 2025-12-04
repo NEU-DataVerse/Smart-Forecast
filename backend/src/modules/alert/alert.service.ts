@@ -57,6 +57,9 @@ export class AlertService {
       expiresAt: createDto.expiresAt ? new Date(createDto.expiresAt) : null,
     });
 
+    // Save alert first to get the ID
+    const savedAlert = await this.alertRepository.save(alert);
+
     // Get users to notify (filtered by area if provided)
     let fcmTokens: string[] = [];
 
@@ -92,14 +95,16 @@ export class AlertService {
         title: createDto.title,
         body: createDto.message,
         data: {
-          alertId: alert.id || '',
+          alertId: savedAlert.id,
           level: createDto.level,
           type: createDto.type,
           advice: createDto.advice || '',
+          stationId: savedAlert.stationId || '',
+          area: createDto.area ? JSON.stringify(createDto.area) : '',
         },
       });
 
-      alert.sentCount = result.successCount;
+      savedAlert.sentCount = result.successCount;
 
       // Cleanup failed tokens
       if (result.failedTokens.length > 0) {
@@ -108,13 +113,17 @@ export class AlertService {
         );
         await this.cleanupFailedTokens(result.failedTokens);
       }
+
+      // Update sentCount in database
+      await this.alertRepository.update(savedAlert.id, {
+        sentCount: savedAlert.sentCount,
+      });
     } else {
-      alert.sentCount = 0;
+      savedAlert.sentCount = 0;
       this.logger.warn('No FCM tokens available to send alert');
     }
 
-    // Save alert to database
-    return this.alertRepository.save(alert);
+    return savedAlert;
   }
 
   /**
@@ -139,6 +148,9 @@ export class AlertService {
       sentAt: new Date(),
       expiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000), // Expires in 4 hours
     });
+
+    // Save alert first to get the ID
+    const savedAlert = await this.alertRepository.save(alert);
 
     // Get users to notify
     let fcmTokens: string[] = [];
@@ -168,22 +180,29 @@ export class AlertService {
         title,
         body: message,
         data: {
-          alertId: alert.id || '',
+          alertId: savedAlert.id,
           level,
           type,
           advice,
           isAutomatic: 'true',
+          stationId: stationId || '',
+          area: area ? JSON.stringify(area) : '',
         },
       });
 
-      alert.sentCount = result.successCount;
+      savedAlert.sentCount = result.successCount;
 
       if (result.failedTokens.length > 0) {
         await this.cleanupFailedTokens(result.failedTokens);
       }
+
+      // Update sentCount in database
+      await this.alertRepository.update(savedAlert.id, {
+        sentCount: savedAlert.sentCount,
+      });
     }
 
-    return this.alertRepository.save(alert);
+    return savedAlert;
   }
 
   /**
