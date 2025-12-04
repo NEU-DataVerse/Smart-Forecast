@@ -76,6 +76,30 @@ export const IncidentTypeLabels: Record<IncidentType, string> = {
 };
 
 /**
+ * Color codes for incident types (for consistent UI across platforms)
+ */
+export const IncidentTypeColors: Record<IncidentType, string> = {
+  [IncidentType.FLOODING]: '#3B82F6', // Blue
+  [IncidentType.FALLEN_TREE]: '#22C55E', // Green
+  [IncidentType.LANDSLIDE]: '#F59E0B', // Amber
+  [IncidentType.AIR_POLLUTION]: '#8B5CF6', // Purple
+  [IncidentType.ROAD_DAMAGE]: '#EF4444', // Red
+  [IncidentType.OTHER]: '#6B7280', // Gray
+};
+
+/**
+ * Icon names for incident types (lucide icons)
+ */
+export const IncidentTypeIcons: Record<IncidentType, string> = {
+  [IncidentType.FLOODING]: 'Droplets',
+  [IncidentType.FALLEN_TREE]: 'TreeDeciduous',
+  [IncidentType.LANDSLIDE]: 'Mountain',
+  [IncidentType.AIR_POLLUTION]: 'Wind',
+  [IncidentType.ROAD_DAMAGE]: 'Construction',
+  [IncidentType.OTHER]: 'HelpCircle',
+};
+
+/**
  * Human-readable labels for incident status
  */
 export const IncidentStatusLabels: Record<IncidentStatus, string> = {
