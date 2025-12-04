@@ -44,30 +44,30 @@ jobs:
   # Shared package chứa types và constants dùng chung
   # Cần build trước vì backend và web depend on nó
   build-shared:
-    name: 📦 Build Shared Package
+    name: Build Shared Package
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
-      - name: 📥 Install dependencies
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🔨 Build shared package
+      - name: Build shared package
         run: pnpm --filter shared build
 
-      - name: 💾 Cache shared build output
+      - name: Cache shared build output
         uses: actions/cache/save@v4
         with:
           path: |
@@ -84,24 +84,24 @@ jobs:
   # ============================================
   # Build NestJS backend và đóng gói với production dependencies
   build-backend:
-    name: 🖥️ Build Backend
+    name: Build Backend
     runs-on: ubuntu-latest
     needs: build-shared
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 📦 Restore shared build cache
+      - name: Restore shared build cache
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -113,10 +113,10 @@ jobs:
             docs-site/node_modules
           key: shared-build-${{ github.sha }}
 
-      - name: 🔨 Build backend
+      - name: Build backend
         run: pnpm --filter backend build
 
-      - name: 📦 Create production deployment package
+      - name: Create production deployment package
         run: |
           # Tạo thư mục deployment
           mkdir -p backend-deploy
@@ -164,13 +164,13 @@ jobs:
           Xem chi tiết tại: https://github.com/NEU-DataVerse/Smart-Forecast
           EOF
 
-      - name: 📦 Create zip archive
+      - name: Create zip archive
         run: |
           cd backend-deploy
           zip -r ../backend-dist.zip .
           cd ..
 
-      - name: 📤 Upload backend artifact
+      - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-dist
@@ -182,7 +182,7 @@ jobs:
   # ============================================
   # Build Next.js với standalone output mode
   build-web:
-    name: 🌐 Build Web
+    name: Build Web
     runs-on: ubuntu-latest
     needs: build-shared
     env:
@@ -191,20 +191,20 @@ jobs:
       NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1' }}
       NEXT_PUBLIC_MINIO_URL: ${{ secrets.NEXT_PUBLIC_MINIO_URL || 'http://localhost:9000' }}
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 📦 Restore shared build cache
+      - name: Restore shared build cache
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -216,10 +216,10 @@ jobs:
             docs-site/node_modules
           key: shared-build-${{ github.sha }}
 
-      - name: 🔨 Build web
+      - name: Build web
         run: pnpm --filter web build
 
-      - name: 📦 Create deployment package
+      - name: Create deployment package
         run: |
           # Tạo thư mục deployment
           mkdir -p web-deploy
@@ -278,13 +278,13 @@ jobs:
           Xem chi tiết tại: https://github.com/NEU-DataVerse/Smart-Forecast
           EOF
 
-      - name: 📦 Create zip archive
+      - name: Create zip archive
         run: |
           cd web-deploy
           zip -r ../web-dist.zip .
           cd ..
 
-      - name: 📤 Upload web artifact
+      - name: Upload web artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
@@ -296,24 +296,24 @@ jobs:
   # ============================================
   # Build Android APK sử dụng EAS Build cloud service
   build-mobile:
-    name: 📱 Build Mobile
+    name: Build Mobile
     runs-on: ubuntu-latest
     needs: build-shared
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 📦 Restore shared build cache
+      - name: Restore shared build cache
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -325,15 +325,15 @@ jobs:
             docs-site/node_modules
           key: shared-build-${{ github.sha }}
 
-      - name: 🔧 Setup EAS CLI
+      - name: Setup EAS CLI
         run: npm install -g eas-cli
 
-      - name: 🔐 Login to Expo
+      - name: Login to Expo
         run: eas login --token ${{ secrets.EXPO_TOKEN }}
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 📱 Build Android APK (Production)
+      - name: Build Android APK (Production)
         working-directory: mobile
         run: |
           # Build APK với profile production
@@ -352,19 +352,19 @@ jobs:
             cat build-result.json
           fi
 
-      - name: 📥 Download APK from EAS
+      - name: Download APK from EAS
         working-directory: mobile
         run: |
           # Parse build URL từ kết quả
           BUILD_URL=$(cat build-result.json | jq -r '.[0].artifacts.buildUrl // empty')
 
           if [ -z "$BUILD_URL" ]; then
-            echo "❌ Không tìm thấy build URL. Kiểm tra build-result.json:"
+            echo "Error: Không tìm thấy build URL. Kiểm tra build-result.json:"
             cat build-result.json
             exit 1
           fi
 
-          echo "📥 Downloading APK from: $BUILD_URL"
+          echo "Downloading APK from: $BUILD_URL"
 
           # Download APK
           curl -L -o smart-forecast-${{ github.ref_name }}.apk "$BUILD_URL"
@@ -372,7 +372,7 @@ jobs:
           # Verify file
           ls -la smart-forecast-*.apk
 
-      - name: 📤 Upload mobile artifact
+      - name: Upload mobile artifact
         uses: actions/upload-artifact@v4
         with:
           name: mobile-apk
@@ -384,24 +384,24 @@ jobs:
   # ============================================
   # Validate docs build - không upload vào release
   build-docs:
-    name: 📚 Build Docs
+    name: Build Docs
     runs-on: ubuntu-latest
     needs: build-shared
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 📦 Restore shared build cache
+      - name: Restore shared build cache
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -413,10 +413,10 @@ jobs:
             docs-site/node_modules
           key: shared-build-${{ github.sha }}
 
-      - name: 🔨 Build docs site
+      - name: Build docs site
         run: pnpm --filter @smart-forecast/docs build
 
-      - name: ✅ Docs build successful
+      - name: Docs build successful
         run: echo "Docs site build completed successfully. Deployment is handled by docs-deploy.yml workflow."
 
   # ============================================
@@ -424,37 +424,37 @@ jobs:
   # ============================================
   # Tạo GitHub Release và upload tất cả artifacts
   create-release:
-    name: 🚀 Create Release
+    name: Create Release
     runs-on: ubuntu-latest
     needs: [build-backend, build-web, build-mobile, build-docs]
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📥 Download backend artifact
+      - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
           name: backend-dist
           path: ./release-assets
 
-      - name: 📥 Download web artifact
+      - name: Download web artifact
         uses: actions/download-artifact@v4
         with:
           name: web-dist
           path: ./release-assets
 
-      - name: 📥 Download mobile artifact
+      - name: Download mobile artifact
         uses: actions/download-artifact@v4
         with:
           name: mobile-apk
           path: ./release-assets
 
-      - name: 📋 List release assets
+      - name: List release assets
         run: |
-          echo "📦 Release assets:"
+          echo "Release assets:"
           ls -la ./release-assets/
 
-      - name: 🚀 Create GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: Smart Forecast ${{ github.ref_name }}
@@ -466,9 +466,9 @@ jobs:
             ./release-assets/web-dist.zip
             ./release-assets/smart-forecast-*.apk
           body: |
-            ## 🎉 Smart Forecast ${{ github.ref_name }}
+            ## Smart Forecast ${{ github.ref_name }}
 
-            ### 📦 Artifacts
+            ### Artifacts
 
             | File | Mô tả |
             |------|-------|
@@ -476,7 +476,7 @@ jobs:
             | `web-dist.zip` | Next.js web app (standalone build) |
             | `smart-forecast-*.apk` | Android APK |
 
-            ### 🚀 Hướng dẫn Deploy
+            ### Hướng dẫn Deploy
 
             #### Backend
             1. Giải nén `backend-dist.zip`
@@ -491,6 +491,6 @@ jobs:
             #### Mobile
             - Cài đặt trực tiếp file APK trên thiết bị Android
 
-            📖 Xem chi tiết tại [Deployment Guide](https://github.com/NEU-DataVerse/Smart-Forecast/blob/main/docs-site/docs/deployment.md)
+            Xem chi tiết tại [Deployment Guide](https://github.com/NEU-DataVerse/Smart-Forecast/blob/main/docs-site/docs/deployment.md)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
