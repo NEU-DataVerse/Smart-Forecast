@@ -117,11 +117,13 @@ eas build --profile development --platform android
 # Android
 npx expo start
 
+```
+
 ---
 
 ## 📁 Cấu trúc dự án
 
-````
+```
 
 mobile/
 ├── app/ # Màn hình ứng dụng (file-based routing)
@@ -157,7 +159,7 @@ mobile/
 ├── app.config.ts # Cấu hình Expo
 └── package.json # Dependencies
 
-````
+```
 
 ---
 

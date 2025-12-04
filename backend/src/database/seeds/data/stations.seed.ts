@@ -43,7 +43,7 @@ export interface StationSeedData {
   };
 }
 
-// Station IDs for reference
+// Station IDs for reference - Hà Nội
 export const STATION_HOAN_KIEM_ID =
   'urn:ngsi-ld:ObservationStation:ha-noi-hoan-kiem';
 export const STATION_HA_DONG_ID =
@@ -52,6 +52,13 @@ export const STATION_CAU_GIAY_ID =
   'urn:ngsi-ld:ObservationStation:ha-noi-cau-giay';
 export const STATION_LONG_BIEN_ID =
   'urn:ngsi-ld:ObservationStation:ha-noi-long-bien';
+
+// Station IDs for reference - Ho Chi Minh City
+export const STATION_QUAN_1_ID = 'urn:ngsi-ld:ObservationStation:hcm-quan-1';
+export const STATION_QUAN_7_ID = 'urn:ngsi-ld:ObservationStation:hcm-quan-7';
+export const STATION_THU_DUC_ID = 'urn:ngsi-ld:ObservationStation:hcm-thu-duc';
+export const STATION_TAN_BINH_ID =
+  'urn:ngsi-ld:ObservationStation:hcm-tan-binh';
 
 export const STATION_SEED_DATA: StationSeedData[] = [
   {
@@ -180,6 +187,136 @@ export const STATION_SEED_DATA: StationSeedData[] = [
       operator: 'Hanoi Environmental Department',
       contact: 'longbien@environment.hanoi.gov.vn',
       description: 'Trạm quan trắc khu vực Long Biên, ven sông Hồng',
+    },
+  },
+  // ============ Ho Chi Minh City Stations ============
+  {
+    id: STATION_QUAN_1_ID,
+    type: 'ObservationStation',
+    code: 'HCM-Q1-001',
+    name: 'Trạm Quận 1',
+    status: StationStatus.ACTIVE,
+    city: 'Hồ Chí Minh',
+    district: 'Quận 1',
+    ward: 'Bến Nghé',
+    location: {
+      lat: 10.7769,
+      lon: 106.7009,
+      altitude: 5,
+    },
+    address: {
+      streetAddress: 'Đường Nguyễn Huệ',
+      addressLocality: 'Quận 1',
+      addressRegion: 'Hồ Chí Minh',
+      addressCountry: 'VN',
+      postalCode: '700000',
+    },
+    timezone: 'Asia/Ho_Chi_Minh',
+    timezoneOffset: 25200,
+    priority: StationPriority.HIGH,
+    categories: ['urban', 'tourist', 'business'],
+    metadata: {
+      installationDate: '2024-04-01T00:00:00.000Z',
+      operator: 'HCMC Environmental Department',
+      contact: 'quan1@environment.hcmc.gov.vn',
+      description:
+        'Trạm quan trắc trung tâm Quận 1, khu vực Phố đi bộ Nguyễn Huệ',
+    },
+  },
+  {
+    id: STATION_QUAN_7_ID,
+    type: 'ObservationStation',
+    code: 'HCM-Q7-001',
+    name: 'Trạm Quận 7',
+    status: StationStatus.ACTIVE,
+    city: 'Hồ Chí Minh',
+    district: 'Quận 7',
+    ward: 'Phú Mỹ',
+    location: {
+      lat: 10.7284,
+      lon: 106.7188,
+      altitude: 3,
+    },
+    address: {
+      streetAddress: 'Đường Nguyễn Văn Linh',
+      addressLocality: 'Quận 7',
+      addressRegion: 'Hồ Chí Minh',
+      addressCountry: 'VN',
+      postalCode: '700000',
+    },
+    timezone: 'Asia/Ho_Chi_Minh',
+    timezoneOffset: 25200,
+    priority: StationPriority.MEDIUM,
+    categories: ['urban', 'residential', 'modern'],
+    metadata: {
+      installationDate: '2024-04-15T00:00:00.000Z',
+      operator: 'HCMC Environmental Department',
+      contact: 'quan7@environment.hcmc.gov.vn',
+      description: 'Trạm quan trắc khu vực Phú Mỹ Hưng, Quận 7',
+    },
+  },
+  {
+    id: STATION_THU_DUC_ID,
+    type: 'ObservationStation',
+    code: 'HCM-TD-001',
+    name: 'Trạm Thủ Đức',
+    status: StationStatus.ACTIVE,
+    city: 'Hồ Chí Minh',
+    district: 'Thủ Đức',
+    ward: 'Linh Trung',
+    location: {
+      lat: 10.87,
+      lon: 106.8031,
+      altitude: 10,
+    },
+    address: {
+      streetAddress: 'Đường Võ Văn Ngân',
+      addressLocality: 'Thủ Đức',
+      addressRegion: 'Hồ Chí Minh',
+      addressCountry: 'VN',
+      postalCode: '700000',
+    },
+    timezone: 'Asia/Ho_Chi_Minh',
+    timezoneOffset: 25200,
+    priority: StationPriority.HIGH,
+    categories: ['urban', 'education', 'tech-hub'],
+    metadata: {
+      installationDate: '2024-05-01T00:00:00.000Z',
+      operator: 'HCMC Environmental Department',
+      contact: 'thuduc@environment.hcmc.gov.vn',
+      description: 'Trạm quan trắc khu vực Thủ Đức, gần ĐHQG TP.HCM',
+    },
+  },
+  {
+    id: STATION_TAN_BINH_ID,
+    type: 'ObservationStation',
+    code: 'HCM-TB-001',
+    name: 'Trạm Tân Bình',
+    status: StationStatus.ACTIVE,
+    city: 'Hồ Chí Minh',
+    district: 'Tân Bình',
+    ward: 'Phường 2',
+    location: {
+      lat: 10.8231,
+      lon: 106.6297,
+      altitude: 8,
+    },
+    address: {
+      streetAddress: 'Đường Hoàng Văn Thụ',
+      addressLocality: 'Tân Bình',
+      addressRegion: 'Hồ Chí Minh',
+      addressCountry: 'VN',
+      postalCode: '700000',
+    },
+    timezone: 'Asia/Ho_Chi_Minh',
+    timezoneOffset: 25200,
+    priority: StationPriority.MEDIUM,
+    categories: ['urban', 'airport', 'traffic'],
+    metadata: {
+      installationDate: '2024-05-15T00:00:00.000Z',
+      operator: 'HCMC Environmental Department',
+      contact: 'tanbinh@environment.hcmc.gov.vn',
+      description: 'Trạm quan trắc khu vực gần sân bay Tân Sơn Nhất',
     },
   },
 ];

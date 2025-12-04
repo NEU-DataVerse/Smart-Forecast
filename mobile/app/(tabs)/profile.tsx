@@ -21,6 +21,7 @@ import {
   IncidentStatus,
   IncidentTypeLabels,
   IncidentStatusLabels,
+  IncidentTypeColors,
 } from '@smart-forecast/shared';
 
 // MinIO URL from environment
@@ -29,10 +30,10 @@ const MINIO_URL = process.env.EXPO_PUBLIC_MINIO_URL;
 // Helper to convert localhost URLs to proper MinIO URL
 const getImageUrl = (url: string): string => {
   if (!url || !MINIO_URL) return url;
-  // Replace localhost:9000 or 127.0.0.1:9000 with MINIO_URL
+  // Replace localhost or 127.0.0.1 with any port to MINIO_URL
   return url
-    .replace(/http:\/\/localhost:9000/g, MINIO_URL)
-    .replace(/http:\/\/127\.0\.0\.1:9000/g, MINIO_URL);
+    .replace(/http:\/\/localhost:\d+/g, MINIO_URL)
+    .replace(/http:\/\/127\.0\.0\.1:\d+/g, MINIO_URL);
 };
 
 export default function ProfileScreen() {
@@ -59,7 +60,11 @@ export default function ProfileScreen() {
         setError(null);
 
         const response = await incidentApi.getMyIncidents({}, token);
-        setIncidents(response.data);
+        // Remove duplicates by id (in case API returns duplicates)
+        const uniqueIncidents = response.data.filter(
+          (incident, index, self) => index === self.findIndex((i) => i.id === incident.id),
+        );
+        setIncidents(uniqueIncidents);
       } catch (err) {
         console.error('Error fetching incidents:', err);
         setError('Không thể tải danh sách sự cố');
@@ -102,15 +107,7 @@ export default function ProfileScreen() {
   };
 
   const getIncidentColor = (type: IncidentType) => {
-    const colors: Record<IncidentType, string> = {
-      [IncidentType.FLOODING]: '#3B82F6',
-      [IncidentType.LANDSLIDE]: '#8B4513',
-      [IncidentType.AIR_POLLUTION]: '#EF4444',
-      [IncidentType.ROAD_DAMAGE]: '#F59E0B',
-      [IncidentType.FALLEN_TREE]: '#22C55E',
-      [IncidentType.OTHER]: '#6B7280',
-    };
-    return colors[type] || Colors.primary.blue;
+    return IncidentTypeColors[type] || Colors.primary.blue;
   };
 
   const getStatusColor = (status: IncidentStatus) => {

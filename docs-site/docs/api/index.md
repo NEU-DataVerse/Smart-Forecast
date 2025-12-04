@@ -194,18 +194,19 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ## API Sections
 
-| API                             | Mô tả                                         |
-| ------------------------------- | --------------------------------------------- |
-| [Weather](./weather.md)         | Dữ liệu thời tiết hiện tại, dự báo và lịch sử |
-| [Air Quality](./air-quality.md) | Chất lượng không khí và AQI                   |
-| [Alert](./alert.md)             | Quản lý cảnh báo và ngưỡng cảnh báo           |
-| [Incident](./incident.md)       | Báo cáo và xử lý sự cố                        |
-| [Stations](./stations.md)       | Quản lý trạm quan trắc                        |
-| [Ingestion](./ingestion.md)     | Thu thập dữ liệu từ nguồn bên ngoài           |
-| [Users](./users.md)             | Quản lý người dùng                            |
-| [Files](./files.md)             | Upload và quản lý files                       |
-| [Dashboard](./dashboard.md)     | Dữ liệu tổng hợp cho dashboard                |
-| [Reports](./reports.md)         | Xuất báo cáo PDF/CSV                          |
+| API                                   | Mô tả                                                   |
+| ------------------------------------- | ------------------------------------------------------- |
+| [Weather](./weather.md)               | Dữ liệu thời tiết hiện tại, dự báo và lịch sử           |
+| [Air Quality](./air-quality.md)       | Chất lượng không khí và AQI                             |
+| [Alert](./alert.md)                   | Quản lý cảnh báo và ngưỡng cảnh báo                     |
+| [Incident](./incident.md)             | Báo cáo và xử lý sự cố                                  |
+| [Stations](./stations.md)             | Quản lý trạm quan trắc                                  |
+| [Ingestion](./ingestion.md)           | Thu thập dữ liệu từ nguồn bên ngoài                     |
+| [Users](./users.md)                   | Quản lý người dùng                                      |
+| [Files](./files.md)                   | Upload và quản lý files                                 |
+| [Dashboard](./dashboard.md)           | Dữ liệu tổng hợp cho dashboard                          |
+| [Reports](./reports.md)               | Xuất báo cáo PDF/CSV                                    |
+| [Public NGSI-LD](./public-ngsi-ld.md) | API công khai truy cập dữ liệu NGSI-LD (không cần auth) |
 
 ---
 

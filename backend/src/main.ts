@@ -40,6 +40,7 @@ async function bootstrap() {
     .addTag('File', 'File upload (MinIO)')
     .addTag('Incident', 'Incident report management')
     .addTag('Alert', 'Emergency alert system')
+    .addTag('Public NGSI-LD', 'Public read-only NGSI-LD API (no auth required)')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
@@ -50,6 +51,8 @@ async function bootstrap() {
   });
 
   // Enable CORS
+  // Public API routes: allow all origins
+  // Protected API routes: restrict to specific origins
   app.enableCors({
     origin: [
       'http://localhost:3000',

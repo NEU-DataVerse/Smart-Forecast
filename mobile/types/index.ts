@@ -138,6 +138,11 @@ export interface Sensor {
   };
 }
 
+export interface GeoPolygon {
+  type: 'Polygon';
+  coordinates: number[][][];
+}
+
 export interface Alert {
   id: string;
   type: 'aqi' | 'flood' | 'landslide' | 'weather';
@@ -146,20 +151,20 @@ export interface Alert {
   severity: 'low' | 'medium' | 'high' | 'critical';
   timestamp: number;
   location?: string;
+  area?: GeoPolygon;
   read: boolean;
 }
 
-export interface Incident {
-  id: string;
-  type: 'flood' | 'landslide' | 'pollution' | 'accident';
-  description: string;
-  imageUri?: string;
-  location: Location;
-  locationName?: string;
-  timestamp: number;
-  status: 'pending' | 'verified' | 'resolved';
-  userId?: string;
-}
+// Re-export incident types from shared package
+export {
+  IncidentType,
+  IncidentStatus,
+  IncidentTypeLabels,
+  IncidentTypeColors,
+  IncidentTypeIcons,
+  IncidentStatusLabels,
+} from '@smart-forecast/shared';
+export type { IIncident, IActiveIncident, IIncidentSummary } from '@smart-forecast/shared';
 
 export interface User {
   id: string;

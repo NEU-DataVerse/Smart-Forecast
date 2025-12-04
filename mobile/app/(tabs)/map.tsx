@@ -1,10 +1,12 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { Stack } from 'expo-router';
 import { AlertTriangle, X, Clock, Info, MapPin } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 import AlertMap from '@/components/AlertMap';
 import Colors from '@/constants/colors';
 import { useActiveAlerts, useRefreshAlerts } from '@/hooks/useAlerts';
+import { useAppStore } from '@/store/appStore';
 import {
   IAlert,
   AlertLevelColors,
@@ -26,6 +28,9 @@ export default function MapScreen() {
   const [selectedAlert, setSelectedAlert] = useState<IAlert | null>(null);
   const [showAlertModal, setShowAlertModal] = useState(false);
 
+  // Pending alert from notification tap
+  const { pendingAlertId, clearPendingAlertId } = useAppStore();
+
   const initialRegion = useMemo<MapRegion>(
     () => ({
       latitude: 10.762622,
@@ -35,6 +40,30 @@ export default function MapScreen() {
     }),
     [],
   );
+
+  // Handle pending alert focus from notification tap
+  useEffect(() => {
+    if (pendingAlertId && alerts && !isLoading) {
+      const alert = alerts.find((a) => a.id === pendingAlertId);
+      if (alert) {
+        console.log('🎯 Focusing on alert from notification:', pendingAlertId);
+        setSelectedAlert(alert);
+        setShowAlertModal(true);
+      } else {
+        // Alert not found - show toast notification
+        console.log('⚠️ Alert not found:', pendingAlertId);
+        Toast.show({
+          type: 'info',
+          text1: 'Cảnh báo không khả dụng',
+          text2: 'Cảnh báo này không còn tồn tại hoặc đã hết hạn.',
+          visibilityTime: 4000,
+          position: 'top',
+        });
+      }
+      // Clear pending alert after handling
+      clearPendingAlertId();
+    }
+  }, [pendingAlertId, alerts, isLoading, clearPendingAlertId]);
 
   const handleAlertSelect = useCallback(
     (alertId: string) => {

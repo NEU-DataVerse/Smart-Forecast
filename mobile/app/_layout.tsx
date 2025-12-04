@@ -1,13 +1,19 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import * as Notifications from 'expo-notifications';
+
+const ONBOARDING_KEY = 'hasSeenOnboarding';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,19 +31,41 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 15 * 60 * 1000, // 15 minutes - data considered fresh
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours - cache retention for offline
     },
   },
+});
+
+// AsyncStorage persister for offline caching
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key: 'smart-forecast-cache',
 });
 
 function RootLayoutNav() {
   const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   const [splashHidden, setSplashHidden] = React.useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = React.useState<boolean | null>(null);
+
+  // Check onboarding status
+  React.useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const seen = await AsyncStorage.getItem(ONBOARDING_KEY);
+        setHasSeenOnboarding(seen === 'true');
+      } catch {
+        setHasSeenOnboarding(true); // Default to true on error
+      }
+    };
+    checkOnboarding();
+  }, []);
 
   React.useEffect(() => {
     const handleNavigation = async () => {
-      if (!isLoading) {
+      // Wait for both auth and onboarding check
+      if (!isLoading && hasSeenOnboarding !== null) {
         // Hide splash screen once on first load
         if (!splashHidden) {
           try {
@@ -48,8 +76,10 @@ function RootLayoutNav() {
           setSplashHidden(true);
         }
 
-        // Navigate based on auth state
-        if (isAuthenticated) {
+        // Navigate based on onboarding and auth state
+        if (!hasSeenOnboarding) {
+          router.replace('/onboarding');
+        } else if (isAuthenticated) {
           router.replace('/(tabs)');
         } else {
           router.replace('/login');
@@ -58,10 +88,11 @@ function RootLayoutNav() {
     };
 
     handleNavigation();
-  }, [isLoading, isAuthenticated, router, splashHidden]);
+  }, [isLoading, isAuthenticated, hasSeenOnboarding, router, splashHidden]);
 
   return (
     <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
@@ -71,17 +102,21 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister: asyncStoragePersister }}
+    >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <StatusBar style="light" />
           <AuthProvider>
             <NotificationProvider>
               <RootLayoutNav />
+              <Toast />
             </NotificationProvider>
           </AuthProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }

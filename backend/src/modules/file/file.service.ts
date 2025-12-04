@@ -8,14 +8,13 @@ export class FileService {
   private readonly logger = new Logger(FileService.name);
   private readonly minioClient: Minio.Client;
   private readonly bucketName: string;
-  private readonly endpoint: string;
-  private readonly port: number;
+  /** Public URL for client access (browser/mobile) */
+  private readonly publicUrl: string;
 
   constructor(private readonly configService: ConfigService) {
     const minioConfig = this.configService.get('minio');
 
-    this.endpoint = minioConfig.endpoint;
-    this.port = minioConfig.port;
+    this.publicUrl = minioConfig.publicUrl;
     this.bucketName = minioConfig.bucketName;
 
     this.minioClient = new Minio.Client({
@@ -106,11 +105,11 @@ export class FileService {
         },
       );
 
-      // Generate public URL
-      const publicUrl = `http://${this.endpoint}:${this.port}/${this.bucketName}/${fileName}`;
+      // Generate public URL for client access
+      const fileUrl = `${this.publicUrl}/${this.bucketName}/${fileName}`;
 
-      this.logger.log(`File uploaded successfully: ${fileName}`);
-      return publicUrl;
+      this.logger.log(`File uploaded successfully: ${fileName} -> ${fileUrl}`);
+      return fileUrl;
     } catch (error) {
       this.logger.error(`Error uploading file: ${error.message}`, error.stack);
       throw new BadRequestException('Failed to upload file');

@@ -1,0 +1,101 @@
+# Docker Compose for Development
+# Chỉ chạy các services cơ sở dữ liệu, backend/web chạy local để dev/debug
+# Usage: docker compose -f docker-compose.dev.yml up -d
+
+networks:
+  smart-forecast-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  minio_data:
+
+services:
+  # ===== MONGODB =====
+  mongodb:
+    image: mongo:4.4
+    hostname: mongodb
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-admin123}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ['CMD', 'mongo', '--eval', "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===== ORION-LD (FIWARE Context Broker) =====
+  orion:
+    image: fiware/orion-ld:latest
+    hostname: orion
+    container_name: orion
+    ports:
+      - '1026:1026'
+    command: -dbhost mongodb -dbuser ${MONGO_INITDB_ROOT_USERNAME:-admin} -dbpwd ${MONGO_INITDB_ROOT_PASSWORD:-admin123} -logLevel ${ORION_LOG_LEVEL:-DEBUG}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:1026/version']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===== POSTGRESQL with PostGIS =====
+  postgres:
+    image: postgis/postgis:14-3.4-alpine
+    hostname: postgres
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres123}
+      - POSTGRES_DB=${POSTGRES_DB:-smart_forecast}
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===== MINIO (Object Storage) =====
+  minio:
+    image: minio/minio:latest
+    hostname: minio
+    container_name: minio
+    ports:
+      # API port
+      - '9000:9000'
+      # Console (web UI)
+      - '9001:9001'
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin123}
+    volumes:
+      - minio_data:/data
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -10,6 +10,10 @@ import {
   STATION_HA_DONG_ID,
   STATION_CAU_GIAY_ID,
   STATION_LONG_BIEN_ID,
+  STATION_QUAN_1_ID,
+  STATION_QUAN_7_ID,
+  STATION_THU_DUC_ID,
+  STATION_TAN_BINH_ID,
 } from './stations.seed';
 
 export interface AirQualitySeedData {
@@ -43,6 +47,7 @@ const STATION_LOCATIONS: Record<
   string,
   { lat: number; lon: number; address: string }
 > = {
+  // Hà Nội stations
   [STATION_HOAN_KIEM_ID]: {
     lat: 21.028511,
     lon: 105.804817,
@@ -62,6 +67,27 @@ const STATION_LOCATIONS: Record<
     lat: 21.0453,
     lon: 105.8725,
     address: 'Long Biên, Hà Nội',
+  },
+  // Hồ Chí Minh City stations
+  [STATION_QUAN_1_ID]: {
+    lat: 10.7769,
+    lon: 106.7009,
+    address: 'Quận 1, Hồ Chí Minh',
+  },
+  [STATION_QUAN_7_ID]: {
+    lat: 10.7284,
+    lon: 106.7188,
+    address: 'Quận 7, Hồ Chí Minh',
+  },
+  [STATION_THU_DUC_ID]: {
+    lat: 10.87,
+    lon: 106.8031,
+    address: 'Thủ Đức, Hồ Chí Minh',
+  },
+  [STATION_TAN_BINH_ID]: {
+    lat: 10.8231,
+    lon: 106.6297,
+    address: 'Tân Bình, Hồ Chí Minh',
   },
 };
 
@@ -183,18 +209,30 @@ function generateAirQualityRecord(
 export function generateAirQualitySeedData(): AirQualitySeedData[] {
   const data: AirQualitySeedData[] = [];
   const stations = [
+    // Hà Nội stations
     STATION_HOAN_KIEM_ID,
     STATION_HA_DONG_ID,
     STATION_CAU_GIAY_ID,
     STATION_LONG_BIEN_ID,
+    // Hồ Chí Minh City stations
+    STATION_QUAN_1_ID,
+    STATION_QUAN_7_ID,
+    STATION_THU_DUC_ID,
+    STATION_TAN_BINH_ID,
   ];
 
   // Pollution levels vary by station
   const pollutionLevels: Record<string, 'low' | 'medium' | 'high'> = {
+    // Hà Nội
     [STATION_HOAN_KIEM_ID]: 'medium', // Urban center
     [STATION_HA_DONG_ID]: 'high', // Industrial area
     [STATION_CAU_GIAY_ID]: 'medium', // Business area
     [STATION_LONG_BIEN_ID]: 'low', // Riverside
+    // Hồ Chí Minh City
+    [STATION_QUAN_1_ID]: 'medium', // Urban center
+    [STATION_QUAN_7_ID]: 'low', // Modern residential
+    [STATION_THU_DUC_ID]: 'medium', // University/tech area
+    [STATION_TAN_BINH_ID]: 'high', // Near airport, heavy traffic
   };
 
   const now = new Date();

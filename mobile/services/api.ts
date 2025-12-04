@@ -8,7 +8,9 @@ import type {
 } from '@smart-forecast/shared';
 
 export const getBackendUrl = (): string | undefined => {
-  return process.env.EXPO_PUBLIC_API_URL;
+  const url = process.env.EXPO_PUBLIC_API_URL;
+  console.log('🔗 Backend URL:', url);
+  return url;
 };
 
 const BACKEND_URL = getBackendUrl();
@@ -21,6 +23,8 @@ export const weatherApi = {
     token?: string,
     include: 'current' | 'forecast' | 'both' = 'current',
   ): Promise<NearbyWeatherResponse> {
+    const url = `${BACKEND_URL}/weather/nearby`;
+    console.log('🌤️ Weather API Request:', { url, lat, lon, include, hasToken: !!token });
     try {
       const response = await axios.get<NearbyWeatherResponse>(`${BACKEND_URL}/weather/nearby`, {
         params: {
@@ -48,7 +52,10 @@ export const airQualityApi = {
     lat: number,
     lon: number,
     token?: string,
+    include: 'current' | 'forecast' | 'both' = 'both',
   ): Promise<NearbyAirQualityResponse> {
+    const url = `${BACKEND_URL}/air-quality/nearby`;
+    console.log('🌫️ Air Quality API Request:', { url, lat, lon, include, hasToken: !!token });
     try {
       const response = await axios.get<NearbyAirQualityResponse>(
         `${BACKEND_URL}/air-quality/nearby`,
@@ -56,7 +63,7 @@ export const airQualityApi = {
           params: {
             lat,
             lon,
-            include: 'current',
+            include,
           },
           headers: {
             Accept: 'application/json',
@@ -227,9 +234,15 @@ export const incidentApi = {
   },
 };
 
-// User API
+/**
+ * User API - Profile, Push Token and Location
+ */
 export const userApi = {
-  // Cập nhật FCM token (ExponentPushToken) để nhận push notifications
+  /**
+   * Update FCM/Expo Push token to receive push notifications
+   * @param fcmToken - Expo Push Token (ExponentPushToken[xxx])
+   * @param token - JWT auth token (required)
+   */
   async updateFcmToken(fcmToken: string, token: string): Promise<{ message: string }> {
     try {
       const response = await axios.put<{ message: string }>(
@@ -250,5 +263,50 @@ export const userApi = {
       console.error('❌ Lỗi khi cập nhật FCM token:', error);
       throw error;
     }
+  },
+
+  /**
+   * Update push notification token (alias for updateFcmToken)
+   * @param pushToken - Expo Push Token
+   * @param token - JWT auth token (required)
+   */
+  async updatePushToken(pushToken: string, token: string): Promise<void> {
+    if (!token) {
+      throw new Error('Auth token is required to update push token');
+    }
+    await axios.put(
+      `${BACKEND_URL}/users/fcm-token`,
+      { fcmToken: pushToken },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log('✅ Push token updated successfully');
+  },
+
+  /**
+   * Update user location for geo-targeted alerts
+   * @param location - User's current location {lat, lon}
+   * @param token - JWT auth token (required)
+   */
+  async updateLocation(location: { lat: number; lon: number }, token: string): Promise<void> {
+    if (!token) {
+      throw new Error('Auth token is required to update location');
+    }
+    // Backend expects PATCH with { latitude, longitude }
+    await axios.patch(
+      `${BACKEND_URL}/users/location`,
+      { latitude: location.lat, longitude: location.lon },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log('✅ User location updated successfully');
   },
 };

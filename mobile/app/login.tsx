@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Pressable,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from 'react-native';
 import { Stack, router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { useAuth } from '@/context/AuthContext';
 import Colors from '@/constants/colors';
 
@@ -33,7 +27,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <LinearGradient
+      colors={[Colors.gradient.start, Colors.gradient.end]}
+      style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
       <Stack.Screen
         options={{
           headerShown: false,
@@ -41,201 +40,149 @@ export default function LoginScreen() {
       />
 
       <View style={styles.content}>
-        {/* Logo/Title Section */}
-        <View style={styles.headerSection}>
-          <Image
-            source={require('@/assets/images/logo-smartforecast.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.subtitle}>Gửi thông báo về môi trường và thời tiết</Text>
-        </View>
-
-        {/* Features Section */}
-        <View style={styles.featuresSection}>
-          <FeatureItem
-            icon="🌍"
-            title="Giám sát thời gian thực"
-            description="Theo dõi chất lượng không khí và thời tiết ngay lập tức"
-          />
-          <FeatureItem
-            icon="⚠️"
-            title="Cảnh báo thông minh"
-            description="Nhận thông báo về các mối nguy ngay lập tức"
-          />
-          <FeatureItem
-            icon="📊"
-            title="Phân tích chi tiết"
-            description="Xem dữ liệu môi trường chi tiết và xu hướng lịch sử"
-          />
-        </View>
+        {/* Logo Section */}
+        <Animated.View entering={FadeInDown.delay(100).springify()} style={styles.logoSection}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('@/assets/images/logo-smartforecast.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.tagline}>Theo dõi môi trường thông minh</Text>
+        </Animated.View>
 
         {/* Sign In Section */}
-        <View style={styles.signInSection}>
-          <Text style={styles.signInTitle}>Bắt đầu</Text>
-          <Text style={styles.signInDescription}>
-            Đăng nhập bằng tài khoản Google của bạn để truy cập ứng dụng
-          </Text>
-
+        <Animated.View entering={FadeInUp.delay(300).springify()} style={styles.signInSection}>
           <Pressable
-            style={[styles.googleButton, isSigningIn && styles.googleButtonDisabled]}
+            style={({ pressed }) => [
+              styles.googleButton,
+              isSigningIn && styles.googleButtonDisabled,
+              pressed && styles.googleButtonPressed,
+            ]}
             onPress={handleGoogleSignIn}
             disabled={isSigningIn}
           >
             {isSigningIn ? (
-              <ActivityIndicator color={Colors.primary.blue} />
+              <ActivityIndicator color={Colors.primary.blue} size="small" />
             ) : (
               <View style={styles.googleButtonContent}>
-                <Text style={styles.googleIcon}>G</Text>
-                <Text style={styles.googleButtonText}>Đăng nhập với Google</Text>
+                <View style={styles.googleIconContainer}>
+                  <Text style={styles.googleIcon}>G</Text>
+                </View>
+                <Text style={styles.googleButtonText}>Tiếp tục với Google</Text>
               </View>
             )}
           </Pressable>
-        </View>
+        </Animated.View>
+
+        {/* Footer */}
+        <Animated.View entering={FadeInUp.delay(500).springify()} style={styles.footer}>
+          <Text style={styles.footerText}>
+            Bằng việc đăng nhập, bạn đồng ý với{' '}
+            <Text style={styles.footerLink}>Điều khoản sử dụng</Text> và{' '}
+            <Text style={styles.footerLink}>Chính sách bảo mật</Text>
+          </Text>
+        </Animated.View>
       </View>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
-
-interface FeatureItemProps {
-  icon: string;
-  title: string;
-  description: string;
-}
-
-const FeatureItem = ({ icon, title, description }: FeatureItemProps) => (
-  <View style={styles.featureItem}>
-    <Text style={styles.featureIcon}>{icon}</Text>
-    <View style={styles.featureTextContainer}>
-      <Text style={styles.featureTitle}>{title}</Text>
-      <Text style={styles.featureDescription}>{description}</Text>
-    </View>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.primary,
   },
   content: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
-  headerSection: {
     alignItems: 'center',
-    marginTop: 40,
+    paddingHorizontal: 24,
+    paddingTop: 120,
+    paddingBottom: 50,
+  },
+  logoSection: {
+    alignItems: 'center',
+  },
+  logoContainer: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(248, 250, 251, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
   },
   logo: {
-    width: 240,
-    height: 140,
-    marginBottom: 16,
+    width: 140,
+    height: 100,
   },
-  subtitle: {
-    fontSize: 15,
-    color: Colors.text.secondary,
+  tagline: {
+    fontSize: 18,
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-  },
-  featuresSection: {
-    marginVertical: 30,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: Colors.background.card,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  featureIcon: {
-    fontSize: 28,
-    marginRight: 16,
-  },
-  featureTextContainer: {
-    flex: 1,
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.text.primary,
-    marginBottom: 4,
-  },
-  featureDescription: {
-    fontSize: 13,
-    color: Colors.text.secondary,
+    fontWeight: '500',
   },
   signInSection: {
+    width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  signInTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: Colors.text.primary,
-    marginBottom: 8,
-  },
-  signInDescription: {
-    fontSize: 14,
-    color: Colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  messageContainer: {
-    backgroundColor: 'rgba(255, 193, 7, 0.9)',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#FBC02D',
-  },
-  messageText: {
-    fontSize: 12,
-    color: Colors.text.primary,
-    fontWeight: '500',
-    textAlign: 'center',
   },
   googleButton: {
     width: '100%',
-    height: 54,
-    backgroundColor: Colors.primary.blue,
-    borderRadius: 12,
+    height: 56,
+    backgroundColor: Colors.text.white,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 16,
-    shadowColor: Colors.primary.blue,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   googleButtonDisabled: {
     opacity: 0.7,
+  },
+  googleButtonPressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
   googleButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  googleIcon: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: Colors.text.white,
+  googleIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.text.white,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  googleIcon: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4285F4',
   },
   googleButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
-    color: Colors.text.white,
+    color: Colors.text.primary,
+  },
+  footer: {
+    paddingHorizontal: 20,
+  },
+  footerText: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  footerLink: {
+    textDecorationLine: 'underline',
+    fontWeight: '500',
   },
 });

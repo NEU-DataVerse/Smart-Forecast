@@ -45,7 +45,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.WRITE_EXTERNAL_STORAGE',
       'android.permission.RECORD_AUDIO',
     ],
-    googleServicesFile: './google-services.json',
   },
   web: {
     favicon: './assets/images/logo-smartforecast.png',

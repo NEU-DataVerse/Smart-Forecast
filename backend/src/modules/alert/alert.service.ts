@@ -6,6 +6,7 @@ import { AlertEntity } from './entities/alert.entity';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { AlertQueryDto } from './dto/alert-query.dto';
 import { FcmService } from './services/fcm.service';
+import { ExpoPushService } from './services/expo-push.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { AlertLevel, AlertType } from '@smart-forecast/shared';
@@ -32,6 +33,7 @@ export class AlertService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly fcmService: FcmService,
+    private readonly expoPushService: ExpoPushService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {
@@ -54,6 +56,9 @@ export class AlertService {
       sentAt: new Date(),
       expiresAt: createDto.expiresAt ? new Date(createDto.expiresAt) : null,
     });
+
+    // Save alert first to get the ID
+    const savedAlert = await this.alertRepository.save(alert);
 
     // Get users to notify (filtered by area if provided)
     let fcmTokens: string[] = [];
@@ -84,20 +89,22 @@ export class AlertService {
       this.logger.log(`Broadcasting to ${fcmTokens.length} users`);
     }
 
-    // Send FCM notifications
+    // Send push notifications (supports both Expo and FCM)
     if (fcmTokens.length > 0) {
-      const result = await this.fcmService.sendBulkNotification(fcmTokens, {
+      const result = await this.sendPushNotifications(fcmTokens, {
         title: createDto.title,
         body: createDto.message,
         data: {
-          alertId: alert.id || '',
+          alertId: savedAlert.id,
           level: createDto.level,
           type: createDto.type,
           advice: createDto.advice || '',
+          stationId: savedAlert.stationId || '',
+          area: createDto.area ? JSON.stringify(createDto.area) : '',
         },
       });
 
-      alert.sentCount = result.successCount;
+      savedAlert.sentCount = result.successCount;
 
       // Cleanup failed tokens
       if (result.failedTokens.length > 0) {
@@ -106,13 +113,17 @@ export class AlertService {
         );
         await this.cleanupFailedTokens(result.failedTokens);
       }
+
+      // Update sentCount in database
+      await this.alertRepository.update(savedAlert.id, {
+        sentCount: savedAlert.sentCount,
+      });
     } else {
-      alert.sentCount = 0;
+      savedAlert.sentCount = 0;
       this.logger.warn('No FCM tokens available to send alert');
     }
 
-    // Save alert to database
-    return this.alertRepository.save(alert);
+    return savedAlert;
   }
 
   /**
@@ -138,6 +149,9 @@ export class AlertService {
       expiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000), // Expires in 4 hours
     });
 
+    // Save alert first to get the ID
+    const savedAlert = await this.alertRepository.save(alert);
+
     // Get users to notify
     let fcmTokens: string[] = [];
 
@@ -160,28 +174,35 @@ export class AlertService {
         .filter((token) => token && token.length > 0);
     }
 
-    // Send notifications
+    // Send push notifications (supports both Expo and FCM)
     if (fcmTokens.length > 0) {
-      const result = await this.fcmService.sendBulkNotification(fcmTokens, {
+      const result = await this.sendPushNotifications(fcmTokens, {
         title,
         body: message,
         data: {
-          alertId: alert.id || '',
+          alertId: savedAlert.id,
           level,
           type,
           advice,
           isAutomatic: 'true',
+          stationId: stationId || '',
+          area: area ? JSON.stringify(area) : '',
         },
       });
 
-      alert.sentCount = result.successCount;
+      savedAlert.sentCount = result.successCount;
 
       if (result.failedTokens.length > 0) {
         await this.cleanupFailedTokens(result.failedTokens);
       }
+
+      // Update sentCount in database
+      await this.alertRepository.update(savedAlert.id, {
+        sentCount: savedAlert.sentCount,
+      });
     }
 
-    return this.alertRepository.save(alert);
+    return savedAlert;
   }
 
   /**
@@ -355,7 +376,91 @@ export class AlertService {
   }
 
   /**
-   * Cleanup failed FCM tokens
+   * Send push notifications via appropriate service based on token type
+   * Supports both Expo Push Tokens and FCM tokens
+   */
+  private async sendPushNotifications(
+    tokens: string[],
+    notification: {
+      title: string;
+      body: string;
+      data?: Record<string, string>;
+    },
+  ): Promise<{
+    successCount: number;
+    failureCount: number;
+    failedTokens: string[];
+  }> {
+    if (!tokens || tokens.length === 0) {
+      return { successCount: 0, failureCount: 0, failedTokens: [] };
+    }
+
+    // Separate tokens by type
+    const expoTokens = tokens.filter((t) => this.isExpoPushToken(t));
+    const fcmTokens = tokens.filter((t) => !this.isExpoPushToken(t));
+
+    this.logger.log(
+      `Sending notifications: ${expoTokens.length} Expo tokens, ${fcmTokens.length} FCM tokens`,
+    );
+
+    let totalSuccess = 0;
+    let totalFailure = 0;
+    const allFailedTokens: string[] = [];
+
+    // Send via Expo Push Service
+    if (expoTokens.length > 0) {
+      try {
+        const expoResult = await this.expoPushService.sendBulkNotification(
+          expoTokens,
+          notification,
+        );
+        totalSuccess += expoResult.successCount;
+        totalFailure += expoResult.failureCount;
+        allFailedTokens.push(...expoResult.failedTokens);
+      } catch (error) {
+        this.logger.error('Expo push failed:', error);
+        totalFailure += expoTokens.length;
+        allFailedTokens.push(...expoTokens);
+      }
+    }
+
+    // Send via FCM Service (for native FCM tokens)
+    if (fcmTokens.length > 0) {
+      try {
+        const fcmResult = await this.fcmService.sendBulkNotification(
+          fcmTokens,
+          notification,
+        );
+        totalSuccess += fcmResult.successCount;
+        totalFailure += fcmResult.failureCount;
+        allFailedTokens.push(...fcmResult.failedTokens);
+      } catch (error) {
+        this.logger.error('FCM push failed:', error);
+        totalFailure += fcmTokens.length;
+        allFailedTokens.push(...fcmTokens);
+      }
+    }
+
+    return {
+      successCount: totalSuccess,
+      failureCount: totalFailure,
+      failedTokens: allFailedTokens,
+    };
+  }
+
+  /**
+   * Check if token is Expo Push Token format
+   */
+  private isExpoPushToken(token: string): boolean {
+    return (
+      typeof token === 'string' &&
+      (token.startsWith('ExponentPushToken[') ||
+        token.startsWith('ExpoPushToken['))
+    );
+  }
+
+  /**
+   * Cleanup failed push tokens
    */
   private async cleanupFailedTokens(failedTokens: string[]): Promise<void> {
     if (failedTokens.length === 0) return;
@@ -372,7 +477,7 @@ export class AlertService {
 
       if (userIds.length > 0) {
         await this.userService.clearInvalidFcmTokens(userIds);
-        this.logger.log(`Cleaned up ${userIds.length} invalid FCM tokens`);
+        this.logger.log(`Cleaned up ${userIds.length} invalid push tokens`);
       }
     } catch (error) {
       this.logger.error('Error cleaning up failed tokens:', error);

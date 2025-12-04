@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,26 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router, useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, MapPin, X, RefreshCw, WifiOff } from 'lucide-react-native';
+import {
+  Camera,
+  MapPin,
+  X,
+  RefreshCw,
+  WifiOff,
+  Droplets,
+  TreeDeciduous,
+  Mountain,
+  Wind,
+  Construction,
+  HelpCircle,
+  LucideIcon,
+} from 'lucide-react-native';
+import { IncidentType, IncidentTypeLabels, IncidentTypeColors } from '@smart-forecast/shared';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
@@ -125,27 +139,32 @@ const updatePendingIncidentRetry = async (id: string, retryCount: number): Promi
   }
 };
 
-// Map to backend IncidentType enum
-const INCIDENT_TYPES = [
-  { value: 'FLOODING', label: 'Lũ lụt', color: '#3B82F6' },
-  { value: 'LANDSLIDE', label: 'Sạt lở đất', color: '#8B4513' },
-  { value: 'AIR_POLLUTION', label: 'Ô nhiễm', color: '#EF4444' },
-  { value: 'OTHER', label: 'Khác', color: '#F59E0B' },
-] as const;
+// Icon mapping for incident types
+const IncidentTypeIconComponents: Record<IncidentType, LucideIcon> = {
+  [IncidentType.FLOODING]: Droplets,
+  [IncidentType.FALLEN_TREE]: TreeDeciduous,
+  [IncidentType.LANDSLIDE]: Mountain,
+  [IncidentType.AIR_POLLUTION]: Wind,
+  [IncidentType.ROAD_DAMAGE]: Construction,
+  [IncidentType.OTHER]: HelpCircle,
+};
+
+// All incident types from shared package
+const ALL_INCIDENT_TYPES = Object.values(IncidentType);
 
 export default function ReportScreen() {
   const { location } = useAppStore();
   const { token: authToken } = useAuth();
   // Use mock token for testing, fallback to auth token
   const token = authToken;
-  const [selectedType, setSelectedType] = useState<(typeof INCIDENT_TYPES)[number]['value'] | null>(
-    null,
-  );
+  const [selectedType, setSelectedType] = useState<IncidentType | null>(null);
   const [description, setDescription] = useState('');
   const [imageUris, setImageUris] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasLaunchedCamera, setHasLaunchedCamera] = useState(false);
+  const isLaunchingCamera = useRef(false);
   const maxImages = 5;
 
   // Sync a single incident with retry and exponential backoff
@@ -287,66 +306,71 @@ export default function ReportScreen() {
     loadAndSync();
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const pickImage = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập thư viện ảnh');
-        return;
-      }
+  // Camera-first: auto launch camera when screen is focused and no images yet
+  const takePhoto = useCallback(
+    async (isAutoLaunch = false) => {
+      if (isLaunchingCamera.current) return;
+      isLaunchingCamera.current = true;
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'images' as any,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-      });
-
-      if (!result.canceled) {
-        const newUri = result.assets[0].uri;
-        if (imageUris.length < maxImages) {
-          setImageUris([...imageUris, newUri]);
-        } else {
-          Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+      try {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập camera để báo cáo sự cố');
+          if (isAutoLaunch && imageUris.length === 0) {
+            router.back();
+          }
+          return;
         }
-      }
-    } catch (error) {
-      console.error('Image picker error:', error);
-      Alert.alert('Lỗi', 'Không thể chọn ảnh. Vui lòng thử lại.');
-    }
-  };
 
-  const takePhoto = async () => {
-    try {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Cần cấp quyền', 'Vui lòng cấp quyền truy cập camera');
-        return;
-      }
+        const result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 0.8,
+        });
 
-      const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-      });
-
-      if (!result.canceled) {
-        const newUri = result.assets[0].uri;
-        if (imageUris.length < maxImages) {
-          setImageUris([...imageUris, newUri]);
+        if (!result.canceled) {
+          const newUri = result.assets[0].uri;
+          setImageUris((prev) => {
+            if (prev.length < maxImages) {
+              return [...prev, newUri];
+            } else {
+              Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+              return prev;
+            }
+          });
+          setHasLaunchedCamera(true);
         } else {
-          Alert.alert('Giới hạn ảnh', `Tối đa ${maxImages} ảnh được phép`);
+          // User canceled - if auto launch and no images, go back
+          if (isAutoLaunch && imageUris.length === 0) {
+            router.back();
+          }
         }
+      } catch (error) {
+        console.error('Camera error:', error);
+        Alert.alert('Lỗi Camera', 'Không thể mở camera. Vui lòng thử lại.');
+        if (isAutoLaunch && imageUris.length === 0) {
+          router.back();
+        }
+      } finally {
+        isLaunchingCamera.current = false;
       }
-    } catch (error) {
-      console.error('Camera error:', error);
-      // Fallback to image library if camera fails
-      Alert.alert('Lỗi Camera', 'Không thể mở camera. Bạn có muốn chọn ảnh từ thư viện không?', [
-        { text: 'Hủy', style: 'cancel' },
-        { text: 'Chọn từ thư viện', onPress: pickImage },
-      ]);
-    }
-  };
+    },
+    [imageUris.length, maxImages],
+  );
+
+  // Auto-launch camera when screen is focused (camera-first UX)
+  useFocusEffect(
+    useCallback(() => {
+      // Only auto-launch if no images and hasn't launched yet this session
+      if (imageUris.length === 0 && !hasLaunchedCamera && Platform.OS !== 'web') {
+        // Small delay to ensure screen is ready
+        const timer = setTimeout(() => {
+          takePhoto(true);
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }, [imageUris.length, hasLaunchedCamera, takePhoto]),
+  );
 
   const handleSubmit = async () => {
     if (!selectedType) {
@@ -535,32 +559,68 @@ export default function ReportScreen() {
           </View>
         )}
 
+        {/* Images Section - Now at top for camera-first UX */}
+        {imageUris.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Ảnh đã chụp</Text>
+            <View style={styles.imageGrid}>
+              {imageUris.map((uri, index) => (
+                <View key={index} style={styles.imageGridItem}>
+                  <View style={styles.imageContainer}>
+                    <Image source={{ uri }} style={styles.image} />
+                    <Pressable
+                      style={styles.removeImageButton}
+                      onPress={() => setImageUris(imageUris.filter((_, i) => i !== index))}
+                    >
+                      <X size={20} color={Colors.text.white} />
+                    </Pressable>
+                  </View>
+                </View>
+              ))}
+            </View>
+            <Text style={styles.imageCountText}>
+              {imageUris.length}/{maxImages} ảnh
+            </Text>
+          </>
+        )}
+
+        {/* Add More Photos Button */}
+        {imageUris.length > 0 && imageUris.length < maxImages && Platform.OS !== 'web' && (
+          <Pressable style={styles.addMoreButton} onPress={() => takePhoto(false)}>
+            <Camera size={20} color={Colors.text.white} />
+            <Text style={styles.addMoreButtonText}>Chụp thêm ảnh</Text>
+          </Pressable>
+        )}
+
         <Text style={styles.sectionTitle}>Loại sự cố</Text>
         <View style={styles.typeGrid}>
-          {INCIDENT_TYPES.map((type) => (
-            <Pressable
-              key={type.value}
-              style={[
-                styles.typeCard,
-                selectedType === type.value && styles.typeCardSelected,
-                { borderColor: type.color },
-              ]}
-              onPress={() => setSelectedType(type.value)}
-            >
-              <View
-                style={[
-                  styles.typeIndicator,
-                  { backgroundColor: type.color },
-                  selectedType === type.value && styles.typeIndicatorSelected,
-                ]}
-              />
-              <Text
-                style={[styles.typeLabel, selectedType === type.value && styles.typeLabelSelected]}
-              >
-                {type.label}
-              </Text>
-            </Pressable>
-          ))}
+          {ALL_INCIDENT_TYPES.map((type) => {
+            const IconComponent = IncidentTypeIconComponents[type];
+            const color = IncidentTypeColors[type];
+            const label = IncidentTypeLabels[type];
+            const isSelected = selectedType === type;
+
+            return (
+              <Pressable key={type} style={[styles.typeCard]} onPress={() => setSelectedType(type)}>
+                <View
+                  style={[
+                    styles.typeCardInner,
+                    { borderColor: isSelected ? color : Colors.border },
+                    isSelected && { backgroundColor: `${color}15` },
+                  ]}
+                >
+                  <View style={[styles.typeIconContainer, { backgroundColor: `${color}20` }]}>
+                    <IconComponent size={24} color={color} />
+                  </View>
+                  <Text
+                    style={[styles.typeLabel, isSelected && { color: color, fontWeight: '600' }]}
+                  >
+                    {label}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
 
         <Text style={styles.sectionTitle}>Mô tả</Text>
@@ -574,43 +634,6 @@ export default function ReportScreen() {
           onChangeText={setDescription}
           textAlignVertical="top"
         />
-
-        <Text style={styles.sectionTitle}>Ảnh minh chứng (Tùy chọn)</Text>
-
-        {imageUris.length > 0 ? (
-          <View style={styles.imageGrid}>
-            {imageUris.map((uri, index) => (
-              <View key={index} style={styles.imageGridItem}>
-                <View style={styles.imageContainer}>
-                  <Image source={{ uri }} style={styles.image} />
-                  <Pressable
-                    style={styles.removeImageButton}
-                    onPress={() => setImageUris(imageUris.filter((_, i) => i !== index))}
-                  >
-                    <X size={20} color={Colors.text.white} />
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-          </View>
-        ) : null}
-
-        {imageUris.length < maxImages && (
-          <View style={styles.imageButtons}>
-            {Platform.OS !== 'web' && (
-              <Pressable style={styles.imageButton} onPress={takePhoto}>
-                <Camera size={24} color={Colors.primary.blue} />
-                <Text style={styles.imageButtonText}>Chụp ảnh</Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-
-        {imageUris.length > 0 && (
-          <Text style={styles.imageCountText}>
-            {imageUris.length}/{maxImages} ảnh
-          </Text>
-        )}
 
         <View style={styles.locationInfo}>
           <MapPin size={16} color={Colors.text.secondary} />
@@ -663,34 +686,25 @@ const styles = StyleSheet.create({
   typeCardInner: {
     backgroundColor: Colors.background.card,
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: Colors.border,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  typeCardSelected: {
-    borderWidth: 2,
-  },
-  typeIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  typeIndicatorSelected: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+  typeIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   typeLabel: {
-    fontSize: 14,
+    flex: 1,
+    fontSize: 13,
     color: Colors.text.secondary,
     fontWeight: '500' as const,
-  },
-  typeLabelSelected: {
-    color: Colors.text.primary,
-    fontWeight: '600' as const,
   },
   textArea: {
     backgroundColor: Colors.background.card,
@@ -835,5 +849,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600' as const,
     color: Colors.primary.blue,
+  },
+  // Add more photos button
+  addMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary.blue,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 20,
+    gap: 8,
+  },
+  addMoreButtonText: {
+    fontSize: 15,
+    fontWeight: '600' as const,
+    color: Colors.text.white,
   },
 });
