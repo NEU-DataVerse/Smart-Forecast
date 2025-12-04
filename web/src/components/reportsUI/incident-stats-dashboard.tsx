@@ -12,6 +12,7 @@ import {
   IncidentStatus,
   IncidentTypeLabels,
   IncidentStatusLabels,
+  IncidentTypeColors,
 } from '@smart-forecast/shared';
 import {
   PieChart,
@@ -30,15 +31,8 @@ import {
 } from 'recharts';
 import { AlertTriangle, CheckCircle, Clock, TrendingUp, XCircle, Loader } from 'lucide-react';
 
-// Colors for incident types
-const TYPE_COLORS: Record<string, string> = {
-  [IncidentType.FLOODING]: '#3b82f6', // blue
-  [IncidentType.FALLEN_TREE]: '#22c55e', // green
-  [IncidentType.LANDSLIDE]: '#f59e0b', // amber
-  [IncidentType.AIR_POLLUTION]: '#8b5cf6', // purple
-  [IncidentType.ROAD_DAMAGE]: '#ef4444', // red
-  [IncidentType.OTHER]: '#6b7280', // gray
-};
+// Colors for incident types - use shared package
+const TYPE_COLORS: Record<string, string> = IncidentTypeColors;
 
 // Colors for statuses
 const STATUS_COLORS: Record<string, string> = {
