@@ -132,14 +132,13 @@ jobs:
           cp -r shared/dist backend-deploy/shared/
           cp shared/package.json backend-deploy/shared/
 
-          # Tạo production node_modules bằng pnpm deploy
-          cd backend
-          pnpm deploy --prod ../backend-deploy/node_modules_temp
-          cd ..
+          # Tạo production node_modules
+          # Sử dụng pnpm deploy với filter để chỉ định package
+          pnpm --filter backend deploy --prod backend-deploy-temp
 
           # Move node_modules vào đúng vị trí
-          mv backend-deploy/node_modules_temp/node_modules backend-deploy/
-          rm -rf backend-deploy/node_modules_temp
+          mv backend-deploy-temp/node_modules backend-deploy/
+          rm -rf backend-deploy-temp
 
           # Tạo file README hướng dẫn deploy
           cat > backend-deploy/README.md << 'EOF'
