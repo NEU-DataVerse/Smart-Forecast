@@ -125,6 +125,8 @@ services:
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - MINIO_USE_SSL=false
       - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-incidents}
+      # Public URL for file access from browser/mobile (external port 8002)
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:8002}
       # JWT
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-7d}
