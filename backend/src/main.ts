@@ -54,15 +54,13 @@ async function bootstrap() {
   // Public API routes: allow all origins
   // Protected API routes: restrict to specific origins
   app.enableCors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, Postman, curl, etc.)
-      if (!origin) {
-        return callback(null, true);
-      }
-      // Allow all origins for now (demo mode)
-      // In production, you may want to restrict this
-      return callback(null, true);
-    },
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:8001', // Docker web frontend
+      // Allow any origin in development/testing
+      ...(process.env.CORS_ORIGINS?.split(',') || []),
+    ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

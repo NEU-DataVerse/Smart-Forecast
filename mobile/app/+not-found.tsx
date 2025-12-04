@@ -6,13 +6,13 @@ import Colors from '@/constants/colors';
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Page Not Found' }} />
+      <Stack.Screen options={{ title: 'Không tìm thấy trang' }} />
       <View style={styles.container}>
         <AlertCircle size={64} color={Colors.text.light} />
-        <Text style={styles.title}>Page not found</Text>
-        <Text style={styles.subtitle}>The page you are looking for does not exist.</Text>
+        <Text style={styles.title}>Không tìm thấy trang</Text>
+        <Text style={styles.subtitle}>Trang bạn đang tìm kiếm không tồn tại.</Text>
         <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to Home</Text>
+          <Text style={styles.linkText}>Về trang chủ</Text>
         </Link>
       </View>
     </>

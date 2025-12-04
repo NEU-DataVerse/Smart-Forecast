@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
+import { useAuth } from './AuthContext';
 import { userApi } from '@/services/api';
 
 type NotificationSubscription =
@@ -31,10 +32,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [fcmTokenSent, setFcmTokenSent] = useState(false);
+
+  const { token: authToken, isAuthenticated } = useAuth();
 
   const notificationListener = useRef<NotificationSubscription | null>(null);
   const responseListener = useRef<NotificationSubscription | null>(null);
 
+  // Register for push notifications
   useEffect(() => {
     registerForPushNotificationsAsync().then(
       async (token) => {
@@ -76,6 +81,32 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       }
     };
   }, []);
+
+  // Send FCM token to backend when user is authenticated and token is available
+  useEffect(() => {
+    const sendFcmTokenToBackend = async () => {
+      if (expoPushToken && authToken && isAuthenticated && !fcmTokenSent) {
+        try {
+          console.log('📤 Sending FCM token to backend:', expoPushToken);
+          await userApi.updateFcmToken(expoPushToken, authToken);
+          setFcmTokenSent(true);
+          console.log('✅ FCM token sent to backend successfully');
+        } catch (error) {
+          console.error('❌ Failed to send FCM token to backend:', error);
+          // Don't set fcmTokenSent to allow retry on next render
+        }
+      }
+    };
+
+    sendFcmTokenToBackend();
+  }, [expoPushToken, authToken, isAuthenticated, fcmTokenSent]);
+
+  // Reset fcmTokenSent when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setFcmTokenSent(false);
+    }
+  }, [isAuthenticated]);
 
   return (
     <NotificationContext.Provider value={{ expoPushToken, notification, error }}>

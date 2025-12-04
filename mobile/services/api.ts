@@ -1,33 +1,20 @@
 import axios from 'axios';
-import { Platform } from 'react-native';
 import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
 import type {
   IAlert,
   IAlertQueryParams,
-  AlertLevel,
-  AlertType,
   IIncident,
   IIncidentQueryParams,
 } from '@smart-forecast/shared';
 
-// Backend API URL - use 10.0.2.2 for Android emulator to access host localhost
-const getBackendUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl) return envUrl;
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:8000/api/v1';
-  }
-  return 'http://localhost:8000/api/v1';
+export const getBackendUrl = (): string | undefined => {
+  return process.env.EXPO_PUBLIC_API_URL;
 };
 
 const BACKEND_URL = getBackendUrl();
 
-// TODO: Remove this mock token after implementing proper auth
-const MOCK_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJlbWFpbCI6ImFkbWluQHNtYXJ0Zm9yZWNhc3QuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY0NjkxNjMyLCJleHAiOjE3NjUyOTY0MzJ9.CsCFj7nqu_R1cRk5vULIzXpKU5Oj0ntgJANxqCwTSdc';
-
 export const weatherApi = {
-  // Get weather data from backend API (via Orion-LD)
+  // Lấy dữ liệu thời tiết từ backend API (qua Orion-LD)
   async getNearbyWeather(
     lat: number,
     lon: number,
@@ -35,7 +22,6 @@ export const weatherApi = {
     include: 'current' | 'forecast' | 'both' = 'current',
   ): Promise<NearbyWeatherResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<NearbyWeatherResponse>(`${BACKEND_URL}/weather/nearby`, {
         params: {
           lat,
@@ -44,27 +30,26 @@ export const weatherApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error('Lỗi khi lấy dữ liệu thời tiết:', error);
       throw error;
     }
   },
 };
 
 export const airQualityApi = {
-  // Get nearby air quality data from backend API
+  // Lấy dữ liệu chất lượng không khí gần đây từ backend API
   async getNearbyAirQuality(
     lat: number,
     lon: number,
     token?: string,
   ): Promise<NearbyAirQualityResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<NearbyAirQualityResponse>(
         `${BACKEND_URL}/air-quality/nearby`,
         {
@@ -75,20 +60,20 @@ export const airQualityApi = {
           },
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer ${authToken}`,
+            ...(token && { Authorization: `Bearer ${token}` }),
           },
         },
       );
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching air quality data:', error);
+      console.error('Lỗi khi lấy dữ liệu chất lượng không khí:', error);
       throw error;
     }
   },
 };
 
-// Auth API response types
+// Kiểu dữ liệu Auth API
 export interface AuthUser {
   id: string;
   email: string;
@@ -104,7 +89,7 @@ export interface GoogleAuthResponse {
 }
 
 export const authApi = {
-  // Google Sign-In - send idToken to backend for verification
+  // Đăng nhập Google - gửi idToken đến backend để xác thực
   async googleSignIn(idToken: string): Promise<GoogleAuthResponse> {
     try {
       const response = await axios.post<GoogleAuthResponse>(
@@ -120,13 +105,13 @@ export const authApi = {
 
       return response.data;
     } catch (error) {
-      console.error('Error with Google sign-in:', error);
+      console.error('Lỗi đăng nhập Google:', error);
       throw error;
     }
   },
 };
 
-// Alert API types
+// Kiểu dữ liệu Alert API
 export interface AlertListResponse {
   data: IAlert[];
   total: number;
@@ -135,28 +120,26 @@ export interface AlertListResponse {
 }
 
 export const alertApi = {
-  // Get active alerts (non-expired)
+  // Lấy cảnh báo đang hoạt động (chưa hết hạn)
   async getActiveAlerts(token?: string): Promise<IAlert[]> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<IAlert[]>(`${BACKEND_URL}/alert/active`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching active alerts:', error);
+      console.error('Lỗi khi lấy cảnh báo đang hoạt động:', error);
       throw error;
     }
   },
 
-  // Get alerts with filters and pagination
+  // Lấy cảnh báo với bộ lọc và phân trang
   async getAlerts(params?: IAlertQueryParams, token?: string): Promise<AlertListResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<AlertListResponse>(`${BACKEND_URL}/alert`, {
         params: {
           page: params?.page ?? 1,
@@ -168,19 +151,19 @@ export const alertApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching alerts:', error);
+      console.error('Lỗi khi lấy danh sách cảnh báo:', error);
       throw error;
     }
   },
 };
 
-// Incident API types
+// Kiểu dữ liệu Incident API
 export interface IncidentListResponse {
   data: IIncident[];
   total: number;
@@ -189,13 +172,12 @@ export interface IncidentListResponse {
 }
 
 export const incidentApi = {
-  // Get current user's incidents
+  // Lấy sự cố của người dùng hiện tại
   async getMyIncidents(
     params?: IIncidentQueryParams,
     token?: string,
   ): Promise<IncidentListResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident/my-reports`, {
         params: {
           page: params?.page ?? 1,
@@ -207,21 +189,20 @@ export const incidentApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching user incidents:', error);
+      console.error('Lỗi khi lấy sự cố của người dùng:', error);
       throw error;
     }
   },
 
-  // Get all incidents with filters
+  // Lấy tất cả sự cố với bộ lọc
   async getIncidents(params?: IIncidentQueryParams, token?: string): Promise<IncidentListResponse> {
     try {
-      const authToken = token || MOCK_TOKEN;
       const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident`, {
         params: {
           page: params?.page ?? 1,
@@ -234,13 +215,39 @@ export const incidentApi = {
         },
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${authToken}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching incidents:', error);
+      console.error('Lỗi khi lấy danh sách sự cố:', error);
+      throw error;
+    }
+  },
+};
+
+// User API
+export const userApi = {
+  // Cập nhật FCM token (ExponentPushToken) để nhận push notifications
+  async updateFcmToken(fcmToken: string, token: string): Promise<{ message: string }> {
+    try {
+      const response = await axios.put<{ message: string }>(
+        `${BACKEND_URL}/users/fcm-token`,
+        { fcmToken },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log('✅ FCM token updated successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Lỗi khi cập nhật FCM token:', error);
       throw error;
     }
   },

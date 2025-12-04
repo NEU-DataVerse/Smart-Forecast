@@ -14,11 +14,11 @@ services:
     image: fiware/orion-ld:latest
     hostname: orion
     container_name: orion
-    ports:
-      - '1026:1026'
+    # Internal only - no external port exposed
     command: -dbhost mongodb -dbuser ${MONGO_INITDB_ROOT_USERNAME} -dbpwd ${MONGO_INITDB_ROOT_PASSWORD} -logLevel ${ORION_LOG_LEVEL:-DEBUG}
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - smart-forecast-net
     healthcheck:
@@ -32,8 +32,7 @@ services:
     image: mongo:4.4
     hostname: mongodb
     container_name: mongodb
-    ports:
-      - '27017:27017'
+    # Internal only - no external port exposed
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -54,8 +53,7 @@ services:
     image: postgis/postgis:14-3.4-alpine
     hostname: postgres
     container_name: postgres
-    ports:
-      - '5432:5432'
+    # Internal only - no external port exposed
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -76,10 +74,10 @@ services:
     hostname: minio
     container_name: minio
     ports:
-      # API port
-      - '9000:9000'
+      # API port - for browser access to images
+      - '8002:9000'
       # Console (web UI)
-      - '9001:9001'
+      - '8003:9001'
     command: server /data --console-address ":9001"
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
@@ -97,21 +95,119 @@ services:
 
   # ===== BACKEND API =====
 
-  # backend:
-  #   container_name: backend
-  #   build:
-  #     context: .
-  #     dockerfile: ./backend/Dockerfile
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - ./backend:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - orion
-  #     - postgres
-  #     - minio
-  #   networks:
-  #     - smart-forecast-net
+  backend:
+    container_name: backend
+    hostname: backend
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - '8000:8000'
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - API_PREFIX=api/v1
+      # CORS - additional origins (comma-separated)
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
+      # Database sync - set to true on first run to create tables
+      - DB_SYNC=${DB_SYNC:-false}
+      # Database connections (use container hostnames)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - MONGO_URL=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/orion?authSource=admin
+      # Orion-LD
+      - ORION_LD_URL=http://orion:1026
+      - ORION_LD_API_VERSION=ngsi-ld/v1
+      - ORION_LD_TENANT=${ORION_LD_TENANT:-}
+      # MinIO (internal connection)
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - MINIO_USE_SSL=false
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-incidents}
+      # JWT
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-7d}
+      # External APIs
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
+      # Firebase (optional)
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY:-}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL:-}
+      # Google OAuth
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      # Alert config
+      - ALERT_BUFFER_KM=${ALERT_BUFFER_KM:-5}
+    depends_on:
+      orion:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ===== WEB FRONTEND =====
+
+  web:
+    container_name: web
+    hostname: web
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+    ports:
+      - '8001:3000'
+    environment:
+      - NODE_ENV=production
+      # These are build-time vars, but can be overridden at runtime
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+      - NEXT_PUBLIC_MINIO_URL=${NEXT_PUBLIC_MINIO_URL:-http://localhost:8002}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - smart-forecast-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ===== DATABASE SEED (One-time run) =====
+  # Usage: docker compose run --rm seed
+  # Or with options: docker compose run --rm seed force
+
+  seed:
+    profiles: ['seed']
+    container_name: seed
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - MONGO_URL=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/orion?authSource=admin
+      - ORION_LD_URL=http://orion:1026
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - MINIO_USE_SSL=false
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-incidents}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - smart-forecast-net
+    entrypoint: ['node', 'dist/database/seeds/seed.js']
+    command: []

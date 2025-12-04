@@ -54,7 +54,7 @@ export default function ScreenshotCarousel(): ReactNode {
       <div className="container">
         <div className={styles.sectionHeader}>
           <Heading as="h2" className={styles.sectionTitle}>
-            📸 Giao diện ứng dụng
+            Giao diện ứng dụng
           </Heading>
           <p className={styles.sectionSubtitle}>Khám phá các tính năng qua giao diện trực quan</p>
         </div>

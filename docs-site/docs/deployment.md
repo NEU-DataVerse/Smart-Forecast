@@ -23,28 +23,112 @@ Hướng dẫn triển khai Smart Forecast với Docker Compose.
 ## Cấu trúc Docker Services
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Docker Compose                        │
-├─────────────┬─────────────┬─────────────┬───────────────┤
-│   Orion-LD  │  PostgreSQL │   MongoDB   │     MinIO     │
-│   :1026     │   :5432     │   :27017    │  :9000/:9001  │
-├─────────────┴─────────────┴─────────────┴───────────────┤
-│               smart-forecast-net (network)               │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      Docker Compose                              │
+├─────────────┬─────────────┬─────────────┬───────────────────────┤
+│   Backend   │     Web     │    MinIO    │       Orion-LD        │
+│   :8000     │   :8001     │ :8002/:8003 │    (internal)         │
+├─────────────┴─────────────┴─────────────┴───────────────────────┤
+│   PostgreSQL (internal)  │  MongoDB (internal)                   │
+├─────────────────────────────────────────────────────────────────┤
+│                  smart-forecast-net (network)                    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Services
 
-| Service    | Image                         | Port             | Mô tả                  |
-| ---------- | ----------------------------- | ---------------- | ---------------------- |
-| `orion`    | fiware/orion-ld:latest        | 1026             | NGSI-LD Context Broker |
-| `mongodb`  | mongo:4.4                     | 27017 (internal) | Database cho Orion-LD  |
-| `postgres` | postgis/postgis:14-3.4-alpine | 5432             | Database chính         |
-| `minio`    | minio/minio:latest            | 9000, 9001       | Object Storage         |
+| Service    | Image                         | Port External      | Port Internal | Mô tả                  |
+| ---------- | ----------------------------- | ------------------ | ------------- | ---------------------- |
+| `backend`  | smartforecast-backend         | **8000**           | 8000          | NestJS API Server      |
+| `web`      | smartforecast-web             | **8001**           | 3000          | Next.js Web Dashboard  |
+| `minio`    | minio/minio:latest            | **8002**, **8003** | 9000, 9001    | Object Storage         |
+| `orion`    | fiware/orion-ld:latest        | -                  | 1026          | NGSI-LD Context Broker |
+| `mongodb`  | mongo:4.4                     | -                  | 27017         | Database cho Orion-LD  |
+| `postgres` | postgis/postgis:14-3.4-alpine | -                  | 5432          | Database chính         |
+
+:::info Port Range
+Project được cấu hình sử dụng port **8000-8010** để phù hợp với các server có giới hạn port.
+:::
 
 ---
 
-## Cấu hình
+## Quick Start
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
+cd Smart-Forecast
+```
+
+### 2. Cấu hình môi trường
+
+```bash
+cp .env.example .env
+```
+
+Chỉnh sửa file `.env`:
+
+```bash
+# ===== BẮT BUỘC thay đổi cho production =====
+POSTGRES_PASSWORD=your_secure_password
+MONGO_INITDB_ROOT_PASSWORD=your_secure_password
+MINIO_ROOT_PASSWORD=your_secure_password
+JWT_SECRET=your_very_long_random_secret_key_at_least_32_chars
+
+# ===== API Keys =====
+OPENWEATHERMAP_API_KEY=your_actual_api_key
+
+# ===== Server URLs (thay YOUR_SERVER_IP) =====
+CORS_ORIGINS=http://YOUR_SERVER_IP:8001
+NEXT_PUBLIC_API_URL=http://YOUR_SERVER_IP:8000/api/v1
+NEXT_PUBLIC_MINIO_URL=http://YOUR_SERVER_IP:8002
+```
+
+### 3. Build và khởi động
+
+```bash
+# Build và start tất cả services
+docker compose up -d --build
+```
+
+### 4. Tạo database tables (lần đầu)
+
+```bash
+# Chạy với DB_SYNC=true để tạo tables
+DB_SYNC=true docker compose up -d backend
+
+# Đợi backend healthy (~30s)
+docker compose ps
+```
+
+### 5. Seed dữ liệu mẫu
+
+```bash
+docker compose exec backend node dist/database/seeds/seed.js
+```
+
+### 6. Kiểm tra
+
+```bash
+# Xem status
+docker compose ps
+
+# Tất cả services phải hiển thị "healthy"
+```
+
+### 7. Truy cập
+
+| Service       | URL                               |
+| ------------- | --------------------------------- |
+| Web Dashboard | http://YOUR_SERVER_IP:8001        |
+| Backend API   | http://YOUR_SERVER_IP:8000/api/v1 |
+| Swagger Docs  | http://YOUR_SERVER_IP:8000/api    |
+| MinIO Console | http://YOUR_SERVER_IP:8003        |
+
+---
+
+## Cấu hình chi tiết
 
 ### Biến môi trường
 
@@ -54,215 +138,149 @@ Tạo file `.env` từ template:
 cp .env.example .env
 ```
 
-Các biến quan trọng:
+#### Database
 
 ```bash
-# Database
+# PostgreSQL
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=your_secure_password
 POSTGRES_DB=smart_forecast_db
 
-# MinIO
+# MongoDB (cho Orion-LD)
+MONGO_INITDB_ROOT_USERNAME=admin
+MONGO_INITDB_ROOT_PASSWORD=your_secure_password
+```
+
+#### Storage
+
+```bash
+# MinIO Object Storage
 MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=your_secure_password
-
-# Orion-LD
-ORION_PORT=1026
+MINIO_BUCKET_NAME=incidents
 ```
 
-### docker-compose.yml
+#### Backend
 
-```yaml
-services:
-  orion:
-    image: fiware/orion-ld:latest
-    ports:
-      - '1026:1026'
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:1026/version']
-      interval: 30s
-      timeout: 10s
-      retries: 3
+```bash
+# JWT Authentication
+JWT_SECRET=your_very_secure_jwt_secret_key_change_this_in_production
+JWT_EXPIRATION=7d
 
-  mongodb:
-    image: mongo:4.4
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ['CMD', 'mongo', '--eval', "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+# CORS - origins được phép truy cập API (comma-separated)
+CORS_ORIGINS=http://192.168.1.100:8001,https://your-domain.com
 
-  postgres:
-    image: postgis/postgis:14-3.4-alpine
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
-      interval: 30s
-      timeout: 10s
-      retries: 3
+# Database sync - chỉ bật lần đầu để tạo tables
+DB_SYNC=false
 
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
-    ports:
-      - '9000:9000'
-      - '9001:9001'
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
-      interval: 30s
-      timeout: 10s
-      retries: 3
+# External APIs
+OPENWEATHERMAP_API_KEY=your_api_key
 
-volumes:
-  mongo_data:
-  postgres_data:
-  minio_data:
+# Firebase (optional - cho push notifications)
+FIREBASE_PROJECT_ID=
+FIREBASE_PRIVATE_KEY=
+FIREBASE_CLIENT_EMAIL=
 
-networks:
-  default:
-    name: smart-forecast-net
+# Google OAuth (optional - cho mobile login)
+GOOGLE_CLIENT_ID=
+```
+
+#### Frontend
+
+```bash
+# API URL mà browser sẽ gọi
+NEXT_PUBLIC_API_URL=http://YOUR_SERVER_IP:8000/api/v1
+
+# MinIO URL để load ảnh
+NEXT_PUBLIC_MINIO_URL=http://YOUR_SERVER_IP:8002
 ```
 
 ---
 
-## Các lệnh triển khai
+## Các lệnh Docker Compose
 
-### Sử dụng Makefile (khuyến nghị)
-
-```bash
-# Xem tất cả lệnh
-make help
-
-# Khởi động services
-make up
-
-# Dừng services
-make down
-
-# Xem logs
-make logs
-
-# Xem status
-make ps
-
-# Kiểm tra health
-make health
-
-# Restart services
-make restart
-
-# Clean toàn bộ (cẩn thận - xóa data)
-make clean
-```
-
-### Sử dụng Docker Compose trực tiếp
+### Quản lý services
 
 ```bash
-# Khởi động
+# Khởi động tất cả
 docker compose up -d
 
-# Dừng
-docker compose down
-
-# Xem logs
-docker compose logs -f
-
-# Xem logs service cụ thể
-docker compose logs -f orion
-
-# Restart
-docker compose restart
-
-# Xem status
-docker compose ps
-
-# Rebuild
+# Khởi động với rebuild
 docker compose up -d --build
 
-# Xóa tất cả (bao gồm volumes)
-docker compose down -v
+# Dừng tất cả
+docker compose down
+
+# Restart service cụ thể
+docker compose restart backend
+
+# Rebuild service cụ thể
+docker compose up -d --build backend
+```
+
+### Xem logs
+
+```bash
+# Tất cả services
+docker compose logs -f
+
+# Service cụ thể
+docker compose logs -f backend
+docker compose logs -f web
+
+# Chỉ 50 dòng cuối
+docker compose logs --tail 50 backend
+```
+
+### Kiểm tra status
+
+```bash
+# Status tất cả containers
+docker compose ps
+
+# Chi tiết resource usage
+docker stats
+```
+
+### Truy cập container
+
+```bash
+# Vào shell của backend
+docker compose exec backend sh
+
+# Chạy command trong container
+docker compose exec backend node dist/database/seeds/seed.js
 ```
 
 ---
 
-## Setup Scripts
+## Database Management
 
-### Linux/macOS
-
-```bash
-# Cấp quyền execute
-chmod +x scripts/setup.sh
-chmod +x scripts/health-check.sh
-
-# Chạy setup
-./scripts/setup.sh
-```
-
-Script sẽ:
-
-1. Kiểm tra Docker & Docker Compose
-2. Tạo file `.env` từ template
-3. Tạo các thư mục cần thiết
-4. Pull Docker images
-5. Khởi động services
-6. Kiểm tra health
-
-### Windows
-
-```cmd
-# Command Prompt
-scripts\setup.bat
-
-# PowerShell
-.\scripts\setup.bat
-```
-
-### Health Check
+### Tạo tables (lần đầu)
 
 ```bash
-# Linux/macOS/Git Bash
-./scripts/health-check.sh
+# Bật DB_SYNC để TypeORM tự động tạo tables
+DB_SYNC=true docker compose up -d backend
 
-# Hoặc dùng Makefile
-make health
+# Đợi ~30s rồi tắt DB_SYNC
+docker compose up -d backend
 ```
 
----
-
-## Quản lý dữ liệu
-
-### Seed Database
-
-Sau khi khởi động Docker services, cần seed dữ liệu mẫu:
+### Seed dữ liệu
 
 ```bash
-cd backend
-npm run seed:force
+# Seed nếu database rỗng
+docker compose exec backend node dist/database/seeds/seed.js
+
+# Force reseed (xóa và seed lại)
+docker compose exec backend node dist/database/seeds/seed.js force
+
+# Seed base data (không có fake weather/air-quality)
+docker compose exec backend node dist/database/seeds/seed.js --skip-env
+
+# Xóa tất cả dữ liệu
+docker compose exec backend node dist/database/seeds/seed.js clear
 ```
-
-#### Các lệnh seed
-
-| Command                   | Mô tả                                              |
-| ------------------------- | -------------------------------------------------- |
-| `npm run seed`            | Seed nếu DB rỗng                                   |
-| `npm run seed:force`      | Force reseed (xóa và seed lại tất cả)              |
-| `npm run seed:base`       | Seed base data (không có fake weather/air-quality) |
-| `npm run seed:base:force` | Force reseed base data                             |
-| `npm run seed:clear`      | Xóa tất cả dữ liệu                                 |
 
 #### Dữ liệu được seed
 
@@ -273,70 +291,97 @@ npm run seed:force
 | `weather_observed`     | Dữ liệu thời tiết            | ~256 (7 ngày) |
 | `air_quality_observed` | Dữ liệu chất lượng không khí | ~256 (7 ngày) |
 | `incidents`            | Báo cáo sự cố                | 11            |
-| `alert_thresholds`     | Ngưỡng cảnh báo              | 4             |
+| `alert_thresholds`     | Ngưỡng cảnh báo              | 19            |
 | `alerts`               | Cảnh báo môi trường          | 10            |
 
-:::tip Sử dụng dữ liệu thật từ OpenWeatherMap
-Nếu muốn sử dụng dữ liệu thật thay vì fake data:
+:::tip Tài khoản mặc định
+Sau khi seed, có thể đăng nhập với:
 
-```bash
-# 1. Seed base data (users, stations, incidents, alerts)
-npm run seed:base:force
-
-# 2. Vào Dashboard web → "Thu thập dữ liệu lịch sử" để lấy data thật
-```
-
-:::
+- **Admin**: admin@smartforecast.vn / Admin@123
+- **User**: user@smartforecast.vn / User@123
+  :::
 
 ### Backup
 
 ```bash
-# Backup tất cả
-make backup
+# Backup PostgreSQL
+docker compose exec postgres pg_dump -U admin smart_forecast_db > backup.sql
 
-# Backup riêng lẻ
-# PostgreSQL
+# Backup tất cả volumes
 docker run --rm \
-  -v smart-forecast_postgres_data:/data \
+  -v smartforecast_postgres_data:/data \
   -v $(pwd)/backups:/backup \
   alpine tar czf /backup/postgres-$(date +%Y%m%d).tar.gz -C /data .
-
-# MongoDB
-docker run --rm \
-  -v smart-forecast_mongo_data:/data \
-  -v $(pwd)/backups:/backup \
-  alpine tar czf /backup/mongo-$(date +%Y%m%d).tar.gz -C /data .
-
-# MinIO
-docker run --rm \
-  -v smart-forecast_minio_data:/data \
-  -v $(pwd)/backups:/backup \
-  alpine tar czf /backup/minio-$(date +%Y%m%d).tar.gz -C /data .
 ```
 
 ### Restore
 
 ```bash
-# PostgreSQL
-docker compose stop postgres
-docker run --rm \
-  -v smart-forecast_postgres_data:/data \
-  -v $(pwd)/backups:/backup \
-  alpine tar xzf /backup/postgres-YYYYMMDD.tar.gz -C /data
-docker compose start postgres
+# Restore PostgreSQL
+cat backup.sql | docker compose exec -T postgres psql -U admin smart_forecast_db
 ```
 
-### Xóa volumes
+---
+
+## Production Deployment
+
+### Checklist trước khi deploy
+
+- [ ] Đổi tất cả passwords trong `.env`
+- [ ] Cấu hình `JWT_SECRET` với chuỗi random dài
+- [ ] Cấu hình `CORS_ORIGINS` với domain/IP server
+- [ ] Cấu hình `NEXT_PUBLIC_API_URL` và `NEXT_PUBLIC_MINIO_URL`
+- [ ] Có API key OpenWeatherMap hợp lệ
+- [ ] Server có đủ RAM (≥4GB) và disk (≥10GB)
+- [ ] Ports 8000-8003 được mở trên firewall
+
+### Deploy step-by-step
 
 ```bash
-# Xóa tất cả volumes
-docker compose down -v
+# 1. Clone và checkout
+git clone https://github.com/NEU-DataVerse/Smart-Forecast.git
+cd Smart-Forecast
 
-# Xóa volume cụ thể
-docker volume rm smart-forecast_postgres_data
+# 2. Cấu hình .env
+cp .env.example .env
+nano .env  # Chỉnh sửa các biến
 
-# Prune unused volumes
-docker volume prune
+# 3. Build images
+docker compose build
+
+# 4. Start infrastructure trước
+docker compose up -d postgres mongodb orion minio
+
+# 5. Đợi healthy
+sleep 60
+docker compose ps
+
+# 6. Start backend với DB_SYNC
+DB_SYNC=true docker compose up -d backend
+
+# 7. Đợi backend healthy và seed data
+sleep 30
+docker compose exec backend node dist/database/seeds/seed.js
+
+# 8. Restart backend (tắt DB_SYNC)
+docker compose up -d backend
+
+# 9. Start web
+docker compose up -d web
+
+# 10. Verify
+docker compose ps
+curl http://localhost:8000/api
+```
+
+### Cấu hình Mobile App
+
+Sau khi server chạy, cập nhật `mobile/.env`:
+
+```bash
+EXPO_PUBLIC_API_URL=http://YOUR_SERVER_IP:8000/api/v1
+EXPO_PUBLIC_MINIO_URL=http://YOUR_SERVER_IP:8002
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_google_client_id
 ```
 
 ---
@@ -346,130 +391,128 @@ docker volume prune
 ### Kiểm tra thủ công
 
 ```bash
-# Orion-LD
-curl http://localhost:1026/version
+# Backend API
+curl http://localhost:8000/api
+
+# Web Frontend
+curl -I http://localhost:8001
+
+# MinIO
+curl http://localhost:8002/minio/health/live
 
 # PostgreSQL
 docker compose exec postgres pg_isready -U admin
 
-# MinIO
-curl http://localhost:9000/minio/health/live
+# Orion-LD (internal)
+docker compose exec orion curl http://localhost:1026/version
 ```
 
 ### Kết quả mong đợi
 
-```
-================================
-Smart-Forecast Health Check
-================================
-
-Testing Service Endpoints...
------------------------------------
-Testing Orion Context Broker... OK
-Testing Backend API... OK
-Testing MinIO Health... OK
-
-Testing Database Connections...
------------------------------------
-Testing PostgreSQL... OK
-Testing MongoDB... OK
-
-All services are running and healthy!
-```
-
----
-
-## Service URLs
-
-| Service       | URL                   | Credentials             |
-| ------------- | --------------------- | ----------------------- |
-| Orion-LD      | http://localhost:1026 | -                       |
-| MinIO Console | http://localhost:9001 | minioadmin / minioadmin |
-| PostgreSQL    | localhost:5432        | admin / admin           |
-| Backend API   | http://localhost:8000 | -                       |
-| Web Dashboard | http://localhost:3000 | -                       |
-
----
-
-## Scaling
-
-### Scale services
-
 ```bash
-# Scale backend lên 3 instances
-docker compose up -d --scale backend=3
+$ docker compose ps
 
-# Xem scaled instances
-docker compose ps
-```
-
-### Resource limits
-
-Thêm vào `docker-compose.yml`:
-
-```yaml
-services:
-  backend:
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+NAME       STATUS
+backend    Up (healthy)
+web        Up (healthy)
+minio      Up (healthy)
+postgres   Up (healthy)
+mongodb    Up (healthy)
+orion      Up (healthy)
 ```
 
 ---
 
 ## Troubleshooting
 
-### Container không start
+### Backend unhealthy / Web không start
+
+**Nguyên nhân**: Web depends on backend healthy, nếu backend unhealthy thì web sẽ không start.
 
 ```bash
-# Xem logs chi tiết
-docker compose logs orion
+# Kiểm tra logs backend
+docker compose logs backend --tail 50
 
-# Inspect container
-docker inspect orion
+# Thường do thiếu biến môi trường hoặc database connection
 ```
 
-### Port conflict
+### "Network error" khi login từ web
+
+**Nguyên nhân**: CORS chưa được cấu hình đúng.
 
 ```bash
-# Tìm process dùng port (Linux/macOS)
-lsof -i :1026
+# Thêm origin vào .env
+CORS_ORIGINS=http://YOUR_SERVER_IP:8001
+
+# Rebuild backend
+docker compose up -d --build backend
+```
+
+### "relation does not exist" khi seed
+
+**Nguyên nhân**: Database tables chưa được tạo.
+
+```bash
+# Chạy với DB_SYNC=true
+DB_SYNC=true docker compose up -d backend
+
+# Đợi backend restart xong rồi seed
+sleep 30
+docker compose exec backend node dist/database/seeds/seed.js
+```
+
+### Container không start / Port conflict
+
+```bash
+# Kiểm tra port đang dùng (Linux/macOS)
+lsof -i :8000
 
 # Windows
-netstat -ano | findstr :1026
+netstat -ano | findstr :8000
 
-# Đổi port trong docker-compose.yml
-ports:
-  - "1027:1026"  # Map sang port khác
+# Stop process hoặc đổi port trong docker-compose.yml
 ```
 
-### Health check failed
+### Build quá lâu / Cache issues
 
 ```bash
-# Chờ thêm 1-2 phút để services khởi động
-sleep 60
+# Build không dùng cache
+docker compose build --no-cache backend
+docker compose build --no-cache web
 
-# Kiểm tra lại
-make health
-
-# Reset nếu cần
-make clean
-make up
-```
-
-### Volume issues
-
-```bash
-# Reset volumes
+# Xóa tất cả và build lại
 docker compose down -v
-docker volume prune -f
+docker system prune -a
+docker compose up -d --build
+```
+
+### Reset toàn bộ
+
+```bash
+# Xóa containers và volumes
+docker compose down -v
+
+# Xóa images
+docker rmi smartforecast-backend smartforecast-web
+
+# Build và start lại từ đầu
+docker compose up -d --build
+DB_SYNC=true docker compose up -d backend
+docker compose exec backend node dist/database/seeds/seed.js
 docker compose up -d
 ```
+
+---
+
+## Service URLs Summary
+
+| Service       | Local URL                    | Production URL                    |
+| ------------- | ---------------------------- | --------------------------------- |
+| Web Dashboard | http://localhost:8001        | http://YOUR_SERVER_IP:8001        |
+| Backend API   | http://localhost:8000/api/v1 | http://YOUR_SERVER_IP:8000/api/v1 |
+| Swagger Docs  | http://localhost:8000/api    | http://YOUR_SERVER_IP:8000/api    |
+| MinIO API     | http://localhost:8002        | http://YOUR_SERVER_IP:8002        |
+| MinIO Console | http://localhost:8003        | http://YOUR_SERVER_IP:8003        |
 
 ---
 
