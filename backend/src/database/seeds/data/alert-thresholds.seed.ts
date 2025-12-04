@@ -43,7 +43,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.CRITICAL,
     adviceTemplate:
       'Chất lượng không khí rất xấu! Ở trong nhà, đóng cửa sổ, sử dụng máy lọc không khí nếu có. Không ra ngoài trừ trường hợp khẩn cấp.',
-    isActive: true,
+    isActive: false,
   },
 
   // PM2.5 Thresholds (µg/m³)
@@ -55,7 +55,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.CRITICAL,
     adviceTemplate:
       'Nồng độ PM2.5 cực kỳ cao! Ở trong nhà với cửa đóng kín, sử dụng máy lọc không khí.',
-    isActive: true,
+    isActive: false,
   },
 
   // PM10 Thresholds (µg/m³)
@@ -67,7 +67,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.HIGH,
     adviceTemplate:
       'Nồng độ PM10 cao. Hạn chế hoạt động ngoài trời kéo dài, đặc biệt với trẻ em và người già.',
-    isActive: true,
+    isActive: false,
   },
 
   // ==================== Weather Thresholds ====================
@@ -81,7 +81,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.MEDIUM,
     adviceTemplate:
       'Nhiệt độ cao. Hạn chế hoạt động ngoài trời từ 11h-15h, uống nhiều nước, mặc quần áo thoáng mát.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -91,7 +91,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.HIGH,
     adviceTemplate:
       'Nắng nóng gay gắt! Tránh ra ngoài, uống đủ nước, chú ý dấu hiệu say nắng. Liên hệ y tế nếu cần: 115.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -101,7 +101,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.MEDIUM,
     adviceTemplate:
       'Trời rét. Mặc ấm khi ra ngoài, chú ý giữ ấm cho trẻ em và người già.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -111,7 +111,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.HIGH,
     adviceTemplate:
       'Rét đậm rét hại! Hạn chế ra ngoài, giữ ấm cơ thể, chú ý phòng chống cảm lạnh.',
-    isActive: true,
+    isActive: false,
   },
 
   // Wind Speed Thresholds (m/s)
@@ -123,7 +123,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.MEDIUM,
     adviceTemplate:
       'Gió mạnh. Cẩn thận khi di chuyển, tránh đứng gần cây to và biển quảng cáo.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -133,7 +133,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.HIGH,
     adviceTemplate:
       'Gió rất mạnh! Hạn chế ra ngoài, gia cố cửa sổ và các vật dụng ngoài trời.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -143,7 +143,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.CRITICAL,
     adviceTemplate:
       'Gió bão! Ở trong nhà, tránh xa cửa sổ, chuẩn bị đèn pin và nhu yếu phẩm.',
-    isActive: true,
+    isActive: false,
   },
 
   // Precipitation Thresholds (mm/h)
@@ -155,7 +155,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.MEDIUM,
     adviceTemplate:
       'Mưa to. Cẩn thận khi di chuyển, tránh các vùng trũng có nguy cơ ngập.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -165,7 +165,7 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.HIGH,
     adviceTemplate:
       'Mưa rất to! Hạn chế di chuyển, cảnh giác ngập úng và sạt lở đất.',
-    isActive: true,
+    isActive: false,
   },
   {
     type: AlertType.WEATHER,
@@ -175,6 +175,6 @@ export const ALERT_THRESHOLD_SEED_DATA: AlertThresholdSeedData[] = [
     level: AlertLevel.CRITICAL,
     adviceTemplate:
       'Mưa đặc biệt to! Không ra ngoài, di chuyển đến nơi cao nếu ở vùng trũng. Liên hệ cứu hộ: 114.',
-    isActive: true,
+    isActive: false,
   },
 ];
