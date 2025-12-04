@@ -10,6 +10,10 @@ import {
   STATION_HA_DONG_ID,
   STATION_CAU_GIAY_ID,
   STATION_LONG_BIEN_ID,
+  STATION_QUAN_1_ID,
+  STATION_QUAN_7_ID,
+  STATION_THU_DUC_ID,
+  STATION_TAN_BINH_ID,
 } from './stations.seed';
 
 export interface WeatherSeedData {
@@ -73,6 +77,7 @@ const STATION_LOCATIONS: Record<
   string,
   { lat: number; lon: number; address: string }
 > = {
+  // Hà Nội stations
   [STATION_HOAN_KIEM_ID]: {
     lat: 21.028511,
     lon: 105.804817,
@@ -92,6 +97,27 @@ const STATION_LOCATIONS: Record<
     lat: 21.0453,
     lon: 105.8725,
     address: 'Long Biên, Hà Nội',
+  },
+  // Hồ Chí Minh City stations
+  [STATION_QUAN_1_ID]: {
+    lat: 10.7769,
+    lon: 106.7009,
+    address: 'Quận 1, Hồ Chí Minh',
+  },
+  [STATION_QUAN_7_ID]: {
+    lat: 10.7284,
+    lon: 106.7188,
+    address: 'Quận 7, Hồ Chí Minh',
+  },
+  [STATION_THU_DUC_ID]: {
+    lat: 10.87,
+    lon: 106.8031,
+    address: 'Thủ Đức, Hồ Chí Minh',
+  },
+  [STATION_TAN_BINH_ID]: {
+    lat: 10.8231,
+    lon: 106.6297,
+    address: 'Tân Bình, Hồ Chí Minh',
   },
 };
 
@@ -196,18 +222,31 @@ function generateWeatherRecord(
 export function generateWeatherSeedData(): WeatherSeedData[] {
   const data: WeatherSeedData[] = [];
   const stations = [
+    // Hà Nội stations
     STATION_HOAN_KIEM_ID,
     STATION_HA_DONG_ID,
     STATION_CAU_GIAY_ID,
     STATION_LONG_BIEN_ID,
+    // Hồ Chí Minh City stations
+    STATION_QUAN_1_ID,
+    STATION_QUAN_7_ID,
+    STATION_THU_DUC_ID,
+    STATION_TAN_BINH_ID,
   ];
 
   // Base temperatures for variety between stations
+  // HCM is typically warmer than Hanoi
   const baseTemps: Record<string, number> = {
+    // Hà Nội (cooler, ~25°C average)
     [STATION_HOAN_KIEM_ID]: 25,
     [STATION_HA_DONG_ID]: 24,
     [STATION_CAU_GIAY_ID]: 25,
     [STATION_LONG_BIEN_ID]: 26,
+    // Hồ Chí Minh City (warmer, ~30°C average)
+    [STATION_QUAN_1_ID]: 30,
+    [STATION_QUAN_7_ID]: 29,
+    [STATION_THU_DUC_ID]: 31,
+    [STATION_TAN_BINH_ID]: 30,
   };
 
   const now = new Date();
