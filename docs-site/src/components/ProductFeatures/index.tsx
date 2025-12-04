@@ -77,7 +77,19 @@ export default function ProductFeatures(): ReactNode {
           <div className={styles.productGrid}>
             <div className={styles.mockupContainer}>
               <img
-                src={useBaseUrl('/img/map-alert-web.png')}
+                src={useBaseUrl('/img/home-1-app.jpg')}
+                alt="Smart ForeCast Mobile App UI"
+                className={styles.mockupImage}
+                loading="lazy"
+              />
+              <img
+                src={useBaseUrl('/img/home-2-app.jpg')}
+                alt="Smart ForeCast Mobile App UI"
+                className={styles.mockupImage}
+                loading="lazy"
+              />
+              <img
+                src={useBaseUrl('/img/map-alert-1-app.jpg')}
                 alt="Smart ForeCast Mobile App UI"
                 className={styles.mockupImage}
                 loading="lazy"
@@ -130,7 +142,7 @@ export default function ProductFeatures(): ReactNode {
               <img
                 src={useBaseUrl('/img/dashboard-web.png')}
                 alt="Smart ForeCast Web Dashboard UI"
-                className={styles.mockupImage}
+                className={styles.webMockupImage}
                 loading="lazy"
               />
             </div>

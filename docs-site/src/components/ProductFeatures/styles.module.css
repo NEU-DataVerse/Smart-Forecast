@@ -59,9 +59,33 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
 }
 
 .mockupImage {
+  max-width: 30%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 996px) {
+  .mockupContainer {
+    flex-wrap: wrap;
+  }
+
+  .mockupImage {
+    max-width: 45%;
+  }
+}
+
+@media (max-width: 576px) {
+  .mockupImage {
+    max-width: 100%;
+  }
+}
+
+.webMockupImage {
   max-width: 100%;
   height: auto;
   border-radius: 1rem;

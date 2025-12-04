@@ -120,8 +120,28 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 ### 📱 Mobile App
 
 <p align="center">
-  <em>🚧 Screenshots mobile app đang được cập nhật...</em>
+  <img src="docs-site/static/img/onboarding-1-app.jpg" alt="Onboarding 1" width="24%"/>
+  <img src="docs-site/static/img/onboarding-2-app.jpg" alt="Onboarding 2" width="24%"/>
+  <img src="docs-site/static/img/onboarding-3-app.jpg" alt="Onboarding 3" width="24%"/>
+  <img src="docs-site/static/img/login-google-app.jpg" alt="Login Google" width="24%"/>
 </p>
+<p align="center"><em>Màn hình giới thiệu ứng dụng và Đăng nhập Google</em></p>
+
+<p align="center">
+  <img src="docs-site/static/img/home-1-app.jpg" alt="Home Screen 1" width="24%"/>
+  <img src="docs-site/static/img/home-2-app.jpg" alt="Home Screen 2" width="24%"/>
+  <img src="docs-site/static/img/incident-1-app.jpg" alt="Incident 1" width="24%"/>
+  <img src="docs-site/static/img/incident-2-app.jpg" alt="Incident 2" width="24%"/>
+</p>
+<p align="center"><em>Màn hình chính và Báo cáo sự cố</em></p>
+
+<p align="center">
+  <img src="docs-site/static/img/map-alert-1-app.jpg" alt="Map Alert 1" width="24%"/>
+  <img src="docs-site/static/img/map-alert-2-app.jpg" alt="Map Alert 2" width="24%"/>
+  <img src="docs-site/static/img/notification-app.jpg" alt="Notification" width="24%"/>
+  <img src="docs-site/static/img/profile-app.jpg" alt="Profile" width="24%"/>
+</p>
+<p align="center"><em>Bản đồ cảnh báo, Thông báo và Hồ sơ cá nhân</em></p>
 
 ### 🎬 Demo Video
 
