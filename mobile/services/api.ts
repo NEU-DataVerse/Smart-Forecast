@@ -8,7 +8,9 @@ import type {
 } from '@smart-forecast/shared';
 
 export const getBackendUrl = (): string | undefined => {
-  return process.env.EXPO_PUBLIC_API_URL;
+  const url = process.env.EXPO_PUBLIC_API_URL;
+  console.log('🔗 Backend URL:', url);
+  return url;
 };
 
 const BACKEND_URL = getBackendUrl();
@@ -21,6 +23,8 @@ export const weatherApi = {
     token?: string,
     include: 'current' | 'forecast' | 'both' = 'current',
   ): Promise<NearbyWeatherResponse> {
+    const url = `${BACKEND_URL}/weather/nearby`;
+    console.log('🌤️ Weather API Request:', { url, lat, lon, include, hasToken: !!token });
     try {
       const response = await axios.get<NearbyWeatherResponse>(`${BACKEND_URL}/weather/nearby`, {
         params: {
@@ -48,7 +52,10 @@ export const airQualityApi = {
     lat: number,
     lon: number,
     token?: string,
+    include: 'current' | 'forecast' | 'both' = 'both',
   ): Promise<NearbyAirQualityResponse> {
+    const url = `${BACKEND_URL}/air-quality/nearby`;
+    console.log('🌫️ Air Quality API Request:', { url, lat, lon, include, hasToken: !!token });
     try {
       const response = await axios.get<NearbyAirQualityResponse>(
         `${BACKEND_URL}/air-quality/nearby`,
@@ -56,7 +63,7 @@ export const airQualityApi = {
           params: {
             lat,
             lon,
-            include: 'current',
+            include,
           },
           headers: {
             Accept: 'application/json',

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,21 @@ import { useQuery } from '@tanstack/react-query';
 import Colors from '@/constants/colors';
 import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
-import { weatherApi, airQualityApi } from '@/services/api';
+import { weatherApi, airQualityApi, userApi } from '@/services/api';
 import EnvCard from '@/components/EnvCard';
-import { NearbyAirQualityResponse, NearbyWeatherResponse } from '@/types';
+import HourlyForecastCard from '@/components/HourlyForecastCard';
+import ForecastSection from '@/components/ForecastSection';
+import {
+  NearbyAirQualityResponse,
+  NearbyWeatherResponse,
+  WeatherDataResponse,
+  AirQualityData,
+} from '@/types';
+import { formatForecastTime, getAQIStatus, groupForecastByDay, limitArray } from '@/utils/forecast';
+
+// Types for forecast items
+type WeatherForecastItem = WeatherDataResponse & { validFrom: string; validTo: string };
+type AirQualityForecastItem = AirQualityData & { validFrom?: string; validTo?: string };
 
 export default function HomeScreen() {
   const { location, setLocation, setEnvironmentData } = useAppStore();
@@ -31,7 +43,7 @@ export default function HomeScreen() {
     [location?.latitude, location?.longitude],
   );
 
-  // Query lấy dữ liệu thời tiết từ backend API
+  // Query lấy dữ liệu thời tiết từ backend API (current + forecast)
   const {
     data: weatherData,
     isLoading: isWeatherLoading,
@@ -47,6 +59,7 @@ export default function HomeScreen() {
         location.latitude,
         location.longitude,
         token ?? undefined,
+        'both', // Lấy cả current và forecast
       );
     },
     enabled: !!location && !!token,
@@ -54,7 +67,7 @@ export default function HomeScreen() {
     retryDelay: 1000,
   });
 
-  // Query lấy dữ liệu chất lượng không khí từ backend API
+  // Query lấy dữ liệu chất lượng không khí từ backend API (current + forecast)
   const {
     data: airQualityData,
     isLoading: isAirQualityLoading,
@@ -70,6 +83,7 @@ export default function HomeScreen() {
         location.latitude,
         location.longitude,
         token ?? undefined,
+        'both', // Lấy cả current và forecast
       );
     },
     enabled: !!location && !!token,
@@ -115,10 +129,27 @@ export default function HomeScreen() {
         }
 
         const loc = await Location.getCurrentPositionAsync({});
-        setLocation({
+        const newLocation = {
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,
-        });
+        };
+
+        // Lưu vào local store
+        setLocation(newLocation);
+
+        // Gửi vị trí lên backend nếu đã đăng nhập
+        if (token) {
+          try {
+            await userApi.updateLocation(
+              { lat: newLocation.latitude, lon: newLocation.longitude },
+              token,
+            );
+            console.log('📍 User location synced to backend');
+          } catch (error) {
+            console.error('❌ Failed to sync location to backend:', error);
+            // Không throw error - vẫn tiếp tục sử dụng app với vị trí local
+          }
+        }
       } catch (error) {
         console.error('Lỗi khi lấy vị trí:', error);
         setLocation({ latitude: 10.8231, longitude: 106.6297 });
@@ -126,21 +157,61 @@ export default function HomeScreen() {
     };
 
     requestLocation();
-  }, [setLocation]);
+  }, [setLocation, token]);
 
-  const getAQIStatus = (aqi: number): 'good' | 'moderate' | 'unhealthy' | 'hazardous' => {
+  // Render functions for forecast items
+  const renderWeatherForecastItem = useCallback(
+    ({ item }: { item: WeatherForecastItem }) => (
+      <HourlyForecastCard
+        time={formatForecastTime(item.validFrom, 'daily')}
+        icon={item.weather?.icon || '01d'}
+        value={Math.round(item.temperature?.current ?? 0)}
+        unit="°C"
+        type="weather"
+      />
+    ),
+    [],
+  );
+
+  const renderAirQualityForecastItem = useCallback(({ item }: { item: AirQualityForecastItem }) => {
+    const aqiIndex = item.aqi?.openWeather?.index ?? 1;
+    return (
+      <HourlyForecastCard
+        time={formatForecastTime(item.validFrom || item.dateObserved, 'hourly')}
+        value={aqiIndex}
+        unit="AQI"
+        status={getAQIStatus(aqiIndex)}
+        type="air-quality"
+      />
+    );
+  }, []);
+
+  // Process forecast data
+  const weatherForecast = useMemo(() => {
+    if (!weatherData?.forecast) return [];
+    // Group by day and limit to 7 days
+    return limitArray(groupForecastByDay(weatherData.forecast), 7) as WeatherForecastItem[];
+  }, [weatherData?.forecast]);
+
+  const airQualityForecast = useMemo(() => {
+    if (!airQualityData?.forecast) return [];
+    // Limit to 12 entries (3h intervals = ~36 hours)
+    return limitArray(airQualityData.forecast, 12) as AirQualityForecastItem[];
+  }, [airQualityData?.forecast]);
+
+  const getLocalAQIStatus = (aqi: number): 'good' | 'moderate' | 'unhealthy' | 'hazardous' => {
     if (aqi <= 1) return 'good';
     if (aqi <= 2) return 'moderate';
     if (aqi <= 3) return 'unhealthy';
     return 'hazardous';
   };
 
-  const getAQILabel = (aqi: number): string => {
+  const getLocalAQILabel = (aqi: number): string => {
     // Use level from backend if available
     if (airQualityData?.current?.aqi?.openWeather?.level) {
       return airQualityData.current.aqi.openWeather.level;
     }
-    const status = getAQIStatus(aqi);
+    const status = getLocalAQIStatus(aqi);
     const labels = {
       good: 'Good',
       moderate: 'Moderate',
@@ -225,9 +296,11 @@ export default function HomeScreen() {
                 <View style={styles.gridItem}>
                   <EnvCard
                     title="AQI"
-                    value={getAQILabel(currentAQI)}
-                    icon={<Activity size={20} color={Colors.status[getAQIStatus(currentAQI)]} />}
-                    status={getAQIStatus(currentAQI)}
+                    value={getLocalAQILabel(currentAQI)}
+                    icon={
+                      <Activity size={20} color={Colors.status[getLocalAQIStatus(currentAQI)]} />
+                    }
+                    status={getLocalAQIStatus(currentAQI)}
                   />
                 </View>
                 <View style={styles.gridItem}>
@@ -304,6 +377,24 @@ export default function HomeScreen() {
                 </View>
               </View>
             </View>
+
+            {/* Weather Forecast Section */}
+            <ForecastSection
+              title="Dự báo thời tiết 7 ngày"
+              data={weatherForecast}
+              renderItem={renderWeatherForecastItem}
+              keyExtractor={(item, index) => `weather-${item.validFrom || index}`}
+              emptyText="Không có dữ liệu dự báo thời tiết"
+            />
+
+            {/* Air Quality Forecast Section */}
+            <ForecastSection
+              title="Dự báo chất lượng không khí"
+              data={airQualityForecast}
+              renderItem={renderAirQualityForecastItem}
+              keyExtractor={(item, index) => `aq-${item.validFrom || item.dateObserved || index}`}
+              emptyText="Không có dữ liệu dự báo chất lượng KK"
+            />
           </>
         )}
       </ScrollView>
