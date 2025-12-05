@@ -75,9 +75,9 @@ services:
     container_name: minio
     ports:
       # API port - for browser access to images
-      - '8002:9000'
+      - '8012:9000'
       # Console (web UI)
-      - '8003:9001'
+      - '8013:9001'
     command: server /data --console-address ":9001"
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
@@ -102,7 +102,7 @@ services:
       context: .
       dockerfile: ./backend/Dockerfile
     ports:
-      - '8000:8000'
+      - '8010:8000'
     environment:
       - NODE_ENV=production
       - PORT=8000
@@ -125,8 +125,8 @@ services:
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - MINIO_USE_SSL=false
       - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-incidents}
-      # Public URL for file access from browser/mobile (external port 8002)
-      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:8002}
+      # Public URL for file access from browser/mobile (external port 8012)
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:8012}
       # JWT
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-7d}
@@ -165,12 +165,12 @@ services:
       context: .
       dockerfile: ./web/Dockerfile
     ports:
-      - '8001:3000'
+      - '8011:3000'
     environment:
       - NODE_ENV=production
       # These are build-time vars, but can be overridden at runtime
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
-      - NEXT_PUBLIC_MINIO_URL=${NEXT_PUBLIC_MINIO_URL:-http://localhost:8002}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8010/api/v1}
+      - NEXT_PUBLIC_MINIO_URL=${NEXT_PUBLIC_MINIO_URL:-http://localhost:8012}
     depends_on:
       backend:
         condition: service_healthy
