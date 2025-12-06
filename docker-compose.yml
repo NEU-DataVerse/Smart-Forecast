@@ -164,13 +164,14 @@ services:
     build:
       context: .
       dockerfile: ./web/Dockerfile
+      args:
+        # Build-time environment variables for Next.js
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8010/api/v1}
+        - NEXT_PUBLIC_MINIO_URL=${NEXT_PUBLIC_MINIO_URL:-http://localhost:8012}
     ports:
       - '8011:3000'
     environment:
       - NODE_ENV=production
-      # These are build-time vars, but can be overridden at runtime
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8010/api/v1}
-      - NEXT_PUBLIC_MINIO_URL=${NEXT_PUBLIC_MINIO_URL:-http://localhost:8012}
     depends_on:
       backend:
         condition: service_healthy
