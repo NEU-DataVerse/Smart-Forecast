@@ -25,6 +25,23 @@ export default function HeroSection(): ReactNode {
             Nền tảng Nguồn mở áp dụng Dữ liệu mở liên kết (LOD) để chuyển đổi số, cung cấp Giao diện
             Quản trị phản ứng khẩn cấp (Web) và cảnh báo tức thời cho Người dân (Mobile App).
           </p>
+
+          <div className={styles.heroButtons}>
+            <Link className="button button--primary button--lg" to="/docs">
+              📖 Tài liệu
+            </Link>
+            <Link
+              className="button button--secondary button--lg"
+              href="http://101.96.66.225:8011"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🌐 Web App
+            </Link>
+            <Link className="button button--secondary button--lg" to="#mobile-download">
+              📥 Tải Ứng dụng
+            </Link>
+          </div>
         </div>
       </div>
 

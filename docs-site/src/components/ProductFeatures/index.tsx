@@ -73,7 +73,7 @@ export default function ProductFeatures(): ReactNode {
         </div>
 
         {/* Mobile App Section */}
-        <div className={styles.productSection}>
+        <div id="mobile-download" className={styles.productSection}>
           <div className={styles.productGrid}>
             <div className={styles.mockupContainer}>
               <img
@@ -105,8 +105,21 @@ export default function ProductFeatures(): ReactNode {
               </div>
 
               <div className={styles.ctaContainer}>
-                <Link className="button button--primary button--lg" to="#mobile-download">
-                  📥 Tải Ứng dụng
+                <Link
+                  className="button button--primary button--lg"
+                  href="https://expo.dev/artifacts/eas/fqtBiW57qjWigg8yaCupZm.apk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Tải cho Android
+                </Link>
+                <Link
+                  className="button button--outline button--secondary button--lg"
+                  href="https://expo.dev/accounts/smartforecast/projects/smart-forecast/builds"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Tải cho iOS (đang cập nhật)
                 </Link>
               </div>
             </div>
