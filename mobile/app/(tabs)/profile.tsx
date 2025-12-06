@@ -25,11 +25,15 @@ import {
 } from '@smart-forecast/shared';
 
 // MinIO URL from environment
-const MINIO_URL = process.env.EXPO_PUBLIC_MINIO_URL;
+const MINIO_URL = process.env.EXPO_PUBLIC_MINIO_URL || '';
 
 // Helper to convert localhost URLs to proper MinIO URL
 const getImageUrl = (url: string): string => {
-  if (!url || !MINIO_URL) return url;
+  if (!url) return url;
+  if (!MINIO_URL) {
+    console.warn('⚠️ EXPO_PUBLIC_MINIO_URL is not configured');
+    return url;
+  }
   // Replace localhost or 127.0.0.1 with any port to MINIO_URL
   return url
     .replace(/http:\/\/localhost:\d+/g, MINIO_URL)

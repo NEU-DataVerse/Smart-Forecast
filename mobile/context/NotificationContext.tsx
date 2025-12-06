@@ -46,42 +46,53 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   // Register for push notifications
   useEffect(() => {
-    registerForPushNotificationsAsync().then(
-      (token) => {
+    registerForPushNotificationsAsync()
+      .then((token) => {
         setExpoPushToken(token);
         // Token will be sent to backend in the second useEffect when user is authenticated
-      },
-      (error) => setError(error),
-    );
+      })
+      .catch((error) => {
+        console.warn('⚠️ Failed to register for push notifications:', error);
+        setError(error);
+        // Don't crash the app if notification registration fails
+      });
 
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('🔔 Notification Received: ', notification);
-      setNotification(notification);
-      handleNotificationAndAddToStore(notification);
+      try {
+        console.log('🔔 Notification Received: ', notification);
+        setNotification(notification);
+        handleNotificationAndAddToStore(notification);
+      } catch (error) {
+        console.error('❌ Error handling received notification:', error);
+      }
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log(
-        '🔔 Notification Response: ',
-        JSON.stringify(response, null, 2),
-        JSON.stringify(response.notification.request.content.data, null, 2),
-      );
-      // Add to store when user taps notification
-      handleNotificationAndAddToStore(response.notification);
+      try {
+        console.log(
+          '🔔 Notification Response: ',
+          JSON.stringify(response, null, 2),
+          JSON.stringify(response.notification.request.content.data, null, 2),
+        );
+        // Add to store when user taps notification
+        handleNotificationAndAddToStore(response.notification);
 
-      // Navigate to map tab with alert focus
-      const data = response.notification.request.content.data;
-      const alertId = (data?.alertId as string) || '';
-      // Use notification identifier as fallback if alertId is empty
-      const effectiveAlertId =
-        alertId.length > 0 ? alertId : response.notification.request.identifier;
+        // Navigate to map tab with alert focus
+        const data = response.notification.request.content.data;
+        const alertId = (data?.alertId as string) || '';
+        // Use notification identifier as fallback if alertId is empty
+        const effectiveAlertId =
+          alertId.length > 0 ? alertId : response.notification.request.identifier;
 
-      console.log('🗺️ Navigating to map with alertId:', effectiveAlertId);
-      setPendingAlertId(effectiveAlertId);
-      // Use setTimeout to ensure navigation happens after app is ready
-      setTimeout(() => {
-        router.push('/(tabs)/map');
-      }, 100);
+        console.log('🗺️ Navigating to map with alertId:', effectiveAlertId);
+        setPendingAlertId(effectiveAlertId);
+        // Use setTimeout to ensure navigation happens after app is ready
+        setTimeout(() => {
+          router.push('/(tabs)/map');
+        }, 100);
+      } catch (error) {
+        console.error('❌ Error handling notification response:', error);
+      }
     });
 
     return () => {
@@ -131,52 +142,57 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
  * Handle incoming notification and add to alerts store
  */
 function handleNotificationAndAddToStore(notification: Notifications.Notification) {
-  const { content } = notification.request;
-  const { addAlert } = useAppStore.getState();
+  try {
+    const { content } = notification.request;
+    const { addAlert } = useAppStore.getState();
 
-  // Map notification type to valid Alert type
-  const rawType = (content.data?.type as string) || 'weather';
-  const validTypes = ['aqi', 'flood', 'landslide', 'weather'] as const;
-  const alertType: 'aqi' | 'flood' | 'landslide' | 'weather' = validTypes.includes(
-    rawType as (typeof validTypes)[number],
-  )
-    ? (rawType as (typeof validTypes)[number])
-    : 'weather';
+    // Map notification type to valid Alert type
+    const rawType = (content.data?.type as string) || 'weather';
+    const validTypes = ['aqi', 'flood', 'landslide', 'weather'] as const;
+    const alertType: 'aqi' | 'flood' | 'landslide' | 'weather' = validTypes.includes(
+      rawType as (typeof validTypes)[number],
+    )
+      ? (rawType as (typeof validTypes)[number])
+      : 'weather';
 
-  // Map severity
-  const rawSeverity = (content.data?.severity as string) || 'medium';
-  const validSeverities = ['low', 'medium', 'high', 'critical'] as const;
-  const severity: 'low' | 'medium' | 'high' | 'critical' = validSeverities.includes(
-    rawSeverity as (typeof validSeverities)[number],
-  )
-    ? (rawSeverity as (typeof validSeverities)[number])
-    : 'medium';
+    // Map severity
+    const rawSeverity = (content.data?.severity as string) || 'medium';
+    const validSeverities = ['low', 'medium', 'high', 'critical'] as const;
+    const severity: 'low' | 'medium' | 'high' | 'critical' = validSeverities.includes(
+      rawSeverity as (typeof validSeverities)[number],
+    )
+      ? (rawSeverity as (typeof validSeverities)[number])
+      : 'medium';
 
-  const location = (content.data?.location as string) || 'Unknown Location';
+    const location = (content.data?.location as string) || 'Unknown Location';
 
-  // Parse area from notification data
-  let area: GeoPolygon | undefined;
-  const rawArea = content.data?.area as string | undefined;
-  if (rawArea && rawArea.length > 0) {
-    try {
-      area = JSON.parse(rawArea) as GeoPolygon;
-    } catch (e) {
-      console.warn('Failed to parse area from notification:', e);
+    // Parse area from notification data
+    let area: GeoPolygon | undefined;
+    const rawArea = content.data?.area as string | undefined;
+    if (rawArea && rawArea.length > 0) {
+      try {
+        area = JSON.parse(rawArea) as GeoPolygon;
+      } catch (e) {
+        console.warn('Failed to parse area from notification:', e);
+      }
     }
+
+    const newAlert = {
+      id: (content.data?.alertId as string) || notification.request.identifier,
+      type: alertType,
+      title: content.title || 'New Alert',
+      message: content.body || '',
+      severity: severity,
+      timestamp: Date.now(),
+      location: location,
+      area: area,
+      read: false,
+    };
+
+    console.log('📥 Adding alert to store:', newAlert);
+    addAlert(newAlert);
+  } catch (error) {
+    console.error('❌ Error handling notification:', error);
+    // Don't crash the app if notification handling fails
   }
-
-  const newAlert = {
-    id: (content.data?.alertId as string) || notification.request.identifier,
-    type: alertType,
-    title: content.title || 'New Alert',
-    message: content.body || '',
-    severity: severity,
-    timestamp: Date.now(),
-    location: location,
-    area: area,
-    read: false,
-  };
-
-  console.log('📥 Adding alert to store:', newAlert);
-  addAlert(newAlert);
 }

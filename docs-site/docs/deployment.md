@@ -381,7 +381,7 @@ Sau khi server chạy, cập nhật `mobile/.env`:
 ```bash
 EXPO_PUBLIC_API_URL=http://YOUR_SERVER_IP:8000/api/v1
 EXPO_PUBLIC_MINIO_URL=http://YOUR_SERVER_IP:8002
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_google_client_id
+EXPO_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 ---

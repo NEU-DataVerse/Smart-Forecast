@@ -36,8 +36,6 @@ import { useAppStore } from '@/store/appStore';
 import { useAuth } from '@/context/AuthContext';
 import { getBackendUrl } from '@/services/api';
 
-const API_URL = getBackendUrl();
-
 // Offline queue constants
 const PENDING_INCIDENTS_KEY = 'pending_incidents';
 const MAX_RETRIES = 3;
@@ -210,7 +208,7 @@ export default function ReportScreen() {
             await new Promise((resolve) => setTimeout(resolve, getRetryDelay(attempt - 1)));
           }
 
-          const response = await fetch(`${API_URL}/incident`, {
+          const response = await fetch(`${getBackendUrl()}/incident`, {
             method: 'POST',
             headers: {
               Accept: 'application/json',
@@ -428,7 +426,7 @@ export default function ReportScreen() {
       }
 
       // Send to backend API
-      const response = await fetch(`${API_URL}/incident`, {
+      const response = await fetch(`${getBackendUrl()}/incident`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
