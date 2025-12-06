@@ -29,6 +29,15 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
+# Receive build arguments for Next.js public env vars
+ARG NEXT_PUBLIC_API_URL=http://localhost:8010/api/v1
+ARG NEXT_PUBLIC_MINIO_URL=http://localhost:8012
+
+# Set as environment variables for build
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_MINIO_URL=$NEXT_PUBLIC_MINIO_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/shared/node_modules ./shared/node_modules
@@ -43,9 +52,6 @@ COPY web ./web
 
 # Build shared package first (dependency)
 RUN pnpm --filter @smart-forecast/shared run build
-
-# Build environment variables (will be overridden at runtime)
-ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js app
 RUN pnpm --filter web run build
