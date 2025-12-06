@@ -299,7 +299,7 @@ export default function DashboardStatistics({ data, isLoading }: DashboardStatis
         percentage={incidentPendingPercent}
         mainValue={incidents.pending}
         totalValue={incidents.total}
-        href="/reports"
+        href="/incidents"
         stats={[
           {
             label: 'Chờ xử lý',
