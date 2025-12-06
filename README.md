@@ -26,6 +26,21 @@
   <img src="https://img.shields.io/badge/NGSI--LD-Smart%20Data%20Models-FF6F00?style=flat-square" alt="NGSI-LD">
 </p>
 
+<p align="center">
+  <a href="https://neu-dataverse.github.io/Smart-Forecast/">
+    <img src="https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Documentation"/>
+  </a>
+  <a href="http://101.96.66.225:8010/api">
+    <img src="https://img.shields.io/badge/API_Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="API Swagger"/>
+  </a>
+  <a href="http://101.96.66.225:8011/dashboard">
+    <img src="https://img.shields.io/badge/Web_Dashboard-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Web Dashboard"/>
+  </a>
+  <a href="https://expo.dev/artifacts/eas/fqtBiW57qjWigg8yaCupZm.apk">
+    <img src="https://img.shields.io/badge/Android_App-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android App"/>
+  </a>
+</p>
+
 ---
 
 ## 📋 Mục Lục
@@ -148,6 +163,32 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 <!-- TODO: Thêm link YouTube demo -->
 
 > 🎥 Video demo sẽ được cập nhật sau
+
+### 🔐 Demo Credentials
+
+<p align="center">
+  <a href="https://neu-dataverse.github.io/Smart-Forecast/">
+    <img src="https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Documentation"/>
+  </a>
+  <a href="http://101.96.66.225:8010/api">
+    <img src="https://img.shields.io/badge/API_Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="API Swagger"/>
+  </a>
+  <a href="http://101.96.66.225:8011/dashboard">
+    <img src="https://img.shields.io/badge/Web_Dashboard-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Web Dashboard"/>
+  </a>
+  <a href="https://expo.dev/artifacts/eas/fqtBiW57qjWigg8yaCupZm.apk">
+    <img src="https://img.shields.io/badge/Android_App-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android App"/>
+  </a>
+</p>
+
+**Web Dashboard (Admin)**
+
+- Liên hệ kaka205.dev@gmail.com để lấy tài khoản demo
+
+**Mobile App**
+
+- Tải App Android từ badge ở trên
+- Đăng nhập bằng tài khoản Google
 
 ---
 
@@ -283,9 +324,11 @@ pnpm run dev:mobile
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Hướng dẫn đóng góp      |
 | [CHANGELOG.md](CHANGELOG.md)       | Lịch sử thay đổi        |
 
-### Tài liệu chi tiết (Docusaurus)
+### Tài liệu chi tiết
 
-> 🌐 https://neu-dataverse.github.io/Smart-Forecast/
+> 🌐 Xem tài liệu đầy đủ tại https://neu-dataverse.github.io/Smart-Forecast/
+
+**Nội dung bao gồm:**
 
 - Kiến trúc hệ thống (Architecture)
 - Hướng dẫn triển khai (Deployment)
