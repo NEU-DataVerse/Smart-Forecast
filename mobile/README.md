@@ -2,8 +2,6 @@
 
 Ứng dụng di động Smart Forecast được xây dựng với **React Native** và **Expo**, cho phép người dùng theo dõi thời tiết, chất lượng không khí, nhận cảnh báo môi trường và báo cáo sự cố.
 
-Có thể tải file APK về qua: https://expo.dev/accounts/nguyenthanhdatndc/projects/smart-forecast/builds/50f7c6dc-448e-428e-b872-6429e0129f76
-
 ## 📋 Mục lục
 
 - [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
@@ -82,7 +80,7 @@ EXPO_PUBLIC_MINIO_URL=http://192.168.1.xxx:9000
 
 # ====== Google OAuth ======
 # Web Client ID từ Google Cloud Console (dùng cho đăng nhập Google)
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+EXPO_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
 
 > ⚠️ **Lưu ý quan trọng:**
@@ -192,7 +190,7 @@ mobile/
 
 ### Google Sign-In không hoạt động
 
-1. Kiểm tra `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` trong `.env`
+1. Kiểm tra `EXPO_PUBLIC_GOOGLE_CLIENT_ID` trong `.env`
 2. Đảm bảo `google-services.json` đúng cho package name `app.smartforecast`
 3. Cần build development client (không dùng được với Expo Go)
 

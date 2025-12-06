@@ -1,0 +1,37 @@
+{
+  "cli": {
+    "version": ">= 16.28.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://YOUR_SERVER_IP:8010/api/v1",
+        "EXPO_PUBLIC_MINIO_URL": "http://YOUR_SERVER_IP:8012",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "your_google_web_client_id_here"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://YOUR_SERVER_IP:8010/api/v1",
+        "EXPO_PUBLIC_MINIO_URL": "http://YOUR_SERVER_IP:8012",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "your_google_web_client_id_here"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -35,6 +35,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     package: 'app.smartforecast',
     permissions: [
+      'android.permission.INTERNET',
+      'android.permission.ACCESS_NETWORK_STATE',
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.FOREGROUND_SERVICE',
@@ -80,6 +82,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL,
     EXPO_PUBLIC_MINIO_URL: process.env.EXPO_PUBLIC_MINIO_URL,
+    EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   },
   owner: 'nguyenthanhdatndc',
 });
