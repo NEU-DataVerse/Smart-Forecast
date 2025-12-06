@@ -47,6 +47,7 @@ export default function HomeScreen() {
     isLoading: isWeatherLoading,
     refetch: refetchWeather,
     isRefetching: isWeatherRefetching,
+    error: weatherError,
   } = useQuery<NearbyWeatherResponse>({
     queryKey: ['weather', locationKey],
     queryFn: async () => {
@@ -61,7 +62,7 @@ export default function HomeScreen() {
       );
     },
     enabled: !!location && !!token,
-    retry: 3,
+    retry: 2,
     retryDelay: 1000,
   });
 
@@ -71,6 +72,7 @@ export default function HomeScreen() {
     isLoading: isAirQualityLoading,
     refetch: refetchAirQuality,
     isRefetching: isAirQualityRefetching,
+    error: airQualityError,
   } = useQuery<NearbyAirQualityResponse>({
     queryKey: ['airQuality', locationKey],
     queryFn: async () => {
@@ -85,12 +87,22 @@ export default function HomeScreen() {
       );
     },
     enabled: !!location && !!token,
-    retry: 3,
+    retry: 2,
     retryDelay: 1000,
   });
 
   const isLoading = isWeatherLoading || isAirQualityLoading;
   const isRefetching = isWeatherRefetching || isAirQualityRefetching;
+
+  // Log errors for debugging
+  useEffect(() => {
+    if (weatherError) {
+      console.error('❌ Weather API Error:', weatherError);
+    }
+    if (airQualityError) {
+      console.error('❌ Air Quality API Error:', airQualityError);
+    }
+  }, [weatherError, airQualityError]);
 
   const handleRefresh = () => {
     refetchWeather();
@@ -99,20 +111,24 @@ export default function HomeScreen() {
 
   // Cập nhật store khi dữ liệu thời tiết thay đổi
   useEffect(() => {
-    if (weatherData?.current) {
-      const current = weatherData.current;
-      setEnvironmentData({
-        temperature: Math.round(current.temperature.current ?? 0),
-        humidity: current.atmospheric.humidity ?? 0,
-        aqi: airQualityData?.current?.aqi?.epaUS?.index ?? 0,
-        clouds: current.cloudiness ?? 0,
-        windSpeed: current.wind.speed ?? 0,
-        pressure: current.atmospheric.pressure ?? 0,
-        description: current.weather.description ?? '',
-        icon: current.weather.icon ?? '01d',
-        location: weatherData.nearestStation.name ?? 'Không xác định',
-        timestamp: Date.now(),
-      });
+    try {
+      if (weatherData?.current) {
+        const current = weatherData.current;
+        setEnvironmentData({
+          temperature: Math.round(current.temperature.current ?? 0),
+          humidity: current.atmospheric.humidity ?? 0,
+          aqi: airQualityData?.current?.aqi?.epaUS?.index ?? 0,
+          clouds: current.cloudiness ?? 0,
+          windSpeed: current.wind.speed ?? 0,
+          pressure: current.atmospheric.pressure ?? 0,
+          description: current.weather.description ?? '',
+          icon: current.weather.icon ?? '01d',
+          location: weatherData.nearestStation.name ?? 'Không xác định',
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error updating environment data:', error);
     }
   }, [weatherData, airQualityData, setEnvironmentData]);
 
@@ -122,11 +138,15 @@ export default function HomeScreen() {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           console.log('Quyền truy cập vị trí bị từ chối');
+          // Use Ho Chi Minh City as default location
           setLocation({ latitude: 10.8231, longitude: 106.6297 });
           return;
         }
 
-        const loc = await Location.getCurrentPositionAsync({});
+        const loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 5000,
+        });
         const newLocation = {
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,
@@ -145,10 +165,12 @@ export default function HomeScreen() {
             console.log('📍 User location synced to backend');
           } catch (error) {
             console.error('❌ Failed to sync location to backend:', error);
+            // Don't crash if backend sync fails
           }
         }
       } catch (error) {
         console.error('Lỗi khi lấy vị trí:', error);
+        // Use Ho Chi Minh City as default location on error
         setLocation({ latitude: 10.8231, longitude: 106.6297 });
       }
     };

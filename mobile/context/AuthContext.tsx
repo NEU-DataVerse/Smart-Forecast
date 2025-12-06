@@ -12,11 +12,22 @@ import { AuthContextType } from './auth.interface';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Configure Google Sign-In
-GoogleSignin.configure({
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-  offlineAccess: true,
-});
+// Configure Google Sign-In with error handling
+try {
+  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  if (!webClientId) {
+    console.warn(
+      '⚠️ EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is not configured. Google Sign-In will not work.',
+    );
+  } else {
+    GoogleSignin.configure({
+      webClientId: webClientId,
+      offlineAccess: true,
+    });
+  }
+} catch (error) {
+  console.error('❌ Failed to configure GoogleSignin:', error);
+}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthLoading, setIsAuthLoading] = React.useState(true);
@@ -53,6 +64,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsSigningIn(true);
 
+      // Check if Google Client ID is configured
+      const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+      if (!webClientId) {
+        Alert.alert(
+          'Lỗi cấu hình',
+          'Google Sign-In chưa được cấu hình. Vui lòng liên hệ quản trị viên.',
+        );
+        return;
+      }
+
       // Check if Google Play Services are available
       await GoogleSignin.hasPlayServices();
 
@@ -67,6 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         // Send idToken to backend for verification
+        console.log('📤 Sending idToken to backend...');
         const authResponse = await authApi.googleSignIn(idToken);
 
         // Save token and user to storage
@@ -81,8 +103,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           Alert.alert('Chào mừng!', 'Tài khoản của bạn đã được tạo thành công.');
         }
       }
-    } catch (error) {
-      console.error('Sign in error:', error);
+    } catch (error: any) {
+      console.error('❌ Sign in error:', error);
 
       if (isErrorWithCode(error)) {
         switch (error.code) {
@@ -98,6 +120,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           default:
             Alert.alert('Lỗi đăng nhập', error.message || 'Không thể đăng nhập. Vui lòng thử lại.');
         }
+      } else if (error.response) {
+        // Backend error
+        const message = error.response.data?.message || 'Lỗi từ server. Vui lòng thử lại.';
+        Alert.alert('Lỗi đăng nhập', message);
+      } else if (error.request) {
+        // Network error
+        Alert.alert(
+          'Lỗi kết nối',
+          'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.',
+        );
       } else {
         Alert.alert('Lỗi đăng nhập', 'Không thể đăng nhập. Vui lòng thử lại.');
       }

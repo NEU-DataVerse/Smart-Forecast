@@ -64,26 +64,38 @@ function RootLayoutNav() {
 
   React.useEffect(() => {
     const handleNavigation = async () => {
-      // Wait for both auth and onboarding check
-      if (!isLoading && hasSeenOnboarding !== null) {
-        // Hide splash screen once on first load
-        if (!splashHidden) {
-          try {
-            await SplashScreen.hideAsync();
-          } catch (e) {
-            console.error('Error hiding splash screen:', e);
+      try {
+        // Wait for both auth and onboarding check
+        if (!isLoading && hasSeenOnboarding !== null) {
+          // Hide splash screen once on first load
+          if (!splashHidden) {
+            try {
+              await SplashScreen.hideAsync();
+            } catch (e) {
+              console.error('Error hiding splash screen:', e);
+            }
+            setSplashHidden(true);
           }
-          setSplashHidden(true);
-        }
 
-        // Navigate based on onboarding and auth state
-        if (!hasSeenOnboarding) {
-          router.replace('/onboarding');
-        } else if (isAuthenticated) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/login');
+          // Navigate based on onboarding and auth state
+          if (!hasSeenOnboarding) {
+            router.replace('/onboarding');
+          } else if (isAuthenticated) {
+            router.replace('/(tabs)');
+          } else {
+            router.replace('/login');
+          }
         }
+      } catch (error) {
+        console.error('❌ Error during navigation:', error);
+        // Fallback: hide splash and go to login
+        try {
+          await SplashScreen.hideAsync();
+        } catch (e) {
+          console.error('Error hiding splash screen in fallback:', e);
+        }
+        setSplashHidden(true);
+        router.replace('/login');
       }
     };
 
@@ -101,6 +113,19 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  // Global error handler
+  React.useEffect(() => {
+    const errorHandler = (error: Error) => {
+      console.error('🚨 Global Error:', error);
+      // Prevent app crash by catching unhandled errors
+    };
+
+    // Note: In production, you might want to use a crash reporting service like Sentry
+    if (typeof ErrorUtils !== 'undefined') {
+      ErrorUtils.setGlobalHandler(errorHandler);
+    }
+  }, []);
+
   return (
     <PersistQueryClientProvider
       client={queryClient}

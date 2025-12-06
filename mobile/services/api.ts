@@ -7,13 +7,15 @@ import type {
   IIncidentQueryParams,
 } from '@smart-forecast/shared';
 
-export const getBackendUrl = (): string | undefined => {
+// Get backend URL with fallback - safe for module import
+export const getBackendUrl = (): string => {
   const url = process.env.EXPO_PUBLIC_API_URL;
-  console.log('🔗 Backend URL:', url);
+  if (!url || url.trim() === '' || url.includes('YOUR_SERVER_IP')) {
+    console.warn('⚠️ EXPO_PUBLIC_API_URL is not configured properly. Please check your .env file.');
+    return '';
+  }
   return url;
 };
-
-const BACKEND_URL = getBackendUrl();
 
 export const weatherApi = {
   // Lấy dữ liệu thời tiết từ backend API (qua Orion-LD)
@@ -23,10 +25,14 @@ export const weatherApi = {
     token?: string,
     include: 'current' | 'forecast' | 'both' = 'current',
   ): Promise<NearbyWeatherResponse> {
-    const url = `${BACKEND_URL}/weather/nearby`;
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
+    const url = `${baseUrl}/weather/nearby`;
     console.log('🌤️ Weather API Request:', { url, lat, lon, include, hasToken: !!token });
     try {
-      const response = await axios.get<NearbyWeatherResponse>(`${BACKEND_URL}/weather/nearby`, {
+      const response = await axios.get<NearbyWeatherResponse>(url, {
         params: {
           lat,
           lon,
@@ -54,23 +60,24 @@ export const airQualityApi = {
     token?: string,
     include: 'current' | 'forecast' | 'both' = 'both',
   ): Promise<NearbyAirQualityResponse> {
-    const url = `${BACKEND_URL}/air-quality/nearby`;
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
+    const url = `${baseUrl}/air-quality/nearby`;
     console.log('🌫️ Air Quality API Request:', { url, lat, lon, include, hasToken: !!token });
     try {
-      const response = await axios.get<NearbyAirQualityResponse>(
-        `${BACKEND_URL}/air-quality/nearby`,
-        {
-          params: {
-            lat,
-            lon,
-            include,
-          },
-          headers: {
-            Accept: 'application/json',
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
+      const response = await axios.get<NearbyAirQualityResponse>(url, {
+        params: {
+          lat,
+          lon,
+          include,
         },
-      );
+        headers: {
+          Accept: 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -98,21 +105,39 @@ export interface GoogleAuthResponse {
 export const authApi = {
   // Đăng nhập Google - gửi idToken đến backend để xác thực
   async googleSignIn(idToken: string): Promise<GoogleAuthResponse> {
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
+
     try {
+      console.log('🔐 Calling Google Sign-In API:', `${baseUrl}/auth/google`);
       const response = await axios.post<GoogleAuthResponse>(
-        `${BACKEND_URL}/auth/google`,
+        `${baseUrl}/auth/google`,
         { idToken },
         {
           headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
           },
+          timeout: 30000, // 30 seconds timeout
         },
       );
 
+      console.log('✅ Google Sign-In success:', response.data);
       return response.data;
-    } catch (error) {
-      console.error('Lỗi đăng nhập Google:', error);
+    } catch (error: any) {
+      console.error('❌ Lỗi đăng nhập Google:', error);
+
+      // Log more details for debugging
+      if (error.response) {
+        console.error('Response error:', error.response.status, error.response.data);
+      } else if (error.request) {
+        console.error('Network error - no response received:', error.message);
+      } else {
+        console.error('Request setup error:', error.message);
+      }
+
       throw error;
     }
   },
@@ -129,8 +154,12 @@ export interface AlertListResponse {
 export const alertApi = {
   // Lấy cảnh báo đang hoạt động (chưa hết hạn)
   async getActiveAlerts(token?: string): Promise<IAlert[]> {
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     try {
-      const response = await axios.get<IAlert[]>(`${BACKEND_URL}/alert/active`, {
+      const response = await axios.get<IAlert[]>(`${baseUrl}/alert/active`, {
         headers: {
           Accept: 'application/json',
           ...(token && { Authorization: `Bearer ${token}` }),
@@ -146,8 +175,12 @@ export const alertApi = {
 
   // Lấy cảnh báo với bộ lọc và phân trang
   async getAlerts(params?: IAlertQueryParams, token?: string): Promise<AlertListResponse> {
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     try {
-      const response = await axios.get<AlertListResponse>(`${BACKEND_URL}/alert`, {
+      const response = await axios.get<AlertListResponse>(`${baseUrl}/alert`, {
         params: {
           page: params?.page ?? 1,
           limit: params?.limit ?? 20,
@@ -184,8 +217,12 @@ export const incidentApi = {
     params?: IIncidentQueryParams,
     token?: string,
   ): Promise<IncidentListResponse> {
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     try {
-      const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident/my-reports`, {
+      const response = await axios.get<IncidentListResponse>(`${baseUrl}/incident/my-reports`, {
         params: {
           page: params?.page ?? 1,
           limit: params?.limit ?? 50,
@@ -209,8 +246,12 @@ export const incidentApi = {
 
   // Lấy tất cả sự cố với bộ lọc
   async getIncidents(params?: IIncidentQueryParams, token?: string): Promise<IncidentListResponse> {
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     try {
-      const response = await axios.get<IncidentListResponse>(`${BACKEND_URL}/incident`, {
+      const response = await axios.get<IncidentListResponse>(`${baseUrl}/incident`, {
         params: {
           page: params?.page ?? 1,
           limit: params?.limit ?? 50,
@@ -244,9 +285,13 @@ export const userApi = {
    * @param token - JWT auth token (required)
    */
   async updateFcmToken(fcmToken: string, token: string): Promise<{ message: string }> {
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     try {
       const response = await axios.put<{ message: string }>(
-        `${BACKEND_URL}/users/fcm-token`,
+        `${baseUrl}/users/fcm-token`,
         { fcmToken },
         {
           headers: {
@@ -274,8 +319,12 @@ export const userApi = {
     if (!token) {
       throw new Error('Auth token is required to update push token');
     }
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     await axios.put(
-      `${BACKEND_URL}/users/fcm-token`,
+      `${baseUrl}/users/fcm-token`,
       { fcmToken: pushToken },
       {
         headers: {
@@ -296,9 +345,13 @@ export const userApi = {
     if (!token) {
       throw new Error('Auth token is required to update location');
     }
+    const baseUrl = getBackendUrl();
+    if (!baseUrl) {
+      throw new Error('Backend URL is not configured. Please check your .env file.');
+    }
     // Backend expects PATCH with { latitude, longitude }
     await axios.patch(
-      `${BACKEND_URL}/users/location`,
+      `${baseUrl}/users/location`,
       { latitude: location.lat, longitude: location.lon },
       {
         headers: {
