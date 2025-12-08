@@ -11,6 +11,23 @@ Hướng dẫn sử dụng các ứng dụng của Smart Forecast.
 
 ---
 
+## Luồng tương tác người dùng
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/user-flow.png')} alt="User Flow" className="screenshot" />
+  <figcaption className="screenshot-caption">Sơ đồ luồng tương tác giữa Người dùng (Mobile) và Quản lý (Web Portal)</figcaption>
+</figure>
+
+**Luồng chính:**
+
+1. **Thu thập dữ liệu:** Từ trạm quan trắc và OpenWeatherMap API
+2. **Phân tích & Giám sát:** Quản lý theo dõi trên Web Dashboard
+3. **Phát hiện sự cố:** Người dân gửi báo cáo từ Mobile App
+4. **Xử lý & Cảnh báo:** Quản lý tạo cảnh báo cho vùng ảnh hưởng
+5. **Thông báo:** Người dân nhận Push Notification và xem trên bản đồ
+
+---
+
 ## Web Dashboard (Admin/Manager)
 
 Dashboard web dành cho Admin và Manager để quản lý hệ thống.

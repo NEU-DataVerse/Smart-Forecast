@@ -14,8 +14,13 @@ Tổng quan về kiến trúc và các thành phần của Smart Forecast.
 ## Sơ đồ kiến trúc tổng thể
 
 <figure className="screenshot-container">
-  <img src={useBaseUrl('/img/architecture.png')} alt="Dashboard" className="screenshot" />
-  <figcaption className="screenshot-caption">Kiến trúc hệ thống</figcaption>
+  <img src={useBaseUrl('/img/archi-0.png')} alt="Architecture Overview" className="screenshot" />
+  <figcaption className="screenshot-caption">Sơ đồ kiến trúc tổng quan hệ thống Smart-Forecast</figcaption>
+</figure>
+
+<figure className="screenshot-container">
+  <img src={useBaseUrl('/img/architecture.png')} alt="Architecture Detail" className="screenshot" />
+  <figcaption className="screenshot-caption">Kiến trúc chi tiết các thành phần</figcaption>
 </figure>
 
 ```

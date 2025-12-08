@@ -195,7 +195,12 @@ Smart Forecast thu thập dữ liệu **chất lượng không khí (Air Quality
 ## 🏗️ Kiến trúc hệ thống
 
 <p align="center">
-  <img src="docs-site/static/img/architecture.png" alt="Smart Forecast Architecture" />
+  <img src="docs-site/static/img/archi-0.png" alt="Smart Forecast Architecture Diagram" width="100%"/>
+</p>
+<p align="center"><em>Sơ đồ kiến trúc tổng quan hệ thống Smart-Forecast</em></p>
+
+<p align="center">
+  <img src="docs-site/static/img/architecture.png" alt="Smart Forecast Architecture Detail" />
 </p>
 
 ```
@@ -238,6 +243,21 @@ smart-forecast/
 ├── docker-compose.yml
 └── pnpm-workspace.yaml
 ```
+
+### 🔄 Luồng Người Dùng (User Flow)
+
+<p align="center">
+  <img src="docs-site/static/img/user-flow.png" alt="User Flow Diagram" width="100%"/>
+</p>
+<p align="center"><em>Sơ đồ luồng tương tác giữa Người dùng (Mobile) và Quản lý (Web Portal)</em></p>
+
+**Luồng chính:**
+
+1. **Thu thập dữ liệu:** Từ trạm quan trắc và OpenWeatherMap API
+2. **Phân tích & Giám sát:** Quản lý theo dõi trên Web Dashboard
+3. **Phát hiện sự cố:** Người dân gửi báo cáo từ Mobile App
+4. **Xử lý & Cảnh báo:** Quản lý tạo cảnh báo cho vùng ảnh hưởng
+5. **Thông báo:** Người dân nhận Push Notification và xem trên bản đồ
 
 ---
 
