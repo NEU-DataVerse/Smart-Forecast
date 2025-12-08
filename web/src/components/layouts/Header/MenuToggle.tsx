@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 

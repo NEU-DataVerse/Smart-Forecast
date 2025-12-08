@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 /**
  * Station List Component
  * Displays list of stations with batch operations

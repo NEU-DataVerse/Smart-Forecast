@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 import { useTriggerCheck } from '@/hooks/useAlertQuery';

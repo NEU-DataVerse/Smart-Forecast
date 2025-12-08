@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { User, LogOut, Settings } from 'lucide-react';
 import {
   DropdownMenu,

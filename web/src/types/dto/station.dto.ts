@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 /**
  * Station DTOs
  * Copied from backend/src/modules/stations/dto

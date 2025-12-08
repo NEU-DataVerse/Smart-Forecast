@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { OpenWeatherMapProvider } from './providers/openweathermap.provider';
 import { OrionClientProvider } from './providers/orion-client.provider';

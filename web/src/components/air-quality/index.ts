@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 export { AQICard } from './AQICard';
 export { PollutantCard } from './PollutantCard';
 export { PollutantsGrid } from './PollutantsGrid';

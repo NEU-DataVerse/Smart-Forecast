@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Stack } from 'expo-router';
 import { Bell, AlertTriangle, ChevronRight } from 'lucide-react-native';

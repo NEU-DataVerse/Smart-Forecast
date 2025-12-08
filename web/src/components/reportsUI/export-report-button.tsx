@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 'use client';
 
 import { Download, FileText, FileSpreadsheet, ChevronDown, Loader2 } from 'lucide-react';

@@ -27,6 +27,8 @@
     "test:cov": "pnpm --filter backend run test:cov",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "license:check": "node scripts/add-license-header.js --check",
+    "license:add": "node scripts/add-license-header.js --fix",
     "clean": "pnpm -r run clean && rm -rf node_modules",
     "clean:cache": "pnpm store prune"
   },

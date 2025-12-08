@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OrionClientProvider } from '../../ingestion/providers/orion-client.provider';
 

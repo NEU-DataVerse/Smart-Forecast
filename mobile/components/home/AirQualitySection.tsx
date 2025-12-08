@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Activity, Droplets, MapPin } from 'lucide-react-native';

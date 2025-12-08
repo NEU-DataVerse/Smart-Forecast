@@ -48,6 +48,61 @@ bash scripts/migrate-env.sh
 - ✅ Tạo 4 file .env mới theo cấu trúc separated
 - ✅ Backup .env cũ thành .env.backup
 - ✅ Map biến môi trường đúng vị trí
+
+### 2. add-license-header.js
+
+**Mô tả:** Tự động thêm MIT License header vào các file source code
+
+**Sử dụng:**
+
+```bash
+# Kiểm tra files thiếu license header (không sửa)
+pnpm license:check
+
+# Thêm license header vào các files thiếu
+pnpm license:add
+```
+
+**Chức năng:**
+
+- ✅ Scan toàn bộ `.ts` và `.tsx` files trong backend, web, mobile, shared
+- ✅ Kiểm tra file đã có MIT License header chưa
+- ✅ Tự động thêm header nếu thiếu (khi dùng `--fix`)
+- ✅ Bảo toàn shebang lines (`#!/usr/bin/env node`)
+- ✅ Bỏ qua các file generated, config, và type definitions
+- ✅ Sử dụng `git ls-files` để chỉ xử lý tracked files
+- ✅ Báo cáo chi tiết: số file modified, skipped, errors
+
+**License Header Template:**
+
+```javascript
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+```
+
+**Files được xử lý:**
+
+- `backend/src/**/*.ts`
+- `web/src/**/*.{ts,tsx}`
+- `mobile/app/**/*.{ts,tsx}`
+- `mobile/components/**/*.{ts,tsx}`
+- `mobile/services/**/*.{ts,tsx}`
+- `mobile/hooks/**/*.{ts,tsx}`
+- `mobile/context/**/*.{ts,tsx}`
+- `mobile/store/**/*.{ts,tsx}`
+- `mobile/utils/**/*.{ts,tsx}`
+- `shared/src/**/*.ts`
+
+**Files bị loại trừ:**
+
+- `*.d.ts` (type definitions)
+- `*.config.{ts,js,mjs}` (config files)
+- `node_modules/`, `dist/`, `build/`, `.next/`, `.expo/`, `coverage/`
+
+---
+
 - ✅ Hướng dẫn next steps
 
 **Khi nào dùng:**

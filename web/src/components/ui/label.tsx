@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 

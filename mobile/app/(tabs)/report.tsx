@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,

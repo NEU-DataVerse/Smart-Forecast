@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 /**
  * Compare Stations Component
  * Displays weather comparison across multiple stations (admin only)

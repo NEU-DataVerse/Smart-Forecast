@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 /**
  * Air Quality API Service
  * Synced with backend/src/modules/air-quality/air-quality.controller.ts

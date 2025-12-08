@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { AlertLevel, AlertType, AlertMetric, ThresholdOperator } from '../constants';
 import { GeoPolygon, GeoPoint } from './geojson.types';
 

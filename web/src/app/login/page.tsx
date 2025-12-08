@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Suspense } from 'react';
 import { Loading } from '@/components/ui/loading';
 import { LoginForm } from '@/components/login/LoginForm';

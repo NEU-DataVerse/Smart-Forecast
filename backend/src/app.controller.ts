@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 

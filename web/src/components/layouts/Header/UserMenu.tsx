@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { useUserContext } from '@/context/userContext';
 import { UserAvatar } from './UserAvatar';
 import { UserMenuDropdown } from './UserMenuDropdown';

@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 export { WeatherMetricCard } from './WeatherMetricCard';
 export { WeatherCharts } from './WeatherCharts';
 export { WeatherTrends } from './WeatherTrends';

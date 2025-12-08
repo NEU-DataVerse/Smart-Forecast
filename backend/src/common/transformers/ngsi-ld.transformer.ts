@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 /**
  * NGSI-LD Transformer Utilities
  * Converts data from external APIs to NGSI-LD format

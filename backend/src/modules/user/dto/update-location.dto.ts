@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { IsNumber, IsNotEmpty, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

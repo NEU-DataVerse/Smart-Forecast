@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { IsOptional, IsString } from 'class-validator';
 import { IUpdateUser } from '@smart-forecast/shared';
 

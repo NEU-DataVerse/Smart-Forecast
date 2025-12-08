@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { IncidentType, IncidentStatus } from '../constants';
 import { GeoPoint } from './geojson.types';
 

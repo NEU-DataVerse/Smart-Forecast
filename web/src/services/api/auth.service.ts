@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { apiGet, apiPost } from '@/lib/api-client';
 import { ApiClient } from '@/services/axios';
 import { ILoginRequest, ILoginResponse, IUserProfile, UserRole } from '@smart-forecast/shared';

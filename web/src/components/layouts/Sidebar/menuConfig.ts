@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { LayoutDashboard, Cloud, Wind, AlertTriangle, Satellite, Megaphone } from 'lucide-react';
 import { MenuItem } from './types';
 

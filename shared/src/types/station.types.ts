@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 /**
  * Station (Weather/Air Quality Monitoring Location)
  * Based on updated source_data.json structure

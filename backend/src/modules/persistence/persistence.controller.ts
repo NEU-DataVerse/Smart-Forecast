@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Controller, Post, Body, Logger, HttpCode } from '@nestjs/common';
 import { PersistenceService } from './services/persistence.service';
 

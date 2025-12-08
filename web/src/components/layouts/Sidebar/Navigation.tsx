@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { usePathname, useRouter } from 'next/navigation';
 import { NavigationItem } from './NavigationItem';
 import { MenuItem } from './types';

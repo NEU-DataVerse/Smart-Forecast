@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { ReactNode } from 'react';
 import { Cloud, CloudRain, Sun, Wind } from 'lucide-react';
 interface AuthLayoutProps {

@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from 'react-native';
 import { Stack, router } from 'expo-router';

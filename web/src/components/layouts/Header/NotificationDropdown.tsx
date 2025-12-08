@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { useState, type ComponentType, type SVGProps } from 'react';
 import { Bell, Check, Trash2, FileText, Key, Database, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';

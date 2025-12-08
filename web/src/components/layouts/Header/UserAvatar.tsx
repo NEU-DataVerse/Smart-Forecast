@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface UserAvatarProps {

@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Logo } from './Logo';
 import { MenuToggle } from './MenuToggle';
 import { NotificationDropdown } from './NotificationDropdown';

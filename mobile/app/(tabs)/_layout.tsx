@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Tabs, useRouter, usePathname } from 'expo-router';
 import { Home, Map, FileText, Bell, User } from 'lucide-react-native';
 import React from 'react';

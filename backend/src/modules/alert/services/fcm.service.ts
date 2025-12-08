@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Injectable, Logger } from '@nestjs/common';
 import { FirebaseService } from './firebase.service';
 import * as admin from 'firebase-admin';

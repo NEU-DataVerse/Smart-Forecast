@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository, IsNull } from 'typeorm';
 import { StationEntity } from '../entities/station.entity';

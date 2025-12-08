@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2025 NEU-DataVerse
+ */
+
 import { AlertTriangle, Send, Users, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActiveAlerts, useAlerts } from '@/hooks/useAlertQuery';
