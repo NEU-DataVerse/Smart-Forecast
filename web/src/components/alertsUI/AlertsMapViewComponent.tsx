@@ -163,6 +163,67 @@ function FitBounds({ alerts }: { alerts: IAlert[] }) {
   return null;
 }
 
+// Component to add fullscreen control
+function FullscreenControl() {
+  const map = useMap();
+
+  useEffect(() => {
+    // Create custom fullscreen control
+    const FullscreenControlClass = L.Control.extend({
+      onAdd: function () {
+        const container = L.DomUtil.create(
+          'div',
+          'leaflet-bar leaflet-control leaflet-control-fullscreen',
+        );
+        const button = L.DomUtil.create('a', '', container);
+        button.innerHTML = '⛶';
+        button.href = '#';
+        button.title = 'Toàn màn hình';
+        button.style.fontSize = '18px';
+        button.style.lineHeight = '26px';
+        button.style.width = '26px';
+        button.style.height = '26px';
+        button.style.display = 'flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
+        button.setAttribute('role', 'button');
+        button.setAttribute('aria-label', 'Toàn màn hình');
+
+        L.DomEvent.on(button, 'click', function (e) {
+          L.DomEvent.stopPropagation(e);
+          L.DomEvent.preventDefault(e);
+
+          const mapContainer = map.getContainer().parentElement;
+          if (!mapContainer) return;
+
+          if (!document.fullscreenElement) {
+            mapContainer.requestFullscreen().catch((err) => {
+              console.error('Error attempting to enable fullscreen:', err);
+            });
+            button.innerHTML = '⛶';
+            button.title = 'Thoát toàn màn hình';
+          } else {
+            document.exitFullscreen();
+            button.innerHTML = '⛶';
+            button.title = 'Toàn màn hình';
+          }
+        });
+
+        return container;
+      },
+    });
+
+    const fullscreenControl = new FullscreenControlClass({ position: 'topright' });
+    map.addControl(fullscreenControl);
+
+    return () => {
+      map.removeControl(fullscreenControl);
+    };
+  }, [map]);
+
+  return null;
+}
+
 // Alert polygon component
 function AlertPolygon({ alert, onClick }: { alert: IAlert; onClick: (alert: IAlert) => void }) {
   const active = isAlertActive(alert);
@@ -282,6 +343,9 @@ export function AlertsMapViewComponent({
 
         {/* Fit bounds to alerts */}
         <FitBounds alerts={alertsWithArea} />
+
+        {/* Fullscreen control */}
+        <FullscreenControl />
       </MapContainer>
 
       {/* Legend */}

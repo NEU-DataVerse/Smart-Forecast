@@ -10,6 +10,7 @@ import { RefreshCw, Thermometer, Droplets, Wind, Gauge, CloudRain, Cloud } from 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
 import { StationSelector, LoadingState, ErrorState } from '@/components/shared';
 import {
   WeatherMetricCard,
@@ -25,6 +26,7 @@ import { ExportReportDialog } from '@/components/reportsUI/export-report-dialog'
 import { ReportType } from '@/types/dto/report.dto';
 import { useUserContext } from '@/context/userContext';
 import { UserRole } from '@smart-forecast/shared';
+import { DEFAULT_LAYER_OPACITY, MAX_ACTIVE_LAYERS } from '@/config/weather-layers';
 
 function getTemperatureColor(temp: number): string {
   if (temp <= 0) return '#3b82f6';
@@ -53,8 +55,68 @@ export default function WeatherPage() {
     endDate: new Date().toISOString(),
   });
 
+  // Weather layer state
+  const [activeLayers, setActiveLayers] = useState<string[]>([]);
+  const [layerOpacity, setLayerOpacity] = useState<number>(DEFAULT_LAYER_OPACITY);
+  const [failedLayers, setFailedLayers] = useState<string[]>([]);
+
   const { user } = useUserContext();
   const isAdmin = user?.role === UserRole.ADMIN;
+
+  // Load layer preferences from localStorage
+  useEffect(() => {
+    const savedPrefs = localStorage.getItem('weather-map-layers-prefs');
+    if (savedPrefs) {
+      try {
+        const { layers, opacity } = JSON.parse(savedPrefs);
+        if (Array.isArray(layers)) setActiveLayers(layers);
+        if (typeof opacity === 'number') setLayerOpacity(opacity);
+      } catch (error) {
+        console.error('Failed to load layer preferences:', error);
+      }
+    }
+  }, []);
+
+  // Save layer preferences to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      'weather-map-layers-prefs',
+      JSON.stringify({
+        layers: activeLayers,
+        opacity: layerOpacity,
+      }),
+    );
+  }, [activeLayers, layerOpacity]);
+
+  // Handle layer changes with max limit validation
+  const handleLayersChange = (newLayers: string[]) => {
+    if (newLayers.length > activeLayers.length && newLayers.length > MAX_ACTIVE_LAYERS) {
+      toast.warning(`Chỉ có thể bật tối đa ${MAX_ACTIVE_LAYERS} lớp cùng lúc`, {
+        description: 'Tắt một lớp để bật lớp khác',
+      });
+      return;
+    }
+    setActiveLayers(newLayers);
+  };
+
+  // Handle layer errors
+  const handleLayerError = (layerCode: string, error: Error) => {
+    console.error(`Layer ${layerCode} failed:`, error);
+    if (!failedLayers.includes(layerCode)) {
+      setFailedLayers([...failedLayers, layerCode]);
+      toast.error(`Không thể tải lớp ${layerCode}`, {
+        description: 'Kiểm tra API key hoặc thử lại sau',
+      });
+    }
+    // Remove failed layer from active layers
+    setActiveLayers((prev) => prev.filter((code) => code !== layerCode));
+  };
+
+  // Retry failed layer
+  const handleRetryLayer = (layerCode: string) => {
+    setFailedLayers((prev) => prev.filter((code) => code !== layerCode));
+    toast.info(`Đang thử tải lại lớp ${layerCode}...`);
+  };
 
   // Fetch all current weather data (for map)
   const {
@@ -173,7 +235,7 @@ export default function WeatherPage() {
       {/* Map + Station Selector Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Map View - 2/3 width */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 relative">
           {currentLoading && <LoadingState message="Đang tải dữ liệu thời tiết..." />}
           {currentError && (
             <ErrorState
@@ -182,12 +244,21 @@ export default function WeatherPage() {
             />
           )}
           {!currentLoading && !currentError && allCurrentData?.data && (
-            <WeatherMapView
-              data={allCurrentData.data}
-              selectedStationId={selectedStation}
-              onStationSelect={setSelectedStation}
-              height="500px"
-            />
+            <>
+              <WeatherMapView
+                data={allCurrentData.data}
+                selectedStationId={selectedStation}
+                onStationSelect={setSelectedStation}
+                height="500px"
+                activeLayers={activeLayers}
+                layerOpacity={layerOpacity}
+                onLayerError={handleLayerError}
+                onLayersChange={handleLayersChange}
+                onOpacityChange={setLayerOpacity}
+                failedLayers={failedLayers}
+                onRetryLayer={handleRetryLayer}
+              />
+            </>
           )}
         </div>
 

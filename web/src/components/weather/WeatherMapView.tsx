@@ -9,12 +9,21 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { WeatherDataResponse } from '@/types/dto/weather.dto';
+import { buildTileLayerUrl, getLayerByCode } from '@/config/weather-layers';
+import { WeatherLayerControl } from './WeatherLayerControl';
 
 interface WeatherMapViewProps {
   data: WeatherDataResponse[];
   selectedStationId?: string | null;
   onStationSelect: (stationId: string) => void;
   height?: string;
+  activeLayers?: string[];
+  layerOpacity?: number;
+  onLayerError?: (layerCode: string, error: Error) => void;
+  onLayersChange?: (layers: string[]) => void;
+  onOpacityChange?: (opacity: number) => void;
+  failedLayers?: string[];
+  onRetryLayer?: (layerCode: string) => void;
 }
 
 function getTemperatureColor(temp: number): string {
@@ -70,10 +79,23 @@ export function WeatherMapView({
   selectedStationId,
   onStationSelect,
   height = '500px',
+  activeLayers = [],
+  layerOpacity = 0.6,
+  onLayerError,
+  onLayersChange,
+  onOpacityChange,
+  failedLayers = [],
+  onRetryLayer,
 }: WeatherMapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<Map<string, maplibregl.Marker>>(new Map());
+  const weatherLayerIds = useRef<Set<string>>(new Set());
+  const layerControlContainer = useRef<HTMLDivElement | null>(null);
+  const layerControlRoot = useRef<{
+    render: (element: React.ReactElement) => void;
+    unmount: () => void;
+  } | null>(null);
 
   // Initialize map
   useEffect(() => {
@@ -106,14 +128,52 @@ export function WeatherMapView({
       zoom: 11,
     });
 
+    // Create custom control for layer panel (will be rendered via React)
+    if (onLayersChange && onOpacityChange) {
+      class LayerControl implements maplibregl.IControl {
+        private _container: HTMLDivElement | undefined;
+
+        onAdd() {
+          this._container = document.createElement('div');
+          this._container.className = 'maplibregl-ctrl';
+          this._container.style.margin = '0';
+          layerControlContainer.current = this._container;
+          return this._container;
+        }
+
+        onRemove() {
+          if (this._container?.parentNode) {
+            this._container.parentNode.removeChild(this._container);
+          }
+          layerControlContainer.current = null;
+        }
+      }
+
+      map.current.addControl(new LayerControl(), 'top-right');
+    }
+
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
+    // Add fullscreen control
+    map.current.addControl(new maplibregl.FullscreenControl(), 'top-right');
+
     const currentMarkers = markers.current;
     const currentMap = map.current;
+    const currentWeatherLayerIds = weatherLayerIds.current;
     return () => {
       currentMarkers.forEach((marker) => marker.remove());
       currentMarkers.clear();
+      // Remove weather layers
+      currentWeatherLayerIds.forEach((layerId) => {
+        if (currentMap?.getLayer(layerId)) {
+          currentMap.removeLayer(layerId);
+        }
+        if (currentMap?.getSource(layerId)) {
+          currentMap.removeSource(layerId);
+        }
+      });
+      currentWeatherLayerIds.clear();
       if (currentMap) {
         currentMap.remove();
         map.current = null;
@@ -185,6 +245,188 @@ export function WeatherMapView({
       });
     }
   }, [data, selectedStationId, onStationSelect]);
+
+  // Initialize layer control root once on mount
+  useEffect(() => {
+    const initializeLayerControl = async () => {
+      if (!layerControlContainer.current) return;
+
+      const { createRoot } = await import('react-dom/client');
+      const container = layerControlContainer.current;
+      if (!container || layerControlRoot.current) return;
+
+      layerControlRoot.current = createRoot(container);
+    };
+
+    initializeLayerControl();
+  }, []);
+
+  // Update layer control render when props change
+  useEffect(() => {
+    if (!layerControlRoot.current || !onLayersChange || !onOpacityChange) return;
+
+    layerControlRoot.current.render(
+      <WeatherLayerControl
+        activeLayers={activeLayers}
+        onLayersChange={onLayersChange}
+        opacity={layerOpacity}
+        onOpacityChange={onOpacityChange}
+        failedLayers={failedLayers}
+        onRetryLayer={onRetryLayer}
+      />,
+    );
+  }, [activeLayers, layerOpacity, failedLayers, onLayersChange, onOpacityChange, onRetryLayer]);
+
+  // Cleanup layer control on unmount
+  useEffect(() => {
+    return () => {
+      if (layerControlRoot.current) {
+        setTimeout(() => {
+          if (layerControlRoot.current) {
+            layerControlRoot.current.unmount();
+            layerControlRoot.current = null;
+          }
+        }, 0);
+      }
+    };
+  }, []);
+
+  // Manage weather layers
+  useEffect(() => {
+    if (!map.current) return;
+
+    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
+    if (!apiKey) {
+      console.warn('NEXT_PUBLIC_OPENWEATHERMAP_API_KEY is not set');
+      return;
+    }
+
+    const currentMap = map.current;
+
+    // Remove layers that are no longer active
+    weatherLayerIds.current.forEach((layerId) => {
+      if (!activeLayers.includes(layerId)) {
+        if (currentMap.getLayer(layerId)) {
+          currentMap.removeLayer(layerId);
+        }
+        if (currentMap.getSource(layerId)) {
+          currentMap.removeSource(layerId);
+        }
+        weatherLayerIds.current.delete(layerId);
+      }
+    });
+
+    // Add new layers
+    activeLayers.forEach((layerCode) => {
+      if (weatherLayerIds.current.has(layerCode)) {
+        // Layer already exists, update opacity
+        if (currentMap.getLayer(layerCode)) {
+          currentMap.setPaintProperty(layerCode, 'raster-opacity', layerOpacity);
+        }
+        return;
+      }
+
+      const layerConfig = getLayerByCode(layerCode);
+      if (!layerConfig) return;
+
+      try {
+        // Build tile URL with custom palette
+        const tileUrl = buildTileLayerUrl(layerCode, apiKey, {
+          opacity: layerOpacity,
+          palette: layerConfig.palette,
+          fillBound: true,
+          // Wind layer specific params
+          ...(layerCode === 'WND' && {
+            arrowStep: 32,
+            useNorm: false,
+          }),
+        });
+
+        // Add source
+        currentMap.addSource(layerCode, {
+          type: 'raster',
+          tiles: [tileUrl],
+          tileSize: 256,
+          attribution: '© OpenWeatherMap',
+        });
+
+        // Find the first marker layer to insert weather layers before it
+        const layers = currentMap.getStyle().layers;
+        let firstMarkerLayerId: string | undefined;
+
+        // Weather layers should be below markers but above base map
+        // Insert before the first symbol layer (if any)
+        for (const layer of layers || []) {
+          if (layer.type === 'symbol') {
+            firstMarkerLayerId = layer.id;
+            break;
+          }
+        }
+
+        // Add layer (below markers)
+        currentMap.addLayer(
+          {
+            id: layerCode,
+            type: 'raster',
+            source: layerCode,
+            paint: {
+              'raster-opacity': layerOpacity,
+            },
+          },
+          firstMarkerLayerId, // Insert before first symbol layer
+        );
+
+        weatherLayerIds.current.add(layerCode);
+
+        // Listen for tile errors with debouncing to avoid multiple triggers
+        let errorCount = 0;
+        const errorHandler = (e: { sourceId?: string; error?: Error }) => {
+          if (e.sourceId === layerCode) {
+            errorCount++;
+            console.warn(`[WeatherMap] Tile error for ${layerCode} (count: ${errorCount}):`, e);
+
+            // Only report as failed after multiple consecutive errors
+            // (Some tiles may temporarily fail but recover)
+            if (errorCount >= 3 && onLayerError) {
+              console.error(`[WeatherMap] Layer ${layerCode} failed after ${errorCount} errors`);
+              onLayerError(
+                layerCode,
+                new Error(
+                  `Failed to load tiles for ${layerCode}: ${e.error?.message || 'Network error'}`,
+                ),
+              );
+
+              // Remove failed layer
+              if (currentMap.getLayer(layerCode)) {
+                currentMap.removeLayer(layerCode);
+              }
+              if (currentMap.getSource(layerCode)) {
+                currentMap.removeSource(layerCode);
+              }
+              weatherLayerIds.current.delete(layerCode);
+
+              // Remove error listener after cleanup
+              currentMap.off('error', errorHandler);
+            }
+          }
+        };
+
+        currentMap.on('error', errorHandler);
+      } catch (error) {
+        console.error(`[WeatherMap] Failed to add weather layer ${layerCode}:`, error);
+        if (onLayerError) {
+          onLayerError(layerCode, error as Error);
+        }
+      }
+    });
+
+    // Update opacity for all active layers
+    weatherLayerIds.current.forEach((layerId) => {
+      if (currentMap.getLayer(layerId)) {
+        currentMap.setPaintProperty(layerId, 'raster-opacity', layerOpacity);
+      }
+    });
+  }, [activeLayers, layerOpacity, onLayerError]);
 
   // Fly to selected station
   useEffect(() => {
