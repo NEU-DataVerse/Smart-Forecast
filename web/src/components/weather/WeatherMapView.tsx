@@ -92,7 +92,10 @@ export function WeatherMapView({
   const markers = useRef<Map<string, maplibregl.Marker>>(new Map());
   const weatherLayerIds = useRef<Set<string>>(new Set());
   const layerControlContainer = useRef<HTMLDivElement | null>(null);
-  const layerControlRoot = useRef<any>(null);
+  const layerControlRoot = useRef<{
+    render: (element: React.ReactElement) => void;
+    unmount: () => void;
+  } | null>(null);
 
   // Initialize map
   useEffect(() => {
@@ -256,7 +259,6 @@ export function WeatherMapView({
     };
 
     initializeLayerControl();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update layer control render when props change
@@ -378,7 +380,7 @@ export function WeatherMapView({
 
         // Listen for tile errors with debouncing to avoid multiple triggers
         let errorCount = 0;
-        const errorHandler = (e: any) => {
+        const errorHandler = (e: { sourceId?: string; error?: Error }) => {
           if (e.sourceId === layerCode) {
             errorCount++;
             console.warn(`[WeatherMap] Tile error for ${layerCode} (count: ${errorCount}):`, e);

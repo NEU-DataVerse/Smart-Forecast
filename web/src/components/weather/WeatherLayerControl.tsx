@@ -34,7 +34,6 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import {
-  WEATHER_LAYERS,
   LAYER_CATEGORIES,
   MAX_ACTIVE_LAYERS,
   getLayersByCategory,
