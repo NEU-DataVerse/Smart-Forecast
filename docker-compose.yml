@@ -168,6 +168,7 @@ services:
         # Build-time environment variables for Next.js
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8010/api/v1}
         - NEXT_PUBLIC_MINIO_URL=${NEXT_PUBLIC_MINIO_URL:-http://localhost:8012}
+        - NEXT_PUBLIC_OPENWEATHERMAP_API_KEY=${NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}
     ports:
       - '8011:3000'
     environment:
